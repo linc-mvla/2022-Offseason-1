@@ -197,7 +197,19 @@ void Shooter::periodic(double yaw)
     double hoodAngle, velocity, turretOffset, partDer, distance;
     //frc::SmartDashboard::PutBoolean("found target", swerveDrive->foundGoal());
 
-    distance = limelight_->calcDistance();
+    if(prevDistance_ == -1 || !limelight_->hasTarget() || abs(swerveDrive_->getGoalXVel()) > 0.01 || abs(swerveDrive_->getGoalYVel()) > 0.01 || !turret_.isAimed())
+    {
+        distance = limelight_->calcDistance();
+        prevDistance_ = distance;
+    }
+    else
+    {
+        distance = prevDistance_;
+    }
+
+    double swerveDistance = swerveDrive_->getDistance(turret_.getAngle());
+    frc::SmartDashboard::PutNumber("SDistance", swerveDistance);
+    
     frc::SmartDashboard::PutNumber("Distance", distance);
 
     //distance = frc::SmartDashboard::GetNumber("InDist", -1); //Comment out below stuff if using
@@ -361,9 +373,12 @@ void Shooter::periodic(double yaw)
             turret_.setState(Turret::TRACKING);
             //turret_.setState(Turret::MANUAL);
 
-            flywheelMaster_.SetVoltage(units::volt_t (0));
             kickerMotor_.SetVoltage(units::volt_t(0));
-            dewindIntegral();
+
+            flywheelMaster_.SetVoltage(units::volt_t (0));
+            //units::volt_t volts {calcFlyPID(velocity)};
+            //flywheelMaster_.SetVoltage(volts);
+            //dewindIntegral();
 
             //unloadStarted_ = false;
             //unloadShooting_ = false;
@@ -585,18 +600,20 @@ double Shooter::calcFlyVolts(double velocity)
     {
         setTrajectoryVel_ = velocity;
         double vel = flyTrajectoryCalc_.getVelProfile().second;
+        //double vel = flywheelMaster_.GetSelectedSensorVelocity() * 10;
         flyTrajectoryCalc_.generateVelTrajectory(setTrajectoryVel_, vel);
     }
     if(!initTrajectory_)
     {
         initTrajectory_ = true;
-        double vel = flywheelMaster_.GetSelectedSensorVelocity();
+        setTrajectoryVel_ = velocity;
+        double vel = flywheelMaster_.GetSelectedSensorVelocity() * 10;
         flyTrajectoryCalc_.generateVelTrajectory(velocity, vel);
     }
 
     if(initTrajectory_)
     {
-        double vel = flywheelMaster_.GetSelectedSensorVelocity();
+        double vel = flywheelMaster_.GetSelectedSensorVelocity() * 10;
         volts = flyTrajectoryCalc_.calcVelPower(vel);
     }
     else

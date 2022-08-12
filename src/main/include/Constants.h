@@ -22,6 +22,7 @@ namespace GeneralConstants
     const double Kv = ((FREE_SPEED * 2 * M_PI) / 60 ) / (MAX_VOLTAGE - FREE_CURRENT * RESISTANCE);
 
     const double GOAL_HEIGHT = 2.641;
+    const double GOAL_RADIUS = 0.6096;
 
     const double HANGAR_X = -4; //-4, -8
     const double HANGAR_Y = -8;
@@ -35,8 +36,8 @@ namespace LimelightConstants
     const double ANGLE_OFFSET = 32; //49.5 from 0 at top (90-49.5), 30
     const double HEIGHT_OFFSET = 0.7874; //0.533, 0.7874
     const double TURRET_ANGLE_OFFSET = 7; //5.0, 4?
-    const double TURRET_CENTER_RADIUS = 0.229; //TODO get value
-    const double ROBOT_TURRET_CENTER_DISTANCE = 0.1524; //TODO get value
+    const double TURRET_CENTER_RADIUS = 0.127;
+    const double ROBOT_TURRET_CENTER_DISTANCE = 0.127;
     const double LIMELIGHT_TO_BALL_CENTER_DIST = -0.2032; //TODO get more precise, -0.1145, -0.2032?
 }
 
@@ -86,15 +87,15 @@ namespace OutputConstants
 
 namespace SwerveConstants
 {
-    const double WIDTH = 29; 
+    const double WIDTH = 29; //Change to 22 
     const double LENGTH = 29;
     const double TREAD_RADIUS = 0.0508; //TODO get value
     const double DRIVE_GEAR_RATIO = 1/6.12; //TODO get direction
 
-    const double trPosAngle = atan2((SwerveConstants::WIDTH/2), (SwerveConstants::LENGTH/2));
-    const double tlPosAngle = -trPosAngle;
-    const double brPosAngle = 180 - trPosAngle;
-    const double blPosAngle = trPosAngle - 180;
+    //const double trPosAngle = atan2((SwerveConstants::WIDTH/2), (SwerveConstants::LENGTH/2));
+    //const double tlPosAngle = -trPosAngle;
+    //const double brPosAngle = 180 - trPosAngle;
+    //const double blPosAngle = trPosAngle - 180;
 
     const int TR_DRIVE_ID = 13;
     const int TL_DRIVE_ID = 11;
@@ -120,6 +121,18 @@ namespace SwerveConstants
     const double MAX_LV = 2;
     const double MAX_AA = 180;
     const double MAX_AV = 360;
+
+    const double klV = 0;
+    const double klVI = 0;
+    const double klA = 0;
+    const double klP = 0;
+    const double klD = 0;
+
+    const double kaV = 0;
+    const double kaVI = 0;
+    const double kaA = 0;
+    const double kaP = 0;
+    const double kaD = 0;
 
 }
 

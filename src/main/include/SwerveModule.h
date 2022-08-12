@@ -19,8 +19,8 @@ class SwerveModule
     public:
         SwerveModule(int turnID, int driveID, int cancoderID, double offset);
 
-        void periodic(double driveSpeed, double angle);
-        void move(double driveSpeed, double angle);
+        void periodic(double driveSpeed, double angle, bool inVolts);
+        void move(double driveSpeed, double angle, bool inVolts);
 
         double calcAngPID(double setAngle);
         double calcDrivePID(double driveSpeed);

@@ -84,6 +84,7 @@ class Shooter
         bool hasMaps_  = false;
         double mapPoints_ = 0;
         double rangeAdjustment_ = 0;
+        double prevDistance_;
 
         State state_;
 

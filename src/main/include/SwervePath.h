@@ -28,7 +28,7 @@ class SwervePath
         void generateSplineTrajectory();
         void addPoint(SwervePose point);
 
-        SwervePose getPose(double time, bool& end);
+        SwervePose* getPose(double time, bool& end);
 
         //tuple<double, double, double> getPosition();
         //pair<double, double> getVelocity();

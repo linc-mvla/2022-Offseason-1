@@ -3,6 +3,7 @@
 Channel::Channel()
 {
     ballCount_ = 0;
+    ballsShot_ = 0;
     seeingBall_ = false;
 }
 
@@ -91,6 +92,11 @@ int Channel::getBallCount()
     return ballCount_;
 }
 
+int Channel::getBallsShot()
+{
+    return ballsShot_;
+}
+
 void Channel::increaseBallCount()
 {
     if(ballCount_ < GeneralConstants::MAX_BALL_COUNT)
@@ -104,6 +110,7 @@ void Channel::decreaseBallCount()
     if(ballCount_ > 0)
     {
         --ballCount_;
+        ++ballsShot_;
     }
 }
 
@@ -121,6 +128,11 @@ void Channel::setBallCount(int ballCount)
     {
         ballCount_ = ballCount;
     }
+}
+
+void Channel::setBallsShot(int ballsShot)
+{
+    ballsShot_ = ballsShot;
 }
 
 void Channel::setSeeingBall(bool seeingBall)

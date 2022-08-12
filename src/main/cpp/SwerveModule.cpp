@@ -14,16 +14,16 @@ SwerveModule::SwerveModule(int turnID, int driveID, int cancoderID, double offse
     cancoder_.ClearStickyFaults();//TODO check what this actually does
 }
 
-void SwerveModule::periodic(double driveSpeed, double angle)
+void SwerveModule::periodic(double driveSpeed, double angle, bool inVolts)
 {
     double time = timer_.GetFPGATimestamp().value();
     dT_ = time - prevTime_;
     prevTime_ = time;
     
-    move(driveSpeed, angle);
+    move(driveSpeed, angle, inVolts);
 }
 
-void SwerveModule::move(double driveSpeed, double angle)
+void SwerveModule::move(double driveSpeed, double angle, bool inVolts)
 {
     //frc::SmartDashboard::PutNumber(id_ + " Wanted speed", driveSpeed);
     //frc::SmartDashboard::PutNumber(id_ + " Wanted angle", angle);
@@ -66,6 +66,17 @@ void SwerveModule::move(double driveSpeed, double angle)
     }*/
 
     //turnMotor_.SetVoltage(units::volt_t(4));
+
+    // double rawError = angle - getAngle();
+    // if(abs(rawError) > 90)
+    // {
+    //     direction_ = -1;
+    // }
+    // else
+    // {
+    //     direction_ = 1;
+    // }
+
     //1, 3.77, 95.49, 95.49
     //2, 0.91, 395.60, 197.8
     //3, 0.55, 654.54, 218.18
@@ -77,8 +88,16 @@ void SwerveModule::move(double driveSpeed, double angle)
     //turnMotor_.SetVoltage(units::volt_t(frc::SmartDashboard::GetNumber("smiv", 0)));
     //frc::SmartDashboard::PutNumber(id_ + " Turn volts", turnVolts.value());
 
-    units::volt_t driveVolts{direction_ * calcDrivePID(driveSpeed)};
-    driveMotor_.SetVoltage(driveVolts);
+    if(inVolts)
+    {
+        driveMotor_.SetVoltage(units::volt_t(direction_ * driveSpeed));
+    }
+    else
+    {
+        units::volt_t driveVolts{direction_ * calcDrivePID(driveSpeed)};
+        driveMotor_.SetVoltage(driveVolts);
+    }
+    
     //frc::SmartDashboard::PutNumber(id_ + " Drive volts", driveVolts.value());
 
     frc::SmartDashboard::PutNumber(id_ + " VEL", cancoder_.GetVelocity());

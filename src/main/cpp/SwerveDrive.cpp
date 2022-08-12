@@ -1,8 +1,10 @@
 #include "SwerveDrive.h"
 
-SwerveDrive::SwerveDrive(Limelight* limelight)
+SwerveDrive::SwerveDrive(Limelight *limelight)
 {
     limelight_ = limelight;
+    autoX_ = 0;
+    autoY_ = 0;
 }
 
 void SwerveDrive::setYaw(double yaw)
@@ -10,7 +12,7 @@ void SwerveDrive::setYaw(double yaw)
     yaw_ = yaw;
 }
 
-void SwerveDrive::periodic(double yaw, Controls* controls)
+void SwerveDrive::periodic(double yaw, Controls *controls)
 {
     setYaw(yaw);
     drive(controls->getXStrafe(), controls->getYStrafe(), controls->getTurn());
@@ -32,41 +34,79 @@ void SwerveDrive::drive(double xSpeed, double ySpeed, double turn)
     bottomRight_->setD(d);
     bottomLeft_->setD(d);*/
 
-    //calcOdometry();
-    calcModules(xSpeed, ySpeed, turn);
+    // calcOdometry();
+    calcModules(xSpeed, ySpeed, turn, false);
 
-    topRight_->periodic(trSpeed_, trAngle_);
-    topLeft_->periodic(tlSpeed_, tlAngle_);
-    bottomRight_->periodic(brSpeed_, brAngle_);
-    bottomLeft_->periodic(blSpeed_, blAngle_);
-
+    topRight_->periodic(trSpeed_, trAngle_, false);
+    topLeft_->periodic(tlSpeed_, tlAngle_, false);
+    bottomRight_->periodic(brSpeed_, brAngle_, false);
+    bottomLeft_->periodic(blSpeed_, blAngle_, false);
 }
 
 void SwerveDrive::drivePose(double yaw, SwervePose pose)
 {
     setYaw(yaw);
+    
+    double time = timer_.GetFPGATimestamp().value();
+    dT_ = time - prevTime_;
+    prevTime_ = time;
 
+    double frX = -topRight_->getDriveVelocity() * sin(topRight_->getAngle() * M_PI / 180);
+    double frY = topRight_->getDriveVelocity() * cos(topRight_->getAngle() * M_PI / 180);
+    double flX = -topLeft_->getDriveVelocity() * sin(topLeft_->getAngle() * M_PI / 180);
+    double flY = topLeft_->getDriveVelocity() * cos(topLeft_->getAngle() * M_PI / 180);
+    double brX = -bottomRight_->getDriveVelocity() * sin(bottomRight_->getAngle() * M_PI / 180);
+    double brY = bottomRight_->getDriveVelocity() * cos(bottomRight_->getAngle() * M_PI / 180);
+    double blX = -bottomLeft_->getDriveVelocity() * sin(bottomLeft_->getAngle() * M_PI / 180);
+    double blY = bottomLeft_->getDriveVelocity() * cos(bottomLeft_->getAngle() * M_PI / 180);
 
+    double avgX = (frX + flX + brX + blX) / 4;
+    double avgY = (frY + flY + brY + blY) / 4;
+
+    double angle = yaw_ * M_PI / 180;
+
+    double rotatedX = avgX * cos(angle) + avgY * -sin(angle);
+    double rotatedY = avgX * sin(angle) + avgY * cos(angle);
+
+    autoX_ += rotatedX * dT_;
+    autoY_ += rotatedY * dT_;
+    
+    double xVel = pose.getXVel();
+    double yVel = pose.getYVel();
+    xVel += (pose.getX() - autoX_) * SwerveConstants::klP + pose.getXAcc() * SwerveConstants::klA;
+    yVel += (pose.getY() - autoY_) * SwerveConstants::klP + pose.getYAcc() * SwerveConstants::klA;
+
+    double yawVel = pose.getYawVel();
+    yawVel += (pose.getYaw() - (-yaw_)) * SwerveConstants::kaP + pose.getYawAcc() * SwerveConstants::kaA;
+    
+    calcModules(xVel, yVel, yawVel, true);
+    
+    topRight_->periodic(trSpeed_, trAngle_, true);
+    topLeft_->periodic(tlSpeed_, tlAngle_, true);
+    bottomRight_->periodic(brSpeed_, brAngle_, true);
+    bottomLeft_->periodic(blSpeed_, blAngle_, true);
 }
 
-void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn)
+void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool inVolts)
 {
     double angle = yaw_ * M_PI / 180;
 
     double newX = xSpeed * cos(angle) + ySpeed * sin(angle);
     double newY = ySpeed * cos(angle) + xSpeed * -sin(angle);
 
-    double A = newX - (turn);
-    double B = newX + (turn);
-    double C = newY - (turn);
-    double D = newY + (turn);
+    double turnComponent = sqrt(turn * turn / 2);
 
-    trSpeed_ = sqrt(B*B + C*C);
-    tlSpeed_ = sqrt(B*B + D*D);
-    brSpeed_ = sqrt(A*A + C*C);
-    blSpeed_ = sqrt(A*A + D*D);
+    double A = newX - (turnComponent);
+    double B = newX + (turnComponent);
+    double C = newY - (turnComponent);
+    double D = newY + (turnComponent);
 
-    if(xSpeed != 0 || ySpeed != 0 || turn != 0)
+    trSpeed_ = sqrt(B * B + C * C);
+    tlSpeed_ = sqrt(B * B + D * D);
+    brSpeed_ = sqrt(A * A + C * C);
+    blSpeed_ = sqrt(A * A + D * D);
+
+    if (xSpeed != 0 || ySpeed != 0 || turn != 0)
     {
         trAngle_ = -atan2(B, C) * 180 / M_PI;
         tlAngle_ = -atan2(B, D) * 180 / M_PI;
@@ -74,7 +114,22 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn)
         blAngle_ = -atan2(A, D) * 180 / M_PI;
     }
 
-    if(trSpeed_ > 1 || tlSpeed_ > 1 || brSpeed_ > 1 || brSpeed_ > 1)
+    double maxSpeed;
+    if(inVolts)
+    {
+        trSpeed_ = (trSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        tlSpeed_ = (tlSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        brSpeed_ = (brSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        blSpeed_ = (blSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+
+        maxSpeed = GeneralConstants::MAX_VOLTAGE;
+    }
+    else
+    {
+        maxSpeed = 1;
+    }
+
+    if (trSpeed_ > maxSpeed || tlSpeed_ > maxSpeed || brSpeed_ > maxSpeed || brSpeed_ > maxSpeed)
     {
         double max = trSpeed_;
 
@@ -86,6 +141,14 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn)
         tlSpeed_ = (tlSpeed_ / max);
         brSpeed_ = (brSpeed_ / max);
         blSpeed_ = (blSpeed_ / max);
+
+        if(inVolts)
+        {
+            trSpeed_ *= GeneralConstants::MAX_VOLTAGE;
+            tlSpeed_ *= GeneralConstants::MAX_VOLTAGE;
+            brSpeed_ *= GeneralConstants::MAX_VOLTAGE;
+            blSpeed_ *= GeneralConstants::MAX_VOLTAGE;
+        }
     }
 }
 
@@ -94,10 +157,10 @@ void SwerveDrive::calcOdometry(double turretAngle)
     double time = timer_.GetFPGATimestamp().value();
     dT_ = time - prevTime_;
     prevTime_ = time;
-    
-    //resetGoalOdometry(turretAngle); //TODO change into this function if it works?
 
-    if(!limelight_->hasTarget() && !foundGoal_)
+    // resetGoalOdometry(turretAngle); //TODO change into this function if it works?
+
+    if (!limelight_->hasTarget() && !foundGoal_)
     {
         return;
     }
@@ -114,21 +177,24 @@ void SwerveDrive::calcOdometry(double turretAngle)
     double avgX = (frX + flX + brX + blX) / 4;
     double avgY = (frY + flY + brY + blY) / 4;
 
-    //frc::SmartDashboard::PutNumber("XVEL", avgX);
-    //frc::SmartDashboard::PutNumber("YVEL", avgY);
+    // frc::SmartDashboard::PutNumber("XVEL", avgX);
+    // frc::SmartDashboard::PutNumber("YVEL", avgY);
 
     double angle = yaw_ * M_PI / 180;
-    
+
     double rotatedX = avgX * cos(angle) + avgY * -sin(angle);
     double rotatedY = avgX * sin(angle) + avgY * cos(angle);
 
-    if(limelight_->hasTarget())
-    {   
-        double distance = limelight_->calcDistance() + 0.6096; //Origin at goal center
+    robotX_ += rotatedX * dT_;
+    robotY_ += rotatedY * dT_;
+
+    if (limelight_->hasTarget())
+    {
+        double distance = limelight_->calcDistance() + GeneralConstants::GOAL_RADIUS; // Origin at goal center
         robotGoalAngle_ = (180 - (turretAngle + limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET));
         double angleToGoal = yaw_ + robotGoalAngle_ + 90;
-        x_ = -distance * cos(angleToGoal * M_PI / 180);
-        y_ = -distance * sin(angleToGoal * M_PI / 180);
+        limelightX_ = -distance * cos(angleToGoal * M_PI / 180);
+        limelightY_ = -distance * sin(angleToGoal * M_PI / 180);
 
         double turretLimelightAngle = turretAngle - 180;
         Helpers::normalizeAngle(turretLimelightAngle);
@@ -141,46 +207,54 @@ void SwerveDrive::calcOdometry(double turretAngle)
         double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
         double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
 
-        x_ -= robotLimelightX;
-        y_ -= robotLimelightY;
+        limelightX_ -= robotLimelightX;
+        limelightY_ -= robotLimelightY;
 
-        if(!foundGoal_)
+        if (!foundGoal_)
         {
             foundGoal_ = true;
-            smoothX_ = x_;
-            smoothY_ = y_;
-            smoothWheelX_ = x_;
-            smoothWheelY_ = y_;
+            robotX_ = limelightX_;
+            robotY_ = limelightY_;
+            // smoothX_ = limelightX_;
+            // smoothY_ = limelightY_;
+            // smoothWheelX_ = limelightX_;
+            // smoothWheelY_ = limelightY_;
+        }
+        else
+        {
+            double dX = limelightX_ - robotX_;
+            double dY = limelightY_ - robotY_;
+
+            
+            //TODO, change weight based on velocity?
+            robotX_ += dX * 0.05;
+            robotY_ += dY * 0.05;
         }
 
-        //TODO average with wheel velocity?
-        double transWX = ((x_ - smoothX_) + (rotatedX * dT_)) / 2;
-        double transWY = ((y_ - smoothY_) + (rotatedY * dT_)) / 2;
+        // TODO average with wheel velocity?
+        //  double transWX = ((limelightX_ - smoothX_) + (rotatedX * dT_)) / 2;
+        //  double transWY = ((limelightY_ - smoothY_) + (rotatedY * dT_)) / 2;
 
-        double transX = x_ - smoothX_;
-        double transY = y_ - smoothY_;
+        // double transX = limelightX_ - smoothX_;
+        // double transY = limelightY_ - smoothY_;
 
-        smoothWheelX_ *= 0.95;
-        smoothWheelX_ += 0.05 * transWX;
+        // smoothWheelX_ *= 0.95;
+        // smoothWheelX_ += 0.05 * transWX;
 
-        smoothWheelY_ *= 0.95;
-        smoothWheelY_ += 0.05 * transWY;
+        // smoothWheelY_ *= 0.95;
+        // smoothWheelY_ += 0.05 * transWY;
 
-        smoothX_ *= 0.95;
-        smoothX_ += 0.05 * transX;
+        // smoothX_ *= 0.95;
+        // smoothX_ += 0.05 * transX;
 
-        smoothY_ *= 0.95;
-        smoothY_ += 0.05 * transY;
-
+        // smoothY_ *= 0.95;
+        // smoothY_ += 0.05 * transY;
     }
     else
     {
-        x_ += rotatedX * dT_;
-        y_ += rotatedY * dT_;
-
-        if(x_ != 0 || y_ != 0)
+        if (robotX_ != 0 || robotY_ != 0)
         {
-            robotGoalAngle_ = -yaw_ - 90 + atan2(-y_, -x_) * 180 / M_PI;
+            robotGoalAngle_ = -yaw_ - 90 + atan2(-robotY_, -robotX_) * 180 / M_PI;
         }
         else
         {
@@ -190,10 +264,10 @@ void SwerveDrive::calcOdometry(double turretAngle)
 
     Helpers::normalizeAngle(robotGoalAngle_);
 
-    frc::SmartDashboard::PutNumber("x", x_);
-    frc::SmartDashboard::PutNumber("y", y_);
+    frc::SmartDashboard::PutNumber("x", robotX_);
+    frc::SmartDashboard::PutNumber("y", robotY_);
 
-    //frc::SmartDashboard::PutNumber("RGA", robotGoalAngle_);
+    // frc::SmartDashboard::PutNumber("RGA", robotGoalAngle_);
     goalXVel_ = avgX * cos(robotGoalAngle_ * M_PI / 180) + avgY * sin(robotGoalAngle_ * M_PI / 180);
     goalYVel_ = avgX * -sin(robotGoalAngle_ * M_PI / 180) + avgY * cos(robotGoalAngle_ * M_PI / 180);
 
@@ -201,7 +275,7 @@ void SwerveDrive::calcOdometry(double turretAngle)
     goalAngle += 360 * 10;
     goalAngle = ((int)floor(goalAngle) % 360) + (goalAngle - floor(goalAngle));
     goalAngle -= 360 * floor(goalAngle / 360 + 0.5);
-    
+
     goalAngle = goalAngle * M_PI / 180;
 
     goalXVel_ = avgX * cos(goalAngle) + avgY * -sin(goalAngle);
@@ -229,11 +303,10 @@ void SwerveDrive::calcOdometry(double turretAngle)
 
 void SwerveDrive::reset()
 {
-    x_ = 0;
-    y_ = 0;
-    //goalX_ = 0;
-    //goalY_ = 0;
-    //yawOffset_ = 0;
+    robotX_ = 0;
+    robotY_ = 0;
+    autoX_ = 0;
+    autoY_ = 0;
     foundGoal_ = false;
 }
 
@@ -241,7 +314,7 @@ double SwerveDrive::getRobotGoalAng()
 {
     /*if(foundGoal_)
     {
-        
+
         double robotGoalAng = -yaw_ - yawOffset_;
 
         robotGoalAng += 360 * 10;
@@ -254,8 +327,33 @@ double SwerveDrive::getRobotGoalAng()
     {
         return 0;
     }*/
-    
+
     return robotGoalAngle_;
+}
+
+double SwerveDrive::getDistance(double turretAngle)
+{
+    if (!limelight_->hasTarget())
+    {
+        return -1;
+    }
+
+
+    double turretLimelightAngle = turretAngle - 180;
+    Helpers::normalizeAngle(turretLimelightAngle);
+    turretLimelightAngle = turretLimelightAngle * M_PI / 180;
+    double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
+    double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
+
+    turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
+
+    double angle = yaw_ * M_PI / 180;
+    double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
+    double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
+
+    double limelightToGoalX = robotX_ + robotLimelightX;
+    double limelightTtoGoalY = robotY_ + robotLimelightY;
+    return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY) - GeneralConstants::GOAL_RADIUS;
 }
 
 bool SwerveDrive::foundGoal()
@@ -270,33 +368,33 @@ void SwerveDrive::setFoundGoal(bool foundGoal)
 
 double SwerveDrive::getX()
 {
-    return x_;
+    return robotX_;
 }
 
 double SwerveDrive::getY()
 {
-    return y_;
+    return robotY_;
 }
 
-double SwerveDrive::getSmoothX()
-{
-    return smoothX_;
-}
+// double SwerveDrive::getSmoothX()
+// {
+//     return smoothX_;
+// }
 
-double SwerveDrive::getSmoothY()
-{
-    return smoothY_;
-}
+// double SwerveDrive::getSmoothY()
+// {
+//     return smoothY_;
+// }
 
-double SwerveDrive::getSWX()
-{
-    return smoothWheelX_;
-}
+// double SwerveDrive::getSWX()
+// {
+//     return smoothWheelX_;
+// }
 
-double SwerveDrive::getSWY()
-{
-    return smoothWheelY_;
-}
+// double SwerveDrive::getSWY()
+// {
+//     return smoothWheelY_;
+// }
 
 /*double SwerveDrive::getGoalX()
 {
@@ -308,7 +406,7 @@ double SwerveDrive::getGoalY()
     return goalY_;
 }*/
 
-double SwerveDrive::getGoalXVel() //TODO implement limelight distance if math works?
+double SwerveDrive::getGoalXVel() // TODO implement limelight distance if math works?
 {
     /*if(limelight_->calcDistance() != -1)
     {
@@ -327,7 +425,6 @@ double SwerveDrive::getGoalXVel() //TODO implement limelight distance if math wo
 
     frc::SmartDashboard::PutNumber("RGXV", goalXVel_);
     return goalXVel_;
-
 }
 
 double SwerveDrive::getGoalYVel()

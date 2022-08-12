@@ -361,7 +361,7 @@ void SwervePath::addPoint(SwervePose point)
     points_.push_back(point);
 }
 
-SwervePose SwervePath::getPose(double time, bool& end)
+SwervePose* SwervePath::getPose(double time, bool& end)
 {
     double trajectoryTime = 0;
     int trajectory = trajectories_.size() - 1;
@@ -377,5 +377,5 @@ SwervePose SwervePath::getPose(double time, bool& end)
         }
     }
     
-    return trajectories_[trajectory].getPose(time - trajectoryTime);
+    return new SwervePose(trajectories_[trajectory].getPose(time - trajectoryTime));
 }

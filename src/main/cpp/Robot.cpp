@@ -8,18 +8,15 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-Robot::Robot()
+Robot::Robot() : autoPaths_(channel_)
 {
-    timer.Start();
 
     AddPeriodic(
         [&]
         {
             //autoPaths_.periodic(swerveDrive_);
 
-            //timer.Reset();
-            //cout << timer.GetFPGATimestamp().value() << endl;
-            double yaw = navx_->GetYaw() + yawOffset_;
+            double yaw = navx_->GetYaw() - yawOffset_;
             Helpers::normalizeAngle(yaw);
 
             shooter_->periodic(-yaw);
@@ -100,6 +97,7 @@ void Robot::RobotPeriodic()
 void Robot::AutonomousInit()
 {
     climb_.setPneumatics(false, false);
+    climbTimer_.Start();
 
     AutoPaths::Path path = autoChooser_.GetSelected();
     //m_autoSelected = frc::SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
@@ -109,7 +107,7 @@ void Robot::AutonomousInit()
     navx_->ZeroYaw();
     yawOffset_ = autoPaths_.initYaw();
 
-    //TODO reset odometry
+    swerveDrive_->reset();
 
     autoPaths_.startTimer();
 
@@ -118,6 +116,14 @@ void Robot::AutonomousInit()
 void Robot::AutonomousPeriodic()
 {
     limelight_->lightOn(true);
+    if(climbTimer_.Get().value() < 0.15)
+    {
+        climb_.extendArms(3);
+    }
+    else
+    {
+        climb_.stop();
+    }
 
     Intake::State intakeState = autoPaths_.getIntakeState();
     Shooter::State shooterState = autoPaths_.getShooterState();

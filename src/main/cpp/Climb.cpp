@@ -91,7 +91,8 @@ void Climb::extendArms(double power)
 {
     //frc::SmartDashboard::PutNumber("CP", gearboxMaster_.GetSelectedSensorPosition());
     //frc::SmartDashboard::PutNumber("CC", gearboxMaster_.GetSupplyCurrent());
-    gearboxMaster_.SetVoltage(units::volt_t(power)); //TODO check if slave motor spins as well
+    std::clamp(power, -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE);
+    gearboxMaster_.SetVoltage(units::volt_t(power)); 
 }
 
 void Climb::stop()
