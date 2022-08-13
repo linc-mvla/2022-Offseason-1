@@ -28,7 +28,7 @@ Robot::Robot() : autoPaths_(channel_)
             }
             else
             {
-                swerveDrive_->periodic(yaw, controls_);
+               // swerveDrive_->periodic(yaw, controls_);
             }
         }, 5_ms, 2_ms);
 
@@ -184,6 +184,19 @@ void Robot::TeleopPeriodic()
 {
     controls_->periodic();
     frc::SmartDashboard::PutBoolean("Climb Mode", controls_->getClimbMode());
+
+    double dx = controls_->getXStrafe();
+    double dy = controls_->getYStrafe();
+    double dtheta = controls_->getTurn();
+    joy_val_to_mps(dx);
+    joy_val_to_mps(dy);
+    joy_rot_to_rps(dtheta);
+
+    swerveDrive_->Periodic(
+        units::meters_per_second_t{dy},
+        units::meters_per_second_t{dx},
+        units::radians_per_second_t{0.7*dtheta}, 
+        units::degree_t{navx_->GetYaw()});
 
     if(controls_->fieldOrient())
     {

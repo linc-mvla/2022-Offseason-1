@@ -160,7 +160,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             }
         }
 
-        swerveDrive->drivePose(yaw, *pose);
+     //   swerveDrive->drivePose(yaw, *pose);
 
         delete pose;
     }
@@ -173,11 +173,11 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         shooterState_ = Shooter::IDLE;
         if (timer_.Get().value() < 2.0) // TODO get values
         {
-            swerveDrive->drive(0, 0.2, 0);
+       //     swerveDrive->drive(0, 0.2, 0);
         }
         else
         {
-            swerveDrive->drive(0, 0, 0);
+        //    swerveDrive->drive(0, 0, 0);
         }
         break;
     }
@@ -187,11 +187,11 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         {
             intakeState_ = Intake::INTAKING;
             shooterState_ = Shooter::TRACKING;
-            swerveDrive->drive(0, 0.2, 0);
+         //   swerveDrive->drive(0, 0.2, 0);
         }
         else
         {
-            swerveDrive->drive(0, 0, 0);
+         //   swerveDrive->drive(0, 0, 0);
             shooterState_ = Shooter::REVING;
         }
         break;

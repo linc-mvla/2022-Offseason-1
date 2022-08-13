@@ -3,6 +3,7 @@
 #include <iostream>
 #include <math.h>
 #include "Constants.h"
+#include <frc/geometry/Pose2d.h>
 
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableInstance.h"
@@ -21,6 +22,8 @@ class Limelight{
 
         void adjustAngles(double& x, double& y);
         double calcDistance();
+
+        frc::Pose2d getPose(double navx, double turretAngle);
 
         void lightOn(bool light);
         std::shared_ptr<nt::NetworkTable> GetNetworkTable();

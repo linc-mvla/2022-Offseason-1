@@ -46,7 +46,7 @@ private:
     Limelight* limelight_ = new Limelight();
 
     Controls* controls_ = new Controls();
-    SwerveDrive* swerveDrive_ = new SwerveDrive(limelight_);
+    SwerveDrive* swerveDrive_ = new SwerveDrive(navx_, limelight_);
     Channel* channel_ = new Channel();
     Shooter* shooter_ = new Shooter(limelight_, swerveDrive_, channel_);
     Intake intake_;
@@ -58,6 +58,10 @@ private:
     //Logger* flywheelLogger_ = new Logger(OutputConstants::flywheelFile);
     Logger* hoodLogger_ = new Logger(OutputConstants::hoodFile);
     //Logger* turretLogger_ = new Logger(OutputConstants::turretFile);
+
+    //subject to adjustment
+    void joy_val_to_mps(double& val) { val *= 4; }
+    void joy_rot_to_rps(double& rot) { rot *= 3*2*M_PI; }
 
     frc::Timer climbTimer_;
 

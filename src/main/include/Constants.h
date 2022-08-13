@@ -33,6 +33,8 @@ namespace GeneralConstants
 
 namespace LimelightConstants
 {
+    const double CAM_ANGLE = 40; //todo: remove
+    //todo: angle offset what?
     const double ANGLE_OFFSET = 32; //49.5 from 0 at top (90-49.5), 30
     const double HEIGHT_OFFSET = 0.7874; //0.533, 0.7874
     const double TURRET_ANGLE_OFFSET = 7; //5.0, 4?
@@ -97,25 +99,39 @@ namespace SwerveConstants
     //const double brPosAngle = 180 - trPosAngle;
     //const double blPosAngle = trPosAngle - 180;
 
-    const int TR_DRIVE_ID = 13;
-    const int TL_DRIVE_ID = 11;
-    const int BR_DRIVE_ID = 18;
-    const int BL_DRIVE_ID = 15;
+   //Absolute Encoder offsets
+    const double FLOFF = 107.9;
+    const double FROFF = -161.6;
+    const double BLOFF = -10.5 + 180;
+    const double BROFF = 18.0 + 180;
 
-    const int TR_TURN_ID = 14;
-    const int TL_TURN_ID = 12;
-    const int BR_TURN_ID = 17;
-    const int BL_TURN_ID = 16;
+    //Ports for Back Right Swerve Module - SwerveDrive.h
+    const int BRanglePort = 17;
+    const int BRspeedPort = 18;
+    const int BRencoder = 8;
 
-    const int TR_CANCODER_ID = 62;
-    const int TL_CANCODER_ID = 10;
-    const int BR_CANCODER_ID = 8;
-    const int BL_CANCODER_ID = 42;
-    
-    const double TR_CANCODER_OFFSET = 19.77;
-    const double TL_CANCODER_OFFSET = -70.048 + 180;
-    const double BR_CANCODER_OFFSET = 17.5 + 180;
-    const double BL_CANCODER_OFFSET = 176.39 + 180;
+    //Ports for Back Left Swerve Module - SwerveDrive.h
+    const int BLanglePort = 16;
+    const int BLspeedPort = 15;
+    const int BLencoder = 42;
+
+    //Ports for Front Right Swerve Module - SwerveDrive.h
+    const int FRanglePort = 14;
+    const int FRspeedPort = 13;
+    const int FRencoder = 62;
+
+    //Ports for Front Left Swerve Module - SwerveDrive.h
+    const int FLanglePort = 12;
+    const int FLspeedPort = 11;
+    const int FLencoder = 10;
+
+    const double P = 0.08;
+    const double I = 0.1;
+    const double D = 0.0;
+
+    const double sP = 0.08;
+    const double sI = 0.1;
+    const double sD = 0.0;
 
     const double MAX_LA = 1;
     const double MAX_LV = 2;
