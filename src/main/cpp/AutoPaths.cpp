@@ -3,6 +3,7 @@
 AutoPaths::AutoPaths(Channel *channel) : channel_(channel)
 {
     pathNum_ = 0;
+    dumbTimerStarted_ = false;
 }
 
 void AutoPaths::setPath(Path path)
@@ -11,6 +12,7 @@ void AutoPaths::setPath(Path path)
     pathNum_ = 0;
     swervePaths_.clear();
     nextPathReady_ = false;
+    dumbTimerStarted_ = false;
 
     switch (path_)
     {
@@ -164,6 +166,13 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
 
         delete pose;
     }
+    else
+    {
+        if(!dumbTimerStarted_)
+        {
+            timer_.Start();
+        }
+    }
 
     switch (path_)
     {
@@ -183,9 +192,9 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     }
     case TWO_DUMB:
     {
+        intakeState_ = Intake::INTAKING;
         if (timer_.Get().value() < 2.0) // TODO get values
         {
-            intakeState_ = Intake::INTAKING;
             shooterState_ = Shooter::TRACKING;
             swerveDrive->drive(0, 0.2, 0);
         }

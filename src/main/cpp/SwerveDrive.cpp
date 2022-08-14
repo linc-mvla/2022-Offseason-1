@@ -95,6 +95,10 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool in
     double newY = ySpeed * cos(angle) + xSpeed * -sin(angle);
 
     double turnComponent = sqrt(turn * turn / 2);
+    if(turn < 0)
+    {
+        turnComponent *= -1;
+    }
 
     double A = newX - (turnComponent);
     double B = newX + (turnComponent);
