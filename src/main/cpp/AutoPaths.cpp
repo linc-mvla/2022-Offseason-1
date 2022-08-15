@@ -164,11 +164,15 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
 
         swerveDrive->drivePose(yaw, *pose);
 
-        delete pose;
+        if(pose != nullptr)
+        {
+            delete pose;
+        }
+        
     }
     else
     {
-        if(!dumbTimerStarted_)
+        if (!dumbTimerStarted_)
         {
             timer_.Start();
         }
@@ -275,6 +279,77 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     }
     case BIG_BOY:
     {
+        intakeState_ = Intake::INTAKING;
+        if (!endOfSwervePath)
+        {
+            shooterState_ = Shooter::TRACKING;
+        }
+        else
+        {
+            if(pathNum_ != 2)
+            {
+                shooterState_ = Shooter::REVING;
+            }
+            else
+            {
+                shooterState_ = Shooter::TRACKING;
+            }
+            switch (pathNum_)
+            {
+            case 0:
+            {
+                if (!failsafeStarted_)
+                {
+                    failsafeStarted_ = true;
+                    failsafeTimer_.Start();
+                }
+
+                if (failsafeTimer_.Get().value() > 3 || channel_->getBallsShot() > 1)
+                {
+                    failsafeTimer_.Stop();
+                    channel_->setBallsShot(0);
+                    nextPathReady_ = true;
+                }
+                break;
+            }
+            case 1:
+            {
+                if (!failsafeStarted_)
+                {
+                    failsafeStarted_ = true;
+                    failsafeTimer_.Start();
+                }
+
+                if (failsafeTimer_.Get().value() > 2 || channel_->getBallsShot() > 0)
+                {
+                    failsafeTimer_.Stop();
+                    channel_->setBallsShot(0);
+                    nextPathReady_ = true;
+                }
+                break;
+            }
+            case 2:
+            {
+                if (!failsafeStarted_)
+                {
+                    failsafeStarted_ = true;
+                    failsafeTimer_.Start();
+                }
+
+                if (failsafeTimer_.Get().value() > 2)
+                {
+                    failsafeTimer_.Stop();
+                    nextPathReady_ = true;
+                }
+                break;
+            }
+            case 3:
+            {
+                shooterState_ = Shooter::REVING;
+                break;
+            }
+            }
+        }
         break;
     }
     }

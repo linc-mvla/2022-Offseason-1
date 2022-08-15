@@ -25,7 +25,8 @@ class SwerveDrive
 
         void calcModules(double xSpeed, double ySpeed, double turn, bool inVolts);
 
-        void calcOdometry(double turretAngle);
+        void calcOdometry();
+        void calcOdometry(double turretAngle, bool inAuto);
         //void resetGoalOdometry(double turretAngle);
         void reset();
         bool foundGoal();

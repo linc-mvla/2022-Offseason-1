@@ -59,7 +59,7 @@ void SwervePath::generateTrajectory(bool spline)
 void SwervePath::generateLinearTrajectory()
 {
     trajectories_.clear();
-    for(int i = 0; i < points_.size() - 1; ++i)
+    for(size_t i = 0; i < points_.size() - 1; ++i)
     {
         SwervePose p1 = points_[i];
         SwervePose p2 = points_[i + 1];

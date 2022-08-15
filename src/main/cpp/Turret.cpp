@@ -46,6 +46,7 @@ void Turret::periodic(double yaw, double offset)
     case MANUAL:
     {
         turretMotor_.SetVoltage(units::volt_t(manualVolts_));
+        swerveDrive_->setFoundGoal(false);
         // frc::SmartDashboard::PutNumber("TX", limelight_->getAdjustedX());
         //  frc::SmartDashboard::PutNumber("TV", turretMotor_.GetSelectedSensorVelocity());
         //  calcError(); //for printing values
@@ -187,7 +188,7 @@ void Turret::calcUnloadAng()
 
 double Turret::calcAngularFF()
 {
-    double rff = -yawVel_ / 82;
+    //double rff = -yawVel_ / 82;
 
     if (abs(yawVel_) < 5)
     {
