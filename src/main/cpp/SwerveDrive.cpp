@@ -79,6 +79,7 @@ frc::ChassisSpeeds SwerveDrive::getRobotSpeeds() {
   return speeds;
 }
 
+//probably will get replaced with limelight (cause this assumes turret is aimed at goal?) once averaging fixes fluctuation
 double SwerveDrive::getDistance(double turretAngle)
 {
     if (!limelight_->hasTarget())
@@ -124,20 +125,8 @@ void SwerveDrive::updateLimelightOdom(double turretAngle, bool inAuto)
         limelightX_ = limelightPose.X().value();
         limelightY_ = limelightPose.Y().value();
 
-        double turretLimelightAngle = turretAngle - 180;
-        frc::InputModulus(turretLimelightAngle, -180.0, 180.0);
-        turretLimelightAngle = turretLimelightAngle * M_PI / 180;
-        double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
-        double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
-
-        turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
-
-        double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
-        double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
-
-        limelightX_ -= robotLimelightX;
-        limelightY_ -= robotLimelightY;
-
+        
+        //TODO do averaging
         if(!foundGoal_)
         {
             foundGoal_ = true;
@@ -159,7 +148,7 @@ void SwerveDrive::updateLimelightOdom(double turretAngle, bool inAuto)
 
     }
 
-
+    //TODO: get robot goal ang??
     frc::InputModulus(robotGoalAngle_, -180.0, 180.0);
 
     //frc::SmartDashboard::PutNumber("RGA", robotGoalAngle_);

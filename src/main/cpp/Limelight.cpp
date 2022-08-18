@@ -4,6 +4,8 @@
 
 Limelight::Limelight(){
     table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+    std::function<void(const nt::EntryNotification& event)> lambda = [this] (nt::EntryNotification event) {lastUpdated = frc::Timer::GetFPGATimestamp().value(); };
+    table->GetEntry("llpython").AddListener(lambda, nt::EntryListenerFlags::kNew | nt::EntryListenerFlags::kUpdate);
 }
 
 //moved distance calculator to shooter calc

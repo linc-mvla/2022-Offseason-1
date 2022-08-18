@@ -5,7 +5,6 @@
 #include "SwerveDrive.h"
 #include "Intake.h"
 #include "Shooter.h"
-#include "SwervePath.h"
 #include "Channel.h"
 #include "Constants.h"
 #include <vector>
@@ -46,7 +45,7 @@ class AutoPaths
         double startTime_;
         bool nextPathReady_, failsafeStarted_, dumbTimerStarted_;
 
-        vector<SwervePath> swervePaths_;
+  //      vector<SwervePath> swervePaths_;
         int pathNum_;
         //SwervePath swervePath_;
         //SwervePath swervePath_(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV)

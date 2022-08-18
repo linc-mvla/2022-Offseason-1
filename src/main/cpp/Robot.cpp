@@ -24,7 +24,7 @@ Robot::Robot() : autoPaths_(channel_)
 
             if(frc::DriverStation::IsAutonomous())
             {
-                autoPaths_.periodic(yaw, swerveDrive_);
+            //    autoPaths_.periodic(yaw, swerveDrive_);
             }
             else
             {
@@ -100,17 +100,17 @@ void Robot::AutonomousInit()
     climb_.setPneumatics(false, false);
     climbTimer_.Start();
 
-    AutoPaths::Path path = autoChooser_.GetSelected();
+  //  AutoPaths::Path path = autoChooser_.GetSelected();
     //m_autoSelected = frc::SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
     //fmt::print("Auto selected: {}\n", m_autoSelected);
-    autoPaths_.setPath(path);
+  //  autoPaths_.setPath(path);
 
     navx_->ZeroYaw();
-    yawOffset_ = autoPaths_.initYaw();
+ //   yawOffset_ = autoPaths_.initYaw();
 
     swerveDrive_->reset();
 
-    autoPaths_.startTimer();
+ //   autoPaths_.startTimer();
 
 }
 
@@ -126,21 +126,21 @@ void Robot::AutonomousPeriodic()
         climb_.stop();
     }
 
-    Intake::State intakeState = autoPaths_.getIntakeState();
-    Shooter::State shooterState = autoPaths_.getShooterState();
+    // Intake::State intakeState = autoPaths_.getIntakeState();
+    // Shooter::State shooterState = autoPaths_.getShooterState();
 
     if(channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING)
     {
-        shooterState = Shooter::UNLOADING;
+     //   shooterState = Shooter::UNLOADING;
     }
 
-    if((shooterState == Shooter::REVING || shooterState == Shooter::UNLOADING) && intakeState != Intake::INTAKING)
-    {
-        intakeState = Intake::LOADING;
-    }
+    // if((shooterState == Shooter::REVING || shooterState == Shooter::UNLOADING) && intakeState != Intake::INTAKING)
+    // {
+    //     intakeState = Intake::LOADING;
+    // }
 
-    intake_.setState(autoPaths_.getIntakeState());
-    shooter_->setState(autoPaths_.getShooterState());
+    // intake_.setState(autoPaths_.getIntakeState());
+    // shooter_->setState(autoPaths_.getShooterState());
     
     /*double yaw = navx_->GetYaw() - yawOffset_;
     frc::InputModulus(yaw, -180, 180);

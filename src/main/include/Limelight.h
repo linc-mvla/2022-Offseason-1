@@ -7,7 +7,8 @@
 
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableInstance.h"
-
+#include <networktables/EntryListenerFlags.h>
+#include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 
@@ -30,6 +31,8 @@ class Limelight{
 
     private:
         void ReadPeriodicIn();
+
+        double lastUpdated = 0;
 
         std::shared_ptr<nt::NetworkTable> table;
         std::string tableName = "limelight";

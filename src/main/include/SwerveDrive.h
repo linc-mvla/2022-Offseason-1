@@ -6,7 +6,6 @@
 #include "Controls.h"
 #include "Constants.h"
 #include "Limelight.h"
-#include "SwervePose.h"
 #include <AHRS.h>
 #include <frc/kinematics/SwerveDriveOdometry.h>
 #include "SwerveModule.h"
@@ -28,10 +27,6 @@ class SwerveDrive
         void updateOdometry(frc::Rotation2d robotAngle, frc::Pose2d robotPose) { odometry_->ResetPosition(robotPose, robotAngle); }
 
         wpi::array<frc::SwerveModuleState, 4> getRealModuleStates(); //real as upposed to goal
-
-
-        void drive(double xSpeed, double ySpeed, double turn);
-        void drivePose(double yaw, SwervePose pose);
 
         void calcModules(double xSpeed, double ySpeed, double turn);
 
