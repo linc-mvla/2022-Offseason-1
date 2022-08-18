@@ -69,6 +69,7 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic() 
 {
+
     alliance_ = frc::DriverStation::GetAlliance();
     
     if(alliance_ == frc::DriverStation::Alliance::kBlue)
@@ -154,6 +155,9 @@ void Robot::AutonomousPeriodic()
 
 void Robot::TeleopInit()
 {
+
+    limelight_->getXOff();
+
     controls_->setClimbMode(false);
     //autoPaths_.stopTimer();
 
@@ -197,6 +201,8 @@ void Robot::TeleopPeriodic()
         units::meters_per_second_t{dx},
         units::radians_per_second_t{0.7*dtheta}, 
         units::degree_t{navx_->GetYaw()});
+
+    std::cout << "after after swerve\n"; 
 
     if(controls_->fieldOrient())
     {
@@ -365,6 +371,8 @@ void Robot::TeleopPeriodic()
     shooter_->setTurretManualVolts(controls_->getTurretManual());
     
     intake_.periodic();
+
+     std::cout << "end\n"; 
 }
 
 void Robot::DisabledInit()

@@ -26,15 +26,6 @@ wpi::array<frc::SwerveModuleState, 4> SwerveDrive::getRealModuleStates() {
 void SwerveDrive::Periodic(units::meters_per_second_t dx, units::meters_per_second_t dy, units::radians_per_second_t dtheta, 
 units::degree_t navx_yaw) {
 
-  //in mps, not joystck units
-  if (abs(dy.value()) < 0.5) dy = units::meters_per_second_t{0};
-  if (abs(dx.value()) < 0.5) dx = units::meters_per_second_t{0};
-
-  frc::SmartDashboard::PutNumber("Dx", dx.value());
-  frc::SmartDashboard::PutNumber("Dy", dy.value());
-  frc::SmartDashboard::PutNumber("Dtheta", dtheta.value());
-  frc::SmartDashboard::PutNumber("navx yaw", navx_yaw.value());
-
   //converts field-relative joystick input to robot-relative speeds
   speeds_ = frc::ChassisSpeeds::FromFieldRelativeSpeeds(
     dx, dy, dtheta, frc::Rotation2d(navx_yaw));
@@ -53,12 +44,17 @@ units::degree_t navx_yaw) {
 
 
  //command each swerve motor
+  std::cout << "before fl\n";
  //TODO: fix weird thing with speed if drivers complain or we have time
   flModule_.setAngMotorVoltage( std::clamp(
       angPID_.Calculate(flModule_.getYaw(), fl_opt.angle.Degrees().value()),
       -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE) );
 
+       std::cout << "after ang\n";
+
   flModule_.setSpeedMotor( 0.2*std::clamp(fl_opt.speed.value(), -1.0, 1.0) );
+
+  std::cout << "after fl\n";
 
   frModule_.setAngMotorVoltage( std::clamp(
       angPID_.Calculate(frModule_.getYaw(), fr_opt.angle.Degrees().value()),
@@ -66,17 +62,23 @@ units::degree_t navx_yaw) {
 
   frModule_.setSpeedMotor( 0.2*std::clamp(fr_opt.speed.value(), -1.0, 1.0) );
 
+  std::cout << "after fr\n";
+
   blModule_.setAngMotorVoltage( std::clamp(
       angPID_.Calculate(blModule_.getYaw(), bl_opt.angle.Degrees().value()),
       -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE) );
 
   blModule_.setSpeedMotor( 0.2*std::clamp(bl_opt.speed.value(), -1.0, 1.0) );
 
+  std::cout << "after bl\n";
+
   brModule_.setAngMotorVoltage( std::clamp(
       angPID_.Calculate(brModule_.getYaw(), br_opt.angle.Degrees().value()),
       -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE) );
 
   brModule_.setSpeedMotor( 0.2*std::clamp(br_opt.speed.value(), -1.0, 1.0) );
+
+  std::cout << "after srt\n";
 
 }
 
@@ -113,6 +115,7 @@ double SwerveDrive::getDistance(double turretAngle)
     double limelightToGoalX = getX() + robotLimelightX;
     double limelightTtoGoalY = getY() + robotLimelightY;
     return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY) - GeneralConstants::GOAL_RADIUS;
+
 }
 
 void SwerveDrive::updateLimelightOdom(double turretAngle)

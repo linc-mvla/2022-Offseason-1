@@ -11,14 +11,22 @@ Limelight::Limelight(){
 //Return the X offset to the target
 double
 Limelight::getXOff(){
-    return table->GetNumber("tx", 10000.0);
+    nt::NetworkTableEntry e = table->GetEntry("llpython");
+    std::vector<double> point = e.GetDoubleArray({});
+
+    if (point.size() == 0) return -1;
+    return point[0];
 }
 
 
 //Return the y offset to the target
 double
 Limelight::getYOff(){
-    return table->GetNumber("ty", 10000.0);
+    nt::NetworkTableEntry e = table->GetEntry("llpython");
+    std::vector<double> point = e.GetDoubleArray({});
+
+    if (point.size() == 0)  return -1;
+    return point[1];
 }
 
 
@@ -79,8 +87,8 @@ frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
    // frc::SmartDashboard::PutNumber("distance", distance);
     // frc::SmartDashboard::PutNumber("robotGoalAngle", robotGoalAngle_);
     // frc::SmartDashboard::PutNumber("angleToGoal", angleToGoal);
-    // frc::SmartDashboard::PutNumber("Pose x", x);
-    // frc::SmartDashboard::PutNumber("Pose y", y);
+    frc::SmartDashboard::PutNumber("Pose x", x);
+    frc::SmartDashboard::PutNumber("Pose y", y);
 
 
     // std::vector<double> v = network_table->GetNumberArray("tcornxy", wpi::span<double, std::size_t{0}>{});
