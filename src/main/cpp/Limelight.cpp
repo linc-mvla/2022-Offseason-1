@@ -168,10 +168,12 @@ Limelight::angleToCoords(double ax, double ay, double targetHeight) {
 
     // apply transformations to 3d vector (compensate for pitch) -> rotate down by camera pitch
     // multiply [x, y, z] vector by rotation matrix around x-axis
-    double theta = -GeneralConstants::cameraPitch * M_PI / 180; // for testing
-    x = x*1 + y*0 + z*0; // technically not necessary, but just for understandability
-    y = x*0 + y*cos(theta) + z*(-sin(theta));
-    z = x*0 + y*sin(theta) + z*cos(theta);
+    double theta = -GeneralConstants::cameraPitch * M_PI / 180; // convert to radians
+    double newX = x*1 + y*0 + z*0; // technically not necessary, but just for understandability
+    double newY = x*0 + y*cos(theta) + z*(-sin(theta));
+    double newZ = x*0 + y*sin(theta) + z*cos(theta);
+
+    x = newX; y = newY; z = newZ;
 
     // denormalize coordinates via known height
     double scale = (targetHeight - GeneralConstants::cameraHeight) / y;    
@@ -388,14 +390,16 @@ Limelight::getCoords() {
     std::vector<LL3DCoordinate> coords = std::vector<LL3DCoordinate> ();
 
     for (int i = 0; i < corners.size(); i++) {
-        // TODO: get this to work
-        // corners[i] = sortCorners(corners[i]);
+        corners[i] = sortCorners(corners[i]);
 
         // if (corners[i].size() != 4) {
         //     std::cout << "Something went wrong... rectangle array corners is: " << corners[i].size();
         // }
 
         for (int j = 0; j < corners[i].size(); j++) {
+            if (corners[i][j].first == -1 || corners[i][j].second == -1) {
+                continue;
+            }
             std::pair<double, double> anglePair = pixelsToAngle(corners[i][j].first, corners[i][j].second);
             coords.push_back(
                 angleToCoords(
