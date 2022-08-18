@@ -44,7 +44,7 @@ class AutoPaths
         frc::Timer timer_;
         frc::Timer failsafeTimer_;
         double startTime_;
-        bool nextPathReady_, failsafeStarted_;
+        bool nextPathReady_, failsafeStarted_, dumbTimerStarted_;
 
         vector<SwervePath> swervePaths_;
         int pathNum_;

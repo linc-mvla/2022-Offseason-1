@@ -1,4 +1,5 @@
 #include "SwervePath.h"
+#include <frc/MathUtil.h>
 
 SwervePath::SwervePath(double maxLA, double maxLV, double maxAA, double maxAV) : MAX_LA(maxLA), MAX_LV(maxLV), MAX_AA(maxAA), MAX_AV(maxAV)
 {
@@ -59,7 +60,7 @@ void SwervePath::generateTrajectory(bool spline)
 void SwervePath::generateLinearTrajectory()
 {
     trajectories_.clear();
-    for(int i = 0; i < points_.size() - 1; ++i)
+    for(size_t i = 0; i < points_.size() - 1; ++i)
     {
         SwervePose p1 = points_[i];
         SwervePose p2 = points_[i + 1];
@@ -73,7 +74,7 @@ void SwervePath::generateLinearTrajectory()
             yawDist = totalLinearDist;
         }
         double dyaw = p2.getYaw() - p1.getYaw();
-        Helpers::normalizeAngle(dyaw);
+        frc::InputModulus(dyaw, -180.0, 180.0);
         int yawDirection = (dyaw > 0) ? 1 : -1;
         dyaw = abs(dyaw);
 

@@ -7,7 +7,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-
+#include <frc/MathUtil.h>
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/DriverStation.h>

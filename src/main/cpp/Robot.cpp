@@ -17,7 +17,7 @@ Robot::Robot() : autoPaths_(channel_)
             //autoPaths_.periodic(swerveDrive_);
 
             double yaw = navx_->GetYaw() - yawOffset_;
-            Helpers::normalizeAngle(yaw);
+            frc::InputModulus(yaw, -180.0, 180.0);
 
             shooter_->periodic(-yaw);
             climb_.periodic(navx_->GetRoll());
@@ -143,7 +143,7 @@ void Robot::AutonomousPeriodic()
     shooter_->setState(autoPaths_.getShooterState());
     
     /*double yaw = navx_->GetYaw() - yawOffset_;
-    Helpers::normalizeAngle(yaw);
+    frc::InputModulus(yaw, -180, 180);
 
     //swerveDrive_->periodic(yaw, controls_);
     swerveDrive_->setYaw(yaw);
@@ -362,7 +362,7 @@ void Robot::TeleopPeriodic()
     //frc::SmartDashboard::PutNumber("yaw", navx_->GetYaw());
 
     /*double yaw = navx_->GetYaw() - yawOffset_;
-    Helpers::normalizeAngle(yaw);
+    frc::InputModulus(yaw, -180, 180);
 
     swerveDrive_->periodic(yaw, controls_);
     shooter_->periodic(-yaw);

@@ -46,6 +46,7 @@ void Turret::periodic(double yaw, double offset)
     case MANUAL:
     {
         turretMotor_.SetVoltage(units::volt_t(manualVolts_));
+        swerveDrive_->setFoundGoal(false);
         // frc::SmartDashboard::PutNumber("TX", limelight_->getAdjustedX());
         //  frc::SmartDashboard::PutNumber("TV", turretMotor_.GetSelectedSensorVelocity());
         //  calcError(); //for printing values
@@ -182,12 +183,12 @@ void Turret::calcUnloadAng()
     }
 
     unloadAngle_ = 180 + angToHangar - yaw_;
-    Helpers::normalizeAngle(unloadAngle_);
+    frc::InputModulus(unloadAngle_, -180.0, 180.0);
 }
 
 double Turret::calcAngularFF()
 {
-    double rff = -yawVel_ / 82;
+    //double rff = -yawVel_ / 82;
 
     if (abs(yawVel_) < 5)
     {
@@ -248,7 +249,7 @@ double Turret::calcError()
     else
     {
         double wantedTurretAng = (180 - swerveDrive_->getRobotGoalAng()) + offset_;
-        Helpers::normalizeAngle(wantedTurretAng);
+        frc::InputModulus(wantedTurretAng, -180.0, 180.0);
 
         error = wantedTurretAng - getAngle();
     }
@@ -260,7 +261,7 @@ double Turret::calcError()
     else
     {
         double wantedGoalAng = (180 - swerveDrive_->getRobotGoalAng());
-        Helpers::normalizeAngle(wantedGoalAng);
+        frc::InputModulus(wantedGoalAng, -180.0, 180.0);
 
         goalError = wantedGoalAng - getAngle();
     }
@@ -352,7 +353,7 @@ double Turret::calcPID()
 void Turret::setInPos(double pos)
 {
     inPos_ = pos;
-    Helpers::normalizeAngle(inPos_);
+    frc::InputModulus(inPos_, -180.0, 180.0);
 }
 
 double Turret::calcProfileVolts()
@@ -377,7 +378,7 @@ double Turret::calcProfileVolts()
     }
 
     // double inPos = frc::SmartDashboard::GetNumber("InT", getAngle());
-    // Helpers::normalizeAngle(inPos);
+    // frc::InputModulus(inPos. -180.0, 180.0);
     // error = inPos - getAngle();
     // setPos = inPos;
 

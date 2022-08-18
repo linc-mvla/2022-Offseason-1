@@ -7,7 +7,6 @@
 #include <string.h>
 #include "Controls.h"
 #include "Constants.h"
-#include "Helpers.h"
 #include "TrajectoryCalc.h"
 #include <units/units.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>

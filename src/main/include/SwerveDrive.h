@@ -35,7 +35,7 @@ class SwerveDrive
 
         void calcModules(double xSpeed, double ySpeed, double turn);
 
-        void updateLimelightOdom(double turretAngle);
+        void updateLimelightOdom(double turretAngle, bool inAuto);
         //void resetGoalOdometry(double turretAngle);
         void reset();
         bool foundGoal();

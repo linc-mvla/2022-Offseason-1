@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SwervePose.h"
-#include "Helpers.h"
 #include <math.h>
 
 using namespace std;
@@ -22,8 +21,8 @@ class SwerveTrajectory
         double yawAccelTime_, yawCruiseTime_, yawCruiseDist_, yawCruiseVel_, 
         linYawAccelTime_, linYawCruiseTime_, linYawCruiseDist_, linYawCruiseVel_, 
         linYawDeccelTime_, actualYawDist_, endVel_, 
-        linAccelTime_, linCruiseTime_, linDeccelTime_, linCruiseVel_, linCruiseDist_,
-        MAX_LA, MAX_LV, MAX_AA, MAX_AV;
+        linAccelTime_, linCruiseTime_, linDeccelTime_, linCruiseVel_, linCruiseDist_;
         int yawDirection_;
+        double MAX_LA, MAX_LV, MAX_AA, MAX_AV;
         
 };

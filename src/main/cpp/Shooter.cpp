@@ -190,7 +190,7 @@ void Shooter::periodic(double yaw)
 
     yaw_ = yaw;
     //swerveDrive->resetGoalOdometry(turret_.getAngle());
-   // swerveDrive_->calcOdometry(turret_.getAngle());
+    swerveDrive_->updateLimelightOdom(turret_.getAngle(), false); //may move this to swerve periodic instead?
 
     //frc::SmartDashboard::PutBoolean("map", hasMap_);
 

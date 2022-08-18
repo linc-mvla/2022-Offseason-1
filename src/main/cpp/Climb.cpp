@@ -39,7 +39,7 @@ void Climb::periodic(double roll)
 {
     roll_ = roll;
     //frc::SmartDashboard::PutNumber("Roll", roll);
-    double pos = gearboxMaster_.GetSelectedSensorPosition();
+    //double pos = gearboxMaster_.GetSelectedSensorPosition();
     //frc::SmartDashboard::PutNumber("ClimbPos", pos);
     //frc::SmartDashboard::PutNumber("CV", gearboxMaster_.GetSelectedSensorVelocity());
 

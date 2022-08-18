@@ -1,4 +1,5 @@
 #include "SwerveTrajectory.h"
+#include <frc/MathUtil.h>
 
 SwerveTrajectory::SwerveTrajectory(SwervePose startPose, SwervePose endPose, double yawAccelTime, double yawCruiseTime, double yawCruiseDist, double yawCruiseVel, 
         double linYawAccelTime, double linYawCruiseTime, double linYawCruiseDist, double linYawCruiseVel, 
@@ -31,7 +32,7 @@ SwervePose SwerveTrajectory::getPose(double time)
             yawAcc = (onlyYaw) ? MAX_AA  * yawDirection_: MAX_AA * 0.5 * yawDirection_;
             yawVel = time * yawAcc;
             yaw = startPose_.getYaw() + yawVel * 0.5 * time;
-            Helpers::normalizeAngle(yaw);
+            frc::InputModulus(yaw, -180.0, 180.0);
         }
         else if(time < yawAccelTime_ + yawCruiseTime_)
         {
@@ -39,14 +40,14 @@ SwervePose SwerveTrajectory::getPose(double time)
             yawAcc = 0;
             yawVel = yawCruiseVel_;
             yaw = startPose_.getYaw() + yawAccelTime_ * yawAccelTime_ * 0.5 * prevYawAcc + yawVel * (time - yawAccelTime_);
-            Helpers::normalizeAngle(yaw);
+            frc::InputModulus(yaw, -180.0, 180.0);
         }
         else
         {
             yawAcc = (onlyYaw) ? -MAX_AA * yawDirection_ : -MAX_AA * 0.5 * yawDirection_;
             yawVel = yawCruiseVel_ + (time - yawAccelTime_ - yawCruiseTime_) * yawAcc;
             yaw = startPose_.getYaw() + yawAccelTime_ * yawAccelTime_ * 0.5 * -yawAcc + yawCruiseVel_ * yawCruiseTime_ + (time - yawAccelTime_ - yawCruiseTime_) * (yawVel + yawCruiseVel_) / 2;
-            Helpers::normalizeAngle(yaw);
+            frc::InputModulus(yaw, -180.0, 180.0);
         }
 
         if(!onlyYaw)
@@ -87,7 +88,7 @@ SwervePose SwerveTrajectory::getPose(double time)
     else if (time < (yawTime + linAccelTime_ + linCruiseTime_ + linDeccelTime_))
     {
         yaw = endPose_.getYaw();
-        Helpers::normalizeAngle(yaw);
+        frc::InputModulus(yaw, -180.0, 180.0);
         yawVel = 0;
         yawAcc = 0;
 
