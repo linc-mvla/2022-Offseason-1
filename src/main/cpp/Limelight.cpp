@@ -36,81 +36,49 @@ Limelight::targetAquired(){
 
 // get corners
 std::vector<LLRectangle> 
-// DOES NOT WORK CURRENTLY
 Limelight::getCorners() {
-    nt::NetworkTableEntry e = network_table->GetEntry("llpython");
-    std::vector<double> llpython = e.GetDoubleArray({});
+    //REMEMBER TO COMMENT NEXT 2 LINES AFTER TESTING
+   // nt::NetworkTableEntry e = network_table->GetEntry("llpython");
+  //  std::vector<double> llpython = e.GetDoubleArray({});
+
+    //REMEMBER TO COMMENT OUT WHEN NOT TESTING
+    std::vector<double> llpython = {
+        3,  30,198, 22,202, 29,201,          26,200, 
+        4,  78,200, 78,203, 85,205, 85,202,  82,203, 
+        4,  60,196, 60,199, 69,201, 69,198,  65,197, 
+        4,  40,196, 40,199, 49,199, 49,196,  45,198
+    };
+
     //start with num corners, then corners, then center, repeat
-
-    std::vector<LLRectangle> rects = {};
-
-    int i = 0;
-    while (i < llpython.size()) {
-
-    }
-
-    int pointNum = 0;
+    int corner = 0;
+    int numCorners = 0;
+    bool formingRect = false;
     std::vector<LLRectangle> rectangles = {};
     LLRectangle tempRectangle;
-    LLCoordinate tempPoint;
-    for(int i = 0; i < values.size(); i++){
-        double value = values[i];
-        tempPoint.push_back(value);
-        if (tempPoint.size == 2){
-            if(pointNum == 0){
-            rectangle.setCenter(tempPoint)
+
+    for(int i = 0; i < llpython.size()-1; i++){
+        double p = llpython[i];
+        if (!formingRect) { //starting new rect
+            numCorners = llpython[i];
+            tempRectangle.clear();
+            corner = 0;
+            formingRect = true;
+        } else { //continuing curr rect
+            if (corner < numCorners) { //getting points of rect
+                tempRectangle.push_back(LLCoordinate{llpython[i], llpython[i+1]});
+            } else { //getting last element, the center
+                tempRectangle.insert(tempRectangle.begin(), LLCoordinate{llpython[i], llpython[i+1]});
+                formingRect = false;
+                LLRectangle copy = tempRectangle; //copies by default in c++
+                rectangles.push_back(copy); 
             }
-            else{
-            rectangle.addPoint(tempPoint)
-            }
-            tempPoint = cleared point
-        }
-    if(pointNum == 0){
-        pointNum = ((int)value + 1)*2;
-        if(i != 0){
-        rectangles.push_back(tempRectangle);
-        tempRectangle = clear;
+            corner++;
+            i++;
         }
     }
-    pointNum --;
-    }
+   
+    return rectangles;
     
-    
-    
-    std::vector<LLRectangle> ans = std::vector<LLRectangle>();
-    
-    // TODO: redo because only outputs top left, bottom right -> get working with custom vision pipeline
-    // format this array (vector of vectors of pairs)
-    // pairs are coordinates (x, y), vectors represent one rectangle, output holds rectangles
-    // center of rectangle is first point in array
-    // for (int i = 0; i < corners.size(); i += 8) {
-    //     LLRectangle rectVector = LLRectangle();
-    //     for (int j = i; j < i + 8; j += 2) {
-    //         rectVector.push_back(std::make_pair(corners[j], corners[j+1]));
-    //     }
-    //     ans.push_back(rectVector);
-    // }
-
-    // ans = {
-    //     {
-    //         {26, 200}, 
-    //         {30, 198}, {22, 202}, {29, 201}
-    //     }, 
-    //     {
-    //         {82, 203},
-    //         {78, 200}, {78, 203}, {85, 205}, {85, 202}
-    //     }, 
-    //     {
-    //         {65, 197},
-    //         {60, 196}, {60, 199}, {69, 201}, {69, 198}
-    //     },
-    //     {
-    //         {45, 198},
-    //         {40, 196}, {40, 199}, {49, 199}, {49, 196}
-    //     }
-    // };
-
-     return ans;
 }
 
 

@@ -8,15 +8,27 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-
+  void RobotInit() {}
+  void RobotPeriodic() {}
+  void AutonomousInit() {}
+  void AutonomousPeriodic() {}
 
 void Robot::TeleopInit() {}
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+}
+
+  void TestInit() {}
+  void TestPeriodic() {}
 
 void Robot::DisabledInit() {}
 
 void Robot::DisabledPeriodic() {}
+
+void Robot::SimulationInit() {}
+
+void Robot::SimulationPeriodic() {}
+
 
 #ifndef RUNNING_FRC_TESTS
 int main() {
