@@ -38,8 +38,45 @@ Limelight::targetAquired(){
 std::vector<LLRectangle> 
 // DOES NOT WORK CURRENTLY
 Limelight::getCorners() {
-    std::vector<double> corners = network_table->GetEntry("tcornxy").GetDoubleArray(std::vector<double>());
-    // corners = {75, 181,83, 181,83, 177,75, 177,93, 179,93, 182,102, 184,102, 181,111, 183,111, 186,119, 189,119, 186}; // TODO: get rid of this later (for testing)
+    nt::NetworkTableEntry e = network_table->GetEntry("llpython");
+    std::vector<double> llpython = e.GetDoubleArray({});
+    //start with num corners, then corners, then center, repeat
+
+    std::vector<LLRectangle> rects = {};
+
+    int i = 0;
+    while (i < llpython.size()) {
+
+    }
+
+    int pointNum = 0;
+    std::vector<LLRectangle> rectangles = {};
+    LLRectangle tempRectangle;
+    LLCoordinate tempPoint;
+    for(int i = 0; i < values.size(); i++){
+        double value = values[i];
+        tempPoint.push_back(value);
+        if (tempPoint.size == 2){
+            if(pointNum == 0){
+            rectangle.setCenter(tempPoint)
+            }
+            else{
+            rectangle.addPoint(tempPoint)
+            }
+            tempPoint = cleared point
+        }
+    if(pointNum == 0){
+        pointNum = ((int)value + 1)*2;
+        if(i != 0){
+        rectangles.push_back(tempRectangle);
+        tempRectangle = clear;
+        }
+    }
+    pointNum --;
+    }
+    
+    
+    
     std::vector<LLRectangle> ans = std::vector<LLRectangle>();
     
     // TODO: redo because only outputs top left, bottom right -> get working with custom vision pipeline
@@ -54,46 +91,49 @@ Limelight::getCorners() {
     //     ans.push_back(rectVector);
     // }
 
-    ans = {
-        {
-            {26, 200}, 
-            {30, 198}, {22, 202}, {29, 201}
-        }, 
-        {
-            {82, 203},
-            {78, 200}, {78, 203}, {85, 205}, {85, 202}
-        }, 
-        {
-            {65, 197},
-            {60, 196}, {60, 199}, {69, 201}, {69, 198}
-        },
-        {
-            {45, 198},
-            {40, 196}, {40, 199}, {49, 199}, {49, 196}
-        }
-    };
+    // ans = {
+    //     {
+    //         {26, 200}, 
+    //         {30, 198}, {22, 202}, {29, 201}
+    //     }, 
+    //     {
+    //         {82, 203},
+    //         {78, 200}, {78, 203}, {85, 205}, {85, 202}
+    //     }, 
+    //     {
+    //         {65, 197},
+    //         {60, 196}, {60, 199}, {69, 201}, {69, 198}
+    //     },
+    //     {
+    //         {45, 198},
+    //         {40, 196}, {40, 199}, {49, 199}, {49, 196}
+    //     }
+    // };
 
-    return ans;
+     return ans;
 }
-
-
 
 
 //coordinates: gonna assume angle is zero when robot facing directly away
 frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
-    // double distance = getDist() + 0.686;
-    // double robotGoalAngle_ = -(turretAngle + getAdjustedX()); 
-    // double angleToGoal = navx + robotGoalAngle_;
-    // double y = -distance * cos(angleToGoal * M_PI / 180);
-    // double x = distance * sin(angleToGoal * M_PI / 180);
+    LL3DCoordinate center = getCenter(getCoords(), 0.01);
 
-   // frc::SmartDashboard::PutNumber("distance", distance);
-    // frc::SmartDashboard::PutNumber("robotGoalAngle", robotGoalAngle_);
-    // frc::SmartDashboard::PutNumber("angleToGoal", angleToGoal);
-    // frc::SmartDashboard::PutNumber("Pose x", x);
-    // frc::SmartDashboard::PutNumber("Pose y", y);
+    frc::SmartDashboard::PutNumber("Center x", center.x);
+    frc::SmartDashboard::PutNumber("Center y", center.z);
 
-  //  return frc::Pose2d{units::meter_t{x}, units::meter_t{y}, frc::Rotation2d{units::degree_t{navx}}};
+    frc::Translation2d pose{units::meter_t{-center.x}, units::meter_t{-center.z}};
+    
+    double turretLimelightAngle = turretAngle - 180;
+    frc::InputModulus(turretLimelightAngle, -180.0, 180.0);
+
+    frc::SmartDashboard::PutNumber("Turret limelight angle", turretLimelightAngle);
+
+    pose.RotateBy(frc::Rotation2d{units::degree_t{navx + turretLimelightAngle}});
+
+    frc::SmartDashboard::PutNumber("Pose x", pose.X().value());
+    frc::SmartDashboard::PutNumber("Pose y", pose.Y().value());
+
+    return frc::Pose2d{pose.X(), pose.Y(), frc::Rotation2d{units::degree_t{navx}}};
 }
 
 double Limelight::getDist() {
@@ -191,7 +231,7 @@ Limelight::angleToCoords(double ax, double ay, double targetHeight) {
 
 
 //thanks mechanical advantage https://github.com/Mechanical-Advantage/RobotCode2022/blob/main/src/main/java/frc/robot/util/CircleFitter.java
-LL3DCoordinate Limelight::center(std::vector<LL3DCoordinate> points, double precision) {
+LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points, double precision) {
     double xSum = 0.0;
     double ySum = 0.0;
     for (LL3DCoordinate point : points) {
@@ -409,6 +449,11 @@ Limelight::getCoords() {
                 )
             );
         }
+    }
+
+    for (int i = 0; i < coords.size(); i++) {
+        std::vector<double> temp = {coords[i].x, coords[i].y, coords[i].z};
+        frc::SmartDashboard::PutNumberArray("coords " + i, temp);
     }
 
     return coords;

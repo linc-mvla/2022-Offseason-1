@@ -6,6 +6,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <math.h>
 #include <iostream>
+#include <frc/MathUtil.h>
 
 namespace GeneralConstants{ 
     const double goalHeight = 2.641;
@@ -67,6 +68,6 @@ class Limelight{
         LL3DCoordinate angleToCoords(double ax, double ay, double targetHeight);
         LLRectangle sortCorners(LLRectangle rectCorners);
 
-        LL3DCoordinate center(std::vector<LL3DCoordinate> points, double precision);
+        LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points, double precision);
         double calcResidual(double radius, std::vector<LL3DCoordinate> points, LL3DCoordinate center);
 };
