@@ -142,16 +142,20 @@ Limelight::pixelsToAngle(double px, double py) {
     double ny = (1/(IMG_HEIGHT/2)) * (119.5 - py);
 
     // view plane width/height
-    double vpw = 2.0 * tan(H_FOV/2);
-    double vph = 2.0 * tan(V_FOV/2);
+    double vpw = 2.0 * tan(H_FOV/2 * M_PI / 180);
+    double vph = 2.0 * tan(V_FOV/2 * M_PI / 180);
 
     // view plane coordinates
     double x = vpw/2 * nx;
     double y = vph/2 * ny;
 
+    // std::cout << "vp coords: " << x << ", " << y << "\n";
+
     // calc angles
-    double ax = atan2(1, x); 
-    double ay = atan2(1, y);
+    double ax = atan2(x, 1); 
+    double ay = atan2(y, 1);
+
+    // std::cout << "pixels vs angles: " << px << ", " << py << " :: " << ax << ", " << ay << "\n";
 
     std::pair<double, double> ans(ax, ay);
     return ans;
@@ -413,6 +417,8 @@ Limelight::getCoords() {
                 continue;
             }
             std::pair<double, double> anglePair = pixelsToAngle(corners[i][j].first, corners[i][j].second);
+            // std::cout << "2d coords: " << corners[i][j].first << ", " << corners[i][j].second << "\n";
+            // std::cout << "angle: " << anglePair.first << ", " << anglePair.second << "\n";
             coords.push_back(
                 angleToCoords(
                     anglePair.first, 
@@ -420,6 +426,7 @@ Limelight::getCoords() {
                     j < 2 ? GeneralConstants::targetHeightUpper : GeneralConstants::targetHeightLower
                 )
             );
+            // std::cout << "coords: " << coords[coords.size()-1].x << ", " << coords[coords.size()-1].y << ", " << coords[coords.size()-1].z << "\n";
         }
     }
 
