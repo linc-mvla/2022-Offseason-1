@@ -4,9 +4,10 @@
 #include "networktables/NetworkTableInstance.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/geometry/Pose2d.h>
-#include <math.h>
 #include <iostream>
 #include <frc/MathUtil.h>
+
+#define M_PI 3.14159265358979323846
 
 namespace GeneralConstants{ 
     const double goalHeight = 2.641;
@@ -38,7 +39,7 @@ class Limelight{
 
         std::vector<LLRectangle> getCorners();
         void setLEDMode(std::string mode);
-        double getDist();
+        double getDist(double navx, double turretAngle);
         frc::Pose2d getPose(double navx, double turretAngle);
         std::shared_ptr<nt::NetworkTable> GetNetworkTable();
 
@@ -46,6 +47,8 @@ class Limelight{
         double getAdjustedX();
 
         std::vector<LL3DCoordinate> getCoords();
+
+        LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points, double precision); //for testing purposes
 
     private:
         void ReadPeriodicIn();
@@ -68,6 +71,6 @@ class Limelight{
         LL3DCoordinate angleToCoords(double ax, double ay, double targetHeight);
         LLRectangle sortCorners(LLRectangle rectCorners);
 
-        LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points, double precision);
+        //LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points, double precision);
         double calcResidual(double radius, std::vector<LL3DCoordinate> points, LL3DCoordinate center);
 };

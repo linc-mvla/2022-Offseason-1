@@ -42,14 +42,15 @@ Limelight::getCorners() {
   //  std::vector<double> llpython = e.GetDoubleArray({});
 
     //REMEMBER TO COMMENT OUT WHEN NOT TESTING
-    std::vector<double> llpython = {
-        3,  30,198, 22,202, 29,201,          26,200, 
-        4,  78,200, 78,203, 85,205, 85,202,  82,203, 
-        4,  60,196, 60,199, 69,201, 69,198,  65,197, 
-        4,  40,196, 40,199, 49,199, 49,196,  45,198
+        std::vector<double> llpython = {
+        4, 114,167, 111,168, 112,170, 115,169,  113,168, 
+        3, 154,165, 160,167, 160,165,  157,165, 
+        3, 138,166, 145,164, 139,164,  140,164, 
+        4, 129,165, 128,164, 124,165, 124,167,  126,165
     };
 
     //start with num corners, then corners, then center, repeat
+    //have to do a wierd system cause network tables can't handle outputting fancy data types like 2d arrays
     int corner = 0;
     int numCorners = 0;
     bool formingRect = false;
@@ -104,8 +105,10 @@ frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
     return frc::Pose2d{pose.X(), pose.Y(), frc::Rotation2d{units::degree_t{navx}}};
 }
 
-double Limelight::getDist() {
-    //do a thing where we get the dist between pose and 0,0
+//hub coords are (0, 0)
+double Limelight::getDist(double navx, double turretAngle) {
+    frc::Pose2d pose = getPose(navx, turretAngle); 
+    return sqrt(pose.X().value()*pose.X().value() + pose.Y().value()*pose.Y().value());
 }
 
 
@@ -199,6 +202,7 @@ Limelight::angleToCoords(double ax, double ay, double targetHeight) {
 
 
 //thanks mechanical advantage https://github.com/Mechanical-Advantage/RobotCode2022/blob/main/src/main/java/frc/robot/util/CircleFitter.java
+//calculates center of circle made by coordinates
 LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points, double precision) {
     double xSum = 0.0;
     double ySum = 0.0;

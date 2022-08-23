@@ -24,6 +24,8 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
+  ~Robot();
+
  private:
 
  Limelight limelight_;

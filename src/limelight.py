@@ -15,11 +15,13 @@ def runPipeline(image, llrobot):
     cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
   
     largestContour = np.array([[]])
+    llpython = []
 
     if len(contours) > 0:
 
         for contour in contours:
-            epsilon = 0.1 * cv2.arcLength(contour, True)
+            #could do a thing where epsilon depends on contour area
+            epsilon = 0.07 * cv2.arcLength(contour, True) #0.1
             poly = cv2.approxPolyDP(contour, epsilon, True)
 
             llpython.append(len(poly)) #num corners
@@ -30,14 +32,25 @@ def runPipeline(image, llrobot):
                     llpython.append(p[0][1])
                     cv2.circle(image, (p[0][0], p[0][1]), radius=1, color = (0, 0, 255), thickness=-1)
 
-            M = cv.moments(contour)
+            M = cv2.moments(contour)
             if M['m00'] != 0:
                 llpython.append(int(M['m10']/M['m00']))
                 llpython.append(int(M['m01']/M['m00']))
+                cv2.circle(image, (int(M['m10']/M['m00']), int(M['m01']/M['m00'])), radius=1, color=(255, 0, 100), thickness=-1)
 
        
     # make sure to return a contour,
     # an image to stream,
     # and optionally an array of up to 8 values for the "llpython"
     # networktables array
-    return largetsContour, image, llpython
+    return largestContour, image, llpython
+
+#FOR RUNNING ON COMPUTER - COMMENT OUT WHEN RUNNING ON ROBOT
+image = cv2.imread("limelight1.jpg")
+_, img, llpython = runPipeline(image, [])
+print(llpython)
+while True:
+    image = cv2.imread("limelight1.jpg")
+    cv2.imshow("image", img)
+    if (cv2.waitKey(30) == 27): #27 is escape
+        break 
