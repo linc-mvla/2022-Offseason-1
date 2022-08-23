@@ -13,8 +13,8 @@ namespace GeneralConstants{
     const double goalHeight = 2.641;
     const double targetHeightUpper = 2.641;
     const double targetHeightLower = targetHeightUpper - 0.0508;
-    const double cameraHeight = 0.5;
-    const double cameraPitch = 42;
+    const double cameraHeight = 1.19;
+    const double cameraPitch = 22;
     const double radius = 0.6096;
 }
 
