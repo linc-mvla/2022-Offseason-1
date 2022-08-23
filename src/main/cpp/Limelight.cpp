@@ -412,7 +412,9 @@ Limelight::getCoords() {
             if (corners[i][j].first == -1 || corners[i][j].second == -1) {
                 continue;
             }
+            std::cout << "corner: (" << corners[i][j].first << ", " << corners[i][j].second << ")\n";
             std::pair<double, double> anglePair = pixelsToAngle(corners[i][j].first, corners[i][j].second);
+            std::cout << "angle x: " << anglePair.first << ", angle y: " << anglePair.second << "\n";
             coords.push_back(
                 angleToCoords(
                     anglePair.first, 
@@ -420,6 +422,7 @@ Limelight::getCoords() {
                     j < 2 ? GeneralConstants::targetHeightUpper : GeneralConstants::targetHeightLower
                 )
             );
+            std::cout << "coordinate: (" << coords[coords.size()-1].x << ", " << coords[coords.size()-1].y << ", " << coords[coords.size()-1].z << ")\n";
         }
     }
 
