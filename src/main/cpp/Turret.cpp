@@ -287,7 +287,7 @@ double Turret::calcError()
     {
         limelight_->lightOn(false);
     }
-    else if (state_ != CLIMB)
+    else if (state_ != CLIMB && state_ != UNLOADING)
     {
         limelight_->lightOn(true);
     }

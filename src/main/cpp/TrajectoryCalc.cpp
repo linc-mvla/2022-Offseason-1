@@ -312,7 +312,17 @@ double TrajectoryCalc::calcVelPower(double vel)
         frc::SmartDashboard::PutNumber("TMVError", error);
     }
 
-    double power = (kD_ * error) + (profile.first * kA_) + (profile.second * kV_);
+    double kVVolts = (abs(profile.second) - kVI_) * kV_;
+    if(profile.second == 0)
+    {
+        kVVolts = 0;
+    }
+    else if(profile.second < 0)
+    {
+        kVVolts *= -1;
+    }
+
+    double power = (kD_ * error) + (profile.first * kA_) + kVVolts;
 
     if(abs(power) > GeneralConstants::MAX_VOLTAGE)
     {

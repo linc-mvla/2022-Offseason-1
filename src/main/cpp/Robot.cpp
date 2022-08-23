@@ -133,7 +133,7 @@ void Robot::AutonomousPeriodic()
         shooterState = Shooter::UNLOADING;
     }
 
-    if((shooterState == Shooter::REVING || shooterState == Shooter::UNLOADING) && intakeState != Intake::INTAKING)
+    if((shooterState == Shooter::SHOOTING || shooterState == Shooter::UNLOADING) && intakeState != Intake::INTAKING)
     {
         intakeState = Intake::LOADING;
     }
@@ -163,20 +163,20 @@ void Robot::TeleopInit()
     //turretLogger_->openFile();
 
     //frc::SmartDashboard::PutNumber("InV", 0);
-    frc::SmartDashboard::PutNumber("InA", 0);
+    //frc::SmartDashboard::PutNumber("InA", 0);
     //frc::SmartDashboard::PutNumber("InHV", 0);
     //frc::SmartDashboard::PutNumber("fKp", 0);
     //frc::SmartDashboard::PutNumber("HINV", 0);
     //frc::SmartDashboard::PutNumber("FINV", 0);
     //frc::SmartDashboard::PutNumber("InDist", 4.0);
     //frc::SmartDashboard::PutNumber("K", 2);
-    frc::SmartDashboard::PutNumber("ITV", 0.0);
-    frc::SmartDashboard::PutNumber("InT", 0.0);
+    //frc::SmartDashboard::PutNumber("ITV", 0.0);
+    //frc::SmartDashboard::PutNumber("InT", 0.0);
     //frc::SmartDashboard::PutNumber("smiv", 0.0);
     //frc::SmartDashboard::PutNumber("InCV", 0.0);
 
     //REMOVE FOR COMP
-    yawOffset_ = frc::SmartDashboard::GetNumber("YOff", 0.0);
+    //yawOffset_ = frc::SmartDashboard::GetNumber("YOff", 0.0);
 
 }
 
@@ -245,9 +245,13 @@ void Robot::TeleopPeriodic()
         }
         else if(controls_->shootPressed())
         {
-            shooter_->setState(Shooter::REVING);
+            shooter_->setState(Shooter::SHOOTING);
             intake_.setState(Intake::LOADING);
             //intake_.setState(Intake::INTAKING);
+        }
+        else if(channel_->getBallCount() > 0)
+        {
+            shooter_->setState(Shooter::REVING);
         }
         else
         {
@@ -262,6 +266,7 @@ void Robot::TeleopPeriodic()
 
         if (controls_->intakePressed())
         {
+            shooter_->setState(Shooter::REVING);
             intake_.setState(Intake::INTAKING);
         }
         else if (controls_->outakePressed())

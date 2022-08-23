@@ -24,8 +24,8 @@ namespace GeneralConstants
     const double GOAL_HEIGHT = 2.641;
     const double GOAL_RADIUS = 0.6096;
 
-    const double HANGAR_X = -4; //-4, -8
-    const double HANGAR_Y = -8;
+    const double HANGAR_X = -3; //-4, -8
+    const double HANGAR_Y = -7;
 
     const int MAX_BALL_COUNT = 1;
 
@@ -89,8 +89,8 @@ namespace SwerveConstants
 {
     const double WIDTH = 29; //Change to 22 
     const double LENGTH = 29;
-    const double TREAD_RADIUS = 0.0508; //TODO get value
-    const double DRIVE_GEAR_RATIO = 1/6.12; //TODO get direction
+    const double TREAD_RADIUS = 0.0508; 
+    const double DRIVE_GEAR_RATIO = 1/6.12; 
 
     //const double trPosAngle = atan2((SwerveConstants::WIDTH/2), (SwerveConstants::LENGTH/2));
     //const double tlPosAngle = -trPosAngle;
@@ -154,14 +154,14 @@ namespace ClimbConstants
     const double RAISE_FF_INTERCEPT = -9083.19;
 
     const double TOO_FAR_FROM_STATIC_HOOKS = 16500;
-    const double ABOVE_STATIC_HOOKS = 25000; //112000, TODO get values
-    const double CLEAR_OF_BARS = 70850; //141700 (average down value)
+    const double ABOVE_STATIC_HOOKS = 25000;
+    const double CLEAR_OF_BARS = 70850;
     const double NEARING_HARDSTOP = 110000;
     //const double OFF_HOOKS = -110500;
     const double EXTEND_THRESHOLD = 1000; //TODO experiment for value
     const double HIGH_EXTEND_THRESHOLD = 2000;
 
-    const double RAISE_VOLTAGE = -6; //TODO increase, get better trapezoidal motion and stuff
+    //const double RAISE_VOLTAGE = -6; //TODO increase, get better trapezoidal motion and stuff
 
     const double LOW_CLIMB_VOLTAGE = 9;
     const double MID_CLIMB_VOLTAGE = 8;
@@ -179,7 +179,7 @@ namespace ClimbConstants
     const double SLOW_RAISE_VOLTAGE = -2.5; //TODO make sure to lower on bar
     const double SLOW_CLIMB_VOLTAGE = 3;
 
-    const double ROLL_MAX = 170; //TODO yeah these two, also pitch roll idk man
+    const double ROLL_MAX = 170; //TODO yeah these two
     const double ROLL_MIN = -180;
 
     const double ON_BAR_DELAY = 0.85;
