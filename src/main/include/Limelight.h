@@ -13,7 +13,7 @@ namespace GeneralConstants{
     const double goalHeight = 2.641;
     const double targetHeightUpper = 2.641;
     const double targetHeightLower = targetHeightUpper - 0.0508;
-    const double cameraHeight = 1.19;
+    const double cameraHeight = 1.384; //1.19
     const double cameraPitch = 22;
     const double radius = 0.6096;
 }
@@ -43,12 +43,11 @@ class Limelight{
         frc::Pose2d getPose(double navx, double turretAngle);
         std::shared_ptr<nt::NetworkTable> GetNetworkTable();
 
-        void adjustAngles(double& ax, double& ay);
-        double getAdjustedX();
-
         std::vector<LL3DCoordinate> getCoords();
 
+        //should be private
         LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points, double precision); //for testing purposes
+        LL3DCoordinate angleToCoords(double ax, double ay, double targetHeight); //for testing purposes
 
     private:
         void ReadPeriodicIn();
@@ -68,7 +67,7 @@ class Limelight{
         const double CAM_ANGLE = 40; //40 degrees I think
 
         LLCoordinate pixelsToAngle(double px, double py);
-        LL3DCoordinate angleToCoords(double ax, double ay, double targetHeight);
+        
         LLRectangle sortCorners(LLRectangle rectCorners);
 
         //LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points, double precision);

@@ -23,16 +23,22 @@ class LimelightTest : public testing::Test {
 TEST_F(LimelightTest, CoordsTest) {
   std::vector<LL3DCoordinate> coords = limelight_.getCoords();
   for (LL3DCoordinate c : coords) {
-    //std::cout << c.x << ", " << c.y << ", " << c.z << "\n";
-  }
+    std::cout << "(" << c.x << ", " << c.z << ", " << c.y << ")" << "\n";
+  } 
   std::cout << "\n";
 }
 
-// TEST_F(LimelightTest, CenterTest) {
-//   std::vector<LL3DCoordinate> coords = limelight_.getCoords();
-//   LL3DCoordinate center = limelight_.getCenter(coords, 0.01);
-//   std::cout << "center: " << center.x << ", " << center.y << ", " << center.z << "\n";
+// TEST_F(LimelightTest, AngleTest) {
+//   LL3DCoordinate c = limelight_.angleToCoords(-8 * M_PI / 180, 20 * M_PI / 180, GeneralConstants::targetHeightUpper);
+//   std::cout << "angleToCoords test\n";
+//   std::cout << c.x << ", " << c.y << ", " << c.z << "\n";
 // }
+
+TEST_F(LimelightTest, CenterTest) {
+  std::vector<LL3DCoordinate> coords = limelight_.getCoords();
+  LL3DCoordinate center = limelight_.getCenter(coords, 0.01);
+  std::cout << "center: " << center.x << ", " << center.y << ", " << center.z << "\n";
+}
 
 int main(int argc, char** argv) {
   HAL_Initialize(500, 0);

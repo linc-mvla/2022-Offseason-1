@@ -7,7 +7,7 @@ import copy
 def runPipeline(image, llrobot):
 
     image[image == 0] = 1
-    image[(image[:, :, 1].astype(float) / image[:, :, 2].astype(float)) < 2] = [0, 0, 0]
+    image[(image[:, :, 1].astype(float) / image[:, :, 2].astype(float)) < 2] = [0, 0, 0] #get rid of not green enough pixels
 
     img_threshold = cv2.inRange(image, (10, 54, 10), (255, 255, 255))
 
@@ -24,19 +24,20 @@ def runPipeline(image, llrobot):
             epsilon = 0.07 * cv2.arcLength(contour, True) #0.1
             poly = cv2.approxPolyDP(contour, epsilon, True)
 
-            llpython.append(len(poly)) #num corners
+            if ((cv2.contourArea(contour) >= 1.0)):
+                llpython.append(len(poly)) #num corners
 
-            for p in poly:
-                if ((cv2.contourArea(contour) >= 1.0)):
-                    llpython.append(p[0][0])
-                    llpython.append(p[0][1])
-                    cv2.circle(image, (p[0][0], p[0][1]), radius=1, color = (0, 0, 255), thickness=-1)
+                for p in poly:
+                        llpython.append(p[0][0])
+                        llpython.append(p[0][1])
+                        cv2.circle(image, (p[0][0], p[0][1]), radius=1, color = (0, 0, 255), thickness=-1)
 
-            M = cv2.moments(contour)
-            if M['m00'] != 0:
-                llpython.append(int(M['m10']/M['m00']))
-                llpython.append(int(M['m01']/M['m00']))
-                cv2.circle(image, (int(M['m10']/M['m00']), int(M['m01']/M['m00'])), radius=1, color=(255, 0, 100), thickness=-1)
+                M = cv2.moments(contour)
+                if M['m00'] != 0:
+                    print("here2")
+                    llpython.append(int(M['m10']/M['m00']))
+                    llpython.append(int(M['m01']/M['m00']))
+                    cv2.circle(image, (int(M['m10']/M['m00']), int(M['m01']/M['m00'])), radius=1, color=(255, 0, 100), thickness=-1)
 
        
     # make sure to return a contour,
@@ -46,11 +47,11 @@ def runPipeline(image, llrobot):
     return largestContour, image, llpython
 
 #FOR RUNNING ON COMPUTER - COMMENT OUT WHEN RUNNING ON ROBOT
-image = cv2.imread("limelight1.jpg")
+image = cv2.imread("limelight1.2.jpg")
 _, img, llpython = runPipeline(image, [])
 print(llpython)
 while True:
-    image = cv2.imread("limelight1.jpg")
+    image = cv2.imread("limelight1.2.jpg")
     cv2.imshow("image", img)
     if (cv2.waitKey(30) == 27): #27 is escape
         break 

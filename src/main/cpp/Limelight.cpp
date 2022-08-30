@@ -42,11 +42,37 @@ Limelight::getCorners() {
   //  std::vector<double> llpython = e.GetDoubleArray({});
 
     //REMEMBER TO COMMENT OUT WHEN NOT TESTING
-        std::vector<double> llpython = {
-        4, 114,167, 111,168, 112,170, 115,169,  113,168, 
-        3, 154,165, 160,167, 160,165,  157,165, 
-        3, 138,166, 145,164, 139,164,  140,164, 
-        4, 129,165, 128,164, 124,165, 124,167,  126,165
+
+    //first image
+    // std::vector<double> llpython = {
+    //     4, 114,167, 111,168, 112,170, 115,169,  113,168, 
+    //     3, 154,165, 160,167, 160,165,  157,165, 
+    //     3, 138,166, 145,164, 139,164,  140,164, 
+    //     4, 129,165, 128,164, 124,165, 124,167,  126,165
+    // };
+
+    //second image
+    // std::vector<double> llpython = {
+    //     3, 225, 147, 231, 144, 227, 144, 227, 145, 
+    //     4, 250, 136, 243, 138, 242, 141, 249, 139, 246, 138, 
+    //     3, 273, 131, 262, 134, 273, 134, 268, 133, 
+    //     4, 286, 132, 296, 132, 296, 130, 290, 129, 291, 130
+    // };
+
+    //first image 2nd set
+    // std::vector<double> llpython = {
+    //     4, 177, 191, 176, 192, 176, 193, 177, 193, 176, 192, 
+    //     3, 122, 194, 127, 192, 123, 191, 124, 192, 3, 163, 190, 170, 192, 169, 189, 166, 190, 
+    //     4, 149, 188, 149, 191, 156, 190, 156, 188, 152, 189, 
+    //     4, 141, 189, 134, 190, 134, 192, 141, 191, 137, 190
+    // };
+
+    //second image 2nd set
+    std::vector<double> llpython = {
+        4, 229, 176, 221, 176, 222, 179, 229, 178, 225, 177, 
+        4, 277, 173, 277, 175, 284, 175, 283, 173, 279, 173, 
+        4, 239, 176, 248, 175, 248, 172, 243, 172, 244, 173, 
+        5, 259, 173, 260, 175, 268, 174, 266, 171, 260, 171, 263, 172
     };
 
     //start with num corners, then corners, then center, repeat
@@ -142,16 +168,20 @@ Limelight::pixelsToAngle(double px, double py) {
     double ny = (1/(IMG_HEIGHT/2)) * (119.5 - py);
 
     // view plane width/height
-    double vpw = 2.0 * tan(H_FOV/2);
-    double vph = 2.0 * tan(V_FOV/2);
+    double vpw = 2.0 * tan(H_FOV/2 * M_PI / 180);
+    double vph = 2.0 * tan(V_FOV/2 * M_PI / 180);
 
     // view plane coordinates
     double x = vpw/2 * nx;
     double y = vph/2 * ny;
 
+    // std::cout << "vp coords: " << x << ", " << y << "\n";
+
     // calc angles
-    double ax = atan2(1, x); 
-    double ay = atan2(1, y);
+    double ax = atan2(x, 1); 
+    double ay = atan2(y, 1);
+
+    // std::cout << "pixels vs angles: " << px << ", " << py << " :: " << ax << ", " << ay << "\n";
 
     std::pair<double, double> ans(ax, ay);
     return ans;
@@ -193,9 +223,7 @@ Limelight::angleToCoords(double ax, double ay, double targetHeight) {
     y *= scale;
     z *= scale;
 
-    x += GeneralConstants::cameraHeight;
     y += GeneralConstants::cameraHeight;
-    z += GeneralConstants::cameraHeight;
     
     return {x, y, z};
 }
@@ -211,10 +239,13 @@ LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points, double p
         ySum += point.z;
     }
 
-    LL3DCoordinate center{xSum / points.size() + GeneralConstants::radius, GeneralConstants::goalHeight, ySum / points.size()};
+    LL3DCoordinate center{xSum / points.size(), GeneralConstants::goalHeight, ySum / points.size() + GeneralConstants::radius};
+
+    std::cout << "guess: " << center.x << ", " << center.y << ", " << center.z << "\n";
 
     //iterate to find optimal center (binary search regression)
-    double shiftDist = GeneralConstants::radius / 2.0;
+    double stepSize = 0.5;
+    double shiftDist = GeneralConstants::radius*stepSize; 
     double minResidual = calcResidual(GeneralConstants::radius, points, center);
 
     while (true) {
@@ -239,7 +270,7 @@ LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points, double p
 
         //decrease shift, exit, or continue
         if (centerIsBest) {
-            shiftDist /= 2.0;
+            shiftDist*= (1-shiftDist);
             if (shiftDist < precision) {
                 return center;
             } else {
@@ -412,9 +443,9 @@ Limelight::getCoords() {
             if (corners[i][j].first == -1 || corners[i][j].second == -1) {
                 continue;
             }
-            std::cout << "corner: (" << corners[i][j].first << ", " << corners[i][j].second << ")\n";
+         //   std::cout << "corner: (" << corners[i][j].first << ", " << corners[i][j].second << ")\n";
             std::pair<double, double> anglePair = pixelsToAngle(corners[i][j].first, corners[i][j].second);
-            std::cout << "angle x: " << anglePair.first << ", angle y: " << anglePair.second << "\n";
+            std::cout << "angle x: " << anglePair.first * 180 / M_PI << ", angle y: " << anglePair.second * 180 / M_PI << "\n";
             coords.push_back(
                 angleToCoords(
                     anglePair.first, 
@@ -422,7 +453,7 @@ Limelight::getCoords() {
                     j < 2 ? GeneralConstants::targetHeightUpper : GeneralConstants::targetHeightLower
                 )
             );
-            std::cout << "coordinate: (" << coords[coords.size()-1].x << ", " << coords[coords.size()-1].y << ", " << coords[coords.size()-1].z << ")\n";
+         //   std::cout << "coordinate: (" << coords[coords.size()-1].x << ", " << coords[coords.size()-1].y << ", " << coords[coords.size()-1].z << ")\n";
         }
     }
 
