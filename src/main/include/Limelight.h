@@ -48,6 +48,7 @@ class Limelight{
         //should be private
         LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points, double precision); //for testing purposes
         LL3DCoordinate angleToCoords(double ax, double ay, double targetHeight); //for testing purposes
+         LL3DCoordinate testAngleToCoords(double ax, double ay, double targetHeight); //for testing purposes
 
     private:
         void ReadPeriodicIn();

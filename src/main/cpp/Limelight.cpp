@@ -188,6 +188,27 @@ Limelight::pixelsToAngle(double px, double py) {
     return ans;
 }
 
+
+LL3DCoordinate Limelight::testAngleToCoords(double ax, double ay, double targetHeight) {
+    //need to adjust angles first
+    //https://math.libretexts.org/Bookshelves/Calculus/Book%3A_Calculus_(OpenStax)/12%3A_Vectors_in_Space/12.7%3A_Cylindrical_and_Spherical_Coordinates#:~:text=To%20convert%20a%20point%20from,y2%2Bz2).
+    
+    double dist = (2.641 - GeneralConstants::cameraHeight) / tan(GeneralConstants::cameraPitch * M_PI / 180 + ay);
+    //std::cout << "targetheight - camhe9hgt: " << (targetHeight - GeneralConstants::cameraHeight) << ", tan: " << 
+    
+    std::cout << "dist: " << dist << "\n";
+
+    ay = M_PI/2 - ay;
+    double x = dist*sin(ax)*cos(ay);
+    double y = dist*sin(ax)*sin(ay);
+    
+  //  std::cout << "ax = " << ax << ", ay = " << ay << ", sin(ax) = " << sin(ax) << ", sin(ay) = " << sin(ay) << ", y = " << y << "\n";
+    
+    double z = dist*cos(ax);
+
+    return{x, z, y};
+}
+
 // angles to actual x, y, z of point
 LL3DCoordinate
 Limelight::angleToCoords(double ax, double ay, double targetHeight) {
@@ -448,7 +469,7 @@ Limelight::getCoords() {
             std::pair<double, double> anglePair = pixelsToAngle(corners[i][j].first, corners[i][j].second);
             std::cout << "angle x: " << anglePair.first * 180 / M_PI << ", angle y: " << anglePair.second * 180 / M_PI << "\n";
             coords.push_back(
-                angleToCoords(
+                testAngleToCoords(
                     anglePair.first, 
                     anglePair.second, 
                     j < 2 ? GeneralConstants::targetHeightUpper : GeneralConstants::targetHeightLower
