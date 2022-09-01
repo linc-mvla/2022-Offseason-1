@@ -147,7 +147,7 @@ void Turret::track()
         }
         else
         {
-            turretMotor_.SetVoltage(units::volt_t(volts));
+            //turretMotor_.SetVoltage(units::volt_t(volts));
         }
     }
 }

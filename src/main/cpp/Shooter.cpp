@@ -155,7 +155,7 @@ void Shooter::periodic(double yaw)
     double hoodAngle, velocity, turretOffset, partDer, distance;
     //frc::SmartDashboard::PutBoolean("found target", swerveDrive->foundGoal());
 
-    if(prevDistance_ == -1 || !limelight_->hasTarget() || abs(swerveDrive_->getGoalXVel()) > 0.01 || abs(swerveDrive_->getGoalYVel()) > 0.01 || !turret_.isAimed())
+    /*if(prevDistance_ == -1 || !limelight_->hasTarget() || abs(swerveDrive_->getGoalXVel()) > 0.01 || abs(swerveDrive_->getGoalYVel()) > 0.01 || !turret_.isAimed())
     {
         distance = limelight_->calcDistance();
         //distance = swerveDrive_->getDistance(turret_.getAngle());
@@ -164,11 +164,15 @@ void Shooter::periodic(double yaw)
     else
     {
         distance = prevDistance_;
-    }
+    }*/
+    distance = swerveDrive_->getDistance(turret_.getAngle());
 
-    // double swerveDistance = swerveDrive_->getDistance(turret_.getAngle());
-    // frc::SmartDashboard::PutNumber("SDistance", swerveDistance);
-    // frc::SmartDashboard::PutNumber("Distance", distance);
+    double swerveDistance = swerveDrive_->getDistance(turret_.getAngle());
+    frc::SmartDashboard::PutNumber("SDistance", swerveDistance);
+    frc::SmartDashboard::PutNumber("FDistance", distance);
+    frc::SmartDashboard::PutNumber("LDistance", limelight_->calcDistance());
+
+    //distance = 5;
 
     //distance = frc::SmartDashboard::GetNumber("InDist", -1); //Comment out below stuff if using
 

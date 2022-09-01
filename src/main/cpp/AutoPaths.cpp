@@ -205,7 +205,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         else
         {
             swerveDrive->drive(0, 0, 0);
-            shooterState_ = Shooter::REVING;
+            shooterState_ = Shooter::SHOOTING;
         }
         break;
     }
@@ -214,7 +214,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         intakeState_ = Intake::INTAKING;
         if (pathsOver)
         {
-            shooterState_ = Shooter::REVING;
+            shooterState_ = Shooter::SHOOTING;
         }
         else
         {
@@ -227,7 +227,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         intakeState_ = Intake::INTAKING;
         if (pathsOver)
         {
-            shooterState_ = Shooter::REVING;
+            shooterState_ = Shooter::SHOOTING;
         }
         else
         {
@@ -240,7 +240,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         intakeState_ = Intake::INTAKING;
         if (pathsOver)
         {
-            shooterState_ = Shooter::REVING;
+            shooterState_ = Shooter::SHOOTING;
         }
         else
         {
@@ -253,7 +253,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         intakeState_ = Intake::INTAKING;
         if (endOfSwervePath && (channel_->getBallsShot() < 2 || channel_->getBallCount() > 0))
         {
-            shooterState_ = Shooter::REVING;
+            shooterState_ = Shooter::SHOOTING;
         }
         else
         {
@@ -282,13 +282,13 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         intakeState_ = Intake::INTAKING;
         if (!endOfSwervePath)
         {
-            shooterState_ = Shooter::TRACKING;
+            shooterState_ = Shooter::REVING;
         }
         else
         {
             if(pathNum_ != 2)
             {
-                shooterState_ = Shooter::REVING;
+                shooterState_ = Shooter::SHOOTING;
             }
             else
             {
@@ -345,7 +345,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             }
             case 3:
             {
-                shooterState_ = Shooter::REVING;
+                shooterState_ = Shooter::SHOOTING;
                 break;
             }
             }

@@ -97,6 +97,7 @@ void Robot::RobotPeriodic()
 void Robot::AutonomousInit()
 {
     climb_.setPneumatics(false, false);
+    climbTimer_.Stop();
     climbTimer_.Start();
 
     AutoPaths::Path path = autoChooser_.GetSelected();
@@ -116,9 +117,9 @@ void Robot::AutonomousInit()
 void Robot::AutonomousPeriodic()
 {
     limelight_->lightOn(true);
-    if(climbTimer_.Get().value() < 0.15)
+    if(climbTimer_.Get().value() < 0.2)
     {
-        climb_.extendArms(3);
+        climb_.extendArms(-3);
     }
     else
     {
@@ -174,6 +175,7 @@ void Robot::TeleopInit()
     //frc::SmartDashboard::PutNumber("InT", 0.0);
     //frc::SmartDashboard::PutNumber("smiv", 0.0);
     //frc::SmartDashboard::PutNumber("InCV", 0.0);
+    frc::SmartDashboard::PutNumber("Swerve Volts", 0.0);
 
     //REMOVE FOR COMP
     //yawOffset_ = frc::SmartDashboard::GetNumber("YOff", 0.0);
@@ -241,18 +243,19 @@ void Robot::TeleopPeriodic()
         if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
         {
             shooter_->setState(Shooter::UNLOADING);
-            intake_.setState(Intake::LOADING);
+            intake_.setState(Intake::INTAKING);
+            //intake_.setState(Intake::INTAKING);
         }
         else if(controls_->shootPressed())
         {
             shooter_->setState(Shooter::SHOOTING);
-            intake_.setState(Intake::LOADING);
+            intake_.setState(Intake::INTAKING);
             //intake_.setState(Intake::INTAKING);
         }
-        else if(channel_->getBallCount() > 0)
+        /*else if(channel_->getBallCount() > 0)
         {
             shooter_->setState(Shooter::REVING);
-        }
+        }*/
         else
         {
             shooter_->setState(Shooter::TRACKING);
@@ -266,7 +269,10 @@ void Robot::TeleopPeriodic()
 
         if (controls_->intakePressed())
         {
-            shooter_->setState(Shooter::REVING);
+            if(shooter_->getState() != Shooter::SHOOTING)
+            {
+                shooter_->setState(Shooter::REVING);
+            }
             intake_.setState(Intake::INTAKING);
         }
         else if (controls_->outakePressed())
@@ -274,11 +280,15 @@ void Robot::TeleopPeriodic()
            intake_.setState(Intake::OUTAKING);
            shooter_->setState(Shooter::OUTAKING);
         }
-        else if(intake_.getState() != Intake::LOADING)
+        /*else if(intake_.getState() != Intake::LOADING)
         {
             intake_.setState(Intake::RETRACTED_IDLE);
             //intake_.setState(Intake::EXTENDED_IDLE);
         }
+        if(intake_.getState() == Intake::LOADING)
+        {
+            intake_.setState(Intake::INTAKING);
+        }*/
 
     }
     else

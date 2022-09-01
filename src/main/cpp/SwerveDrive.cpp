@@ -37,6 +37,13 @@ void SwerveDrive::drive(double xSpeed, double ySpeed, double turn)
     // calcOdometry();
     calcModules(xSpeed, ySpeed, turn, false);
 
+    // double volts = frc::SmartDashboard::GetNumber("Swerve Volts", 0.0);
+
+    // topRight_->periodic(volts, trAngle_, true);
+    // topLeft_->periodic(volts, tlAngle_, true);
+    // bottomRight_->periodic(volts, brAngle_, true);
+    // bottomLeft_->periodic(volts, blAngle_, true);
+
     topRight_->periodic(trSpeed_, trAngle_, false);
     topLeft_->periodic(tlSpeed_, tlAngle_, false);
     bottomRight_->periodic(brSpeed_, brAngle_, false);
@@ -215,9 +222,15 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
         {
             double dX = limelightX_ - robotX_;
             double dY = limelightY_ - robotY_;
+            frc::SmartDashboard::PutNumber("dx", dX);
+            frc::SmartDashboard::PutNumber("dy", dY);
+            
+            double turretError = abs(180 - robotGoalAngle_ - turretAngle);
+            Helpers::normalizeAngle(turretError);
+            frc::SmartDashboard::PutNumber("40", turretError);
 
             //TODO, change weight based on velocity?
-            if(abs(dX) < 0.75 && abs(dY) < 0.75 && abs(180 - robotGoalAngle_ - turretAngle) < 40)
+            if(abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40)
             {
                 robotX_ += dX * 0.05;
                 robotY_ += dY * 0.05;
@@ -331,10 +344,10 @@ double SwerveDrive::getRobotGoalAng()
 
 double SwerveDrive::getDistance(double turretAngle)
 {
-    if (!limelight_->hasTarget())
+    /*if (!limelight_->hasTarget())
     {
         return -1;
-    }
+    }*/
 
 
     double turretLimelightAngle = turretAngle - 180;

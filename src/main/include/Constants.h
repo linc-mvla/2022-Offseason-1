@@ -33,8 +33,8 @@ namespace GeneralConstants
 
 namespace LimelightConstants
 {
-    const double ANGLE_OFFSET = 32; //49.5 from 0 at top (90-49.5), 30
-    const double HEIGHT_OFFSET = 0.7874; //0.533, 0.7874
+    const double ANGLE_OFFSET = 31.4; //49.5 from 0 at top (90-49.5), 30
+    const double HEIGHT_OFFSET = 0.9144; //0.533, 0.7874, 0.9144 raised
     const double TURRET_ANGLE_OFFSET = 7; //5.0, 4?
     const double TURRET_CENTER_RADIUS = 0.127;
     const double ROBOT_TURRET_CENTER_DISTANCE = 0.127;
@@ -217,7 +217,7 @@ namespace ShooterConstants
     const double TURRET_ZERO_CURRENT = 2.8; //TODO test value
     const double TICKS_PER_TURRET_DEGREE = 175; //TODO test value
 
-    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots.csv";
+    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_raised.csv";
     const string LOW_ANGLE_SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_low_angle.csv";
     const double Kr = 0.0762; //TODO get value, 3 inches = 0.0762
 
