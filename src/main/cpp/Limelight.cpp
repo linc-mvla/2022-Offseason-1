@@ -112,7 +112,7 @@ Limelight::getCorners() {
 
 //coordinates: gonna assume angle is zero when robot facing directly away
 frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
-    LL3DCoordinate center = getCenter(getCoords(), 0.01);
+    LL3DCoordinate center = getCenter(getCoords());
 
     frc::SmartDashboard::PutNumber("Center x", center.x);
     frc::SmartDashboard::PutNumber("Center y", center.z);
@@ -159,8 +159,8 @@ Limelight::setLEDMode(std::string mode){
 std::pair<double, double> 
 Limelight::pixelsToAngle(double px, double py) {
     // From here: https://docs.limelightvision.io/en/latest/theory.html#from-pixels-to-angles
-    const double H_FOV = 54;
-    const double V_FOV = 41;
+    const double H_FOV = 59.6; //54
+    const double V_FOV = 49.7;
     const double IMG_WIDTH = 320;
     const double IMG_HEIGHT = 240;
 
@@ -188,25 +188,48 @@ Limelight::pixelsToAngle(double px, double py) {
     return ans;
 }
 
+LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points) {
+    //https://goodcalculators.com/best-fit-circle-least-squares-calculator/
+    
+    //step 1: find A and B in Ax=B
+    double a00, a01, a02, a10, a11, a12, a20, a21, a22;
+    a22 = points.size();
+    double b0, b1, b2;
+    for (LL3DCoordinate c : points) {
+        a00 += c.x*c.x;
+        a01 += c.x*c.z;
+        a02 += c.x;
 
-LL3DCoordinate Limelight::testAngleToCoords(double ax, double ay, double targetHeight) {
-    //need to adjust angles first
-    //https://math.libretexts.org/Bookshelves/Calculus/Book%3A_Calculus_(OpenStax)/12%3A_Vectors_in_Space/12.7%3A_Cylindrical_and_Spherical_Coordinates#:~:text=To%20convert%20a%20point%20from,y2%2Bz2).
-    
-    double dist = (2.641 - GeneralConstants::cameraHeight) / tan(GeneralConstants::cameraPitch * M_PI / 180 + ay);
-    //std::cout << "targetheight - camhe9hgt: " << (targetHeight - GeneralConstants::cameraHeight) << ", tan: " << 
-    
-    std::cout << "dist: " << dist << "\n";
+        a10 += c.x*c.z;
+        a11 += c.z*c.z;
+        a12 += c.z;
 
-    ay = M_PI/2 - ay;
-    double x = dist*sin(ax)*cos(ay);
-    double y = dist*sin(ax)*sin(ay);
-    
-  //  std::cout << "ax = " << ax << ", ay = " << ay << ", sin(ax) = " << sin(ax) << ", sin(ay) = " << sin(ay) << ", y = " << y << "\n";
-    
-    double z = dist*cos(ax);
+        a20 += c.x;
+        a21 += c.z;
 
-    return{x, z, y};
+        b0 += c.x*(c.x*c.x + c.z*c.z);
+        b1 += c.z*(c.x*c.x + c.z*c.z);
+        b2 += c.x*c.x + c.z*c.z;
+    }
+
+    Eigen::Matrix3d A;
+    A(0, 0) = a00; A(0, 1) = a01; A(0, 2) = a02;
+    A(1, 0) = a10; A(1, 1) = a11; A(1, 2) = a12;
+    A(2, 0) = a20; A(2, 1) = a21; A(2, 2) = a22;
+
+    Eigen::Vector3d B;
+    B(0) = b0; B(1) = b1; B(2) = b2;
+
+    //step 2: least squares. compute x = (A_t*A)^-1 * A_t*b
+    //https://textbooks.math.gatech.edu/ila/least-squares.html
+    Eigen::Vector3d x = (A.transpose() * A).inverse() * (A.transpose()*B);
+
+    //step 3: transform x0 & x1 into k & m in circle equation
+    //can also compute radius but don't need that for now
+    double k = x(0) / 2;
+    double m = x(1) / 2;
+
+    return {k, 2.641, m};
 }
 
 // angles to actual x, y, z of point
@@ -223,11 +246,6 @@ Limelight::angleToCoords(double ax, double ay, double targetHeight) {
     double z = 1;
 
     double length = sqrt(x*x + y*y + z*z);
-
-    // get normalized x, y, and z values
-    x = x/length;
-    y = y/length;
-    z = z/length;
 
     // apply transformations to 3d vector (compensate for pitch) -> rotate down by camera pitch
     // multiply [x, y, z] vector by rotation matrix around x-axis
@@ -250,67 +268,6 @@ Limelight::angleToCoords(double ax, double ay, double targetHeight) {
     return {x, y, z};
 }
 
-
-//thanks mechanical advantage https://github.com/Mechanical-Advantage/RobotCode2022/blob/main/src/main/java/frc/robot/util/CircleFitter.java
-//calculates center of circle made by coordinates
-LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points, double precision) {
-    double xSum = 0.0;
-    double ySum = 0.0;
-    for (LL3DCoordinate point : points) {
-        xSum += point.x;
-        ySum += point.z;
-    }
-
-    LL3DCoordinate center{xSum / points.size(), GeneralConstants::goalHeight, ySum / points.size() + GeneralConstants::radius};
-
-    std::cout << "guess: " << center.x << ", " << center.y << ", " << center.z << "\n";
-
-    //iterate to find optimal center (binary search regression)
-    double stepSize = 0.5;
-    double shiftDist = GeneralConstants::radius*stepSize; 
-    double minResidual = calcResidual(GeneralConstants::radius, points, center);
-
-    while (true) {
-        std::vector<LL3DCoordinate> translations {
-            LL3DCoordinate{shiftDist, GeneralConstants::goalHeight, 0.0}, LL3DCoordinate{-shiftDist, GeneralConstants::goalHeight, 0.0},
-            LL3DCoordinate{0.0, GeneralConstants::goalHeight, shiftDist}, LL3DCoordinate{0.0, GeneralConstants::goalHeight, -shiftDist}
-        };
-        LL3DCoordinate bestPoint = center;
-        bool centerIsBest = true;
-
-        //check all adjacent positions
-        for (LL3DCoordinate translation : translations) {
-            LL3DCoordinate c{center.x + translation.x, center.y + translation.y, center.z + translation.z};
-            double residual = calcResidual(GeneralConstants::radius, points, c);
-            if (residual < minResidual) {
-                bestPoint = c;
-                minResidual = residual;
-                centerIsBest = false;
-                break;
-            }
-        }
-
-        //decrease shift, exit, or continue
-        if (centerIsBest) {
-            shiftDist*= (1-shiftDist);
-            if (shiftDist < precision) {
-                return center;
-            } else {
-                center = bestPoint;
-            }
-        }
-    }
-}
-
-double Limelight::calcResidual(double radius, std::vector<LL3DCoordinate> points, LL3DCoordinate center) {
-    double residual = 0.0;
-    for (LL3DCoordinate point : points) {
-        double distance = sqrt((point.x-center.x)*(point.x-center.x) + (point.y-center.y)*(point.y-center.y) + (point.z-center.z)*(point.z-center.z));
-        double diff = distance - radius;
-        residual += diff * diff;
-    }
-    return residual;
-}
 
 // relative to x-axis
 int angleBetween(const LLCoordinate point, const LLCoordinate centerPoint) {
@@ -469,7 +426,7 @@ Limelight::getCoords() {
             std::pair<double, double> anglePair = pixelsToAngle(corners[i][j].first, corners[i][j].second);
             std::cout << "angle x: " << anglePair.first * 180 / M_PI << ", angle y: " << anglePair.second * 180 / M_PI << "\n";
             coords.push_back(
-                testAngleToCoords(
+                angleToCoords(
                     anglePair.first, 
                     anglePair.second, 
                     j < 2 ? GeneralConstants::targetHeightUpper : GeneralConstants::targetHeightLower
