@@ -22,9 +22,11 @@ class Channel
         int getBalls();
         bool badIdea();
         int getBallCount();
+        int getBallsShot();
         void increaseBallCount();
         void decreaseBallCount();
         void setBallCount(int ballCount);
+        void setBallsShot(int ballsShot);
         void setSeeingBall(bool seeingBall);
 
     private:
@@ -32,7 +34,7 @@ class Channel
         static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
         rev::ColorSensorV3 colorSensor_{i2cPort};
 
-        int ballCount_;
+        int ballCount_, ballsShot_;
         bool seeingBall_;
 
         Color color_;

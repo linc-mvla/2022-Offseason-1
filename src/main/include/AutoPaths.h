@@ -6,6 +6,7 @@
 #include "Intake.h"
 #include "Shooter.h"
 #include "SwervePath.h"
+#include "Channel.h"
 #include "Constants.h"
 #include <vector>
 
@@ -22,7 +23,7 @@ class AutoPaths
             THREE,
             BIG_BOY
         };
-        AutoPaths();
+        AutoPaths(Channel* channel);
         void setPath(Path path);
         Path getPath();
 
@@ -31,16 +32,20 @@ class AutoPaths
 
         void startTimer();
         //void stopTimer();
+        void setSetPath(bool setPath);
 
         void periodic(double yaw, SwerveDrive* swerveDrive);
         double initYaw();
     private:
+        Channel* channel_;
         Path path_;
         Shooter::State shooterState_;
         Intake::State intakeState_;
 
         frc::Timer timer_;
+        frc::Timer failsafeTimer_;
         double startTime_;
+        bool nextPathReady_, failsafeStarted_, dumbTimerStarted_, pathSet_;
 
         vector<SwervePath> swervePaths_;
         int pathNum_;

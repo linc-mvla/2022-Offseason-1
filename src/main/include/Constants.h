@@ -22,9 +22,10 @@ namespace GeneralConstants
     const double Kv = ((FREE_SPEED * 2 * M_PI) / 60 ) / (MAX_VOLTAGE - FREE_CURRENT * RESISTANCE);
 
     const double GOAL_HEIGHT = 2.641;
+    const double GOAL_RADIUS = 0.6096;
 
-    const double HANGAR_X = -4; //-4, -8
-    const double HANGAR_Y = -8;
+    const double HANGAR_X = -3; //-4, -8
+    const double HANGAR_Y = -7;
 
     const int MAX_BALL_COUNT = 1;
 
@@ -32,11 +33,11 @@ namespace GeneralConstants
 
 namespace LimelightConstants
 {
-    const double ANGLE_OFFSET = 32; //49.5 from 0 at top (90-49.5), 30
-    const double HEIGHT_OFFSET = 0.7874; //0.533, 0.7874
+    const double ANGLE_OFFSET = 31.4; //49.5 from 0 at top (90-49.5), 30
+    const double HEIGHT_OFFSET = 0.9144; //0.533, 0.7874, 0.9144 raised
     const double TURRET_ANGLE_OFFSET = 7; //5.0, 4?
-    const double TURRET_CENTER_RADIUS = 0.229; //TODO get value
-    const double ROBOT_TURRET_CENTER_DISTANCE = 0.1524; //TODO get value
+    const double TURRET_CENTER_RADIUS = 0.127;
+    const double ROBOT_TURRET_CENTER_DISTANCE = 0.127;
     const double LIMELIGHT_TO_BALL_CENTER_DIST = -0.2032; //TODO get more precise, -0.1145, -0.2032?
 }
 
@@ -86,40 +87,52 @@ namespace OutputConstants
 
 namespace SwerveConstants
 {
-    const double WIDTH = 29; 
+    const double WIDTH = 29; //Change to 22 
     const double LENGTH = 29;
-    const double TREAD_RADIUS = 0.0508; //TODO get value
-    const double DRIVE_GEAR_RATIO = 1/6.12; //TODO get direction
+    const double TREAD_RADIUS = 0.0508; 
+    const double DRIVE_GEAR_RATIO = 1/6.12; 
 
-    const double trPosAngle = atan2((SwerveConstants::WIDTH/2), (SwerveConstants::LENGTH/2));
-    const double tlPosAngle = -trPosAngle;
-    const double brPosAngle = 180 - trPosAngle;
-    const double blPosAngle = trPosAngle - 180;
+    //const double trPosAngle = atan2((SwerveConstants::WIDTH/2), (SwerveConstants::LENGTH/2));
+    //const double tlPosAngle = -trPosAngle;
+    //const double brPosAngle = 180 - trPosAngle;
+    //const double blPosAngle = trPosAngle - 180;
 
-    const int TR_DRIVE_ID = 13;
-    const int TL_DRIVE_ID = 11;
-    const int BR_DRIVE_ID = 18;
-    const int BL_DRIVE_ID = 15;
+    const int TR_DRIVE_ID = 13; //13, 3
+    const int TL_DRIVE_ID = 11; //11, 1
+    const int BR_DRIVE_ID = 18; //18, 4
+    const int BL_DRIVE_ID = 15; //15, 22
 
-    const int TR_TURN_ID = 14;
-    const int TL_TURN_ID = 12;
-    const int BR_TURN_ID = 17;
-    const int BL_TURN_ID = 16;
+    const int TR_TURN_ID = 14; //14, 5
+    const int TL_TURN_ID = 12; //12, 7
+    const int BR_TURN_ID = 17; //17, 10
+    const int BL_TURN_ID = 16; //16, 19
 
-    const int TR_CANCODER_ID = 62;
-    const int TL_CANCODER_ID = 10;
-    const int BR_CANCODER_ID = 8;
-    const int BL_CANCODER_ID = 42;
+    const int TR_CANCODER_ID = 62; //62, 2
+    const int TL_CANCODER_ID = 10; //10, 9
+    const int BR_CANCODER_ID = 8; //8, 8
+    const int BL_CANCODER_ID = 42; //42, 6
     
-    const double TR_CANCODER_OFFSET = 19.77;
-    const double TL_CANCODER_OFFSET = -70.048 + 180;
-    const double BR_CANCODER_OFFSET = 17.5 + 180;
-    const double BL_CANCODER_OFFSET = 176.39 + 180;
+    const double TR_CANCODER_OFFSET = 19.77; //19.77, 
+    const double TL_CANCODER_OFFSET = 109.952; //109.952
+    const double BR_CANCODER_OFFSET = 197.5; //197.5
+    const double BL_CANCODER_OFFSET = 356.39; // 356.39
 
     const double MAX_LA = 1;
     const double MAX_LV = 2;
     const double MAX_AA = 180;
     const double MAX_AV = 360;
+
+    const double klV = 2.044;
+    const double klVI = 0.669435;
+    const double klA = 0;
+    const double klP = 0;
+    const double klD = 0;
+
+    const double kaV = 0.0291946;
+    const double kaVI = 0.746574;
+    const double kaA = 0;
+    const double kaP = 0;
+    const double kaD = 0;
 
 }
 
@@ -141,14 +154,14 @@ namespace ClimbConstants
     const double RAISE_FF_INTERCEPT = -9083.19;
 
     const double TOO_FAR_FROM_STATIC_HOOKS = 16500;
-    const double ABOVE_STATIC_HOOKS = 25000; //112000, TODO get values
-    const double CLEAR_OF_BARS = 70850; //141700 (average down value)
+    const double ABOVE_STATIC_HOOKS = 25000;
+    const double CLEAR_OF_BARS = 70850;
     const double NEARING_HARDSTOP = 110000;
     //const double OFF_HOOKS = -110500;
     const double EXTEND_THRESHOLD = 1000; //TODO experiment for value
     const double HIGH_EXTEND_THRESHOLD = 2000;
 
-    const double RAISE_VOLTAGE = -6; //TODO increase, get better trapezoidal motion and stuff
+    //const double RAISE_VOLTAGE = -6; //TODO increase, get better trapezoidal motion and stuff
 
     const double LOW_CLIMB_VOLTAGE = 9;
     const double MID_CLIMB_VOLTAGE = 8;
@@ -166,7 +179,7 @@ namespace ClimbConstants
     const double SLOW_RAISE_VOLTAGE = -2.5; //TODO make sure to lower on bar
     const double SLOW_CLIMB_VOLTAGE = 3;
 
-    const double ROLL_MAX = 170; //TODO yeah these two, also pitch roll idk man
+    const double ROLL_MAX = 170; //TODO yeah these two
     const double ROLL_MIN = -180;
 
     const double ON_BAR_DELAY = 0.85;
@@ -204,7 +217,7 @@ namespace ShooterConstants
     const double TURRET_ZERO_CURRENT = 2.8; //TODO test value
     const double TICKS_PER_TURRET_DEGREE = 175; //TODO test value
 
-    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots.csv";
+    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_raised_2.csv";
     const string LOW_ANGLE_SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_low_angle.csv";
     const double Kr = 0.0762; //TODO get value, 3 inches = 0.0762
 

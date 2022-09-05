@@ -59,7 +59,7 @@ private:
     Logger* hoodLogger_ = new Logger(OutputConstants::hoodFile);
     //Logger* turretLogger_ = new Logger(OutputConstants::turretFile);
 
-    frc::Timer timer;
+    frc::Timer climbTimer_;
 
     double yawOffset_;
 

@@ -59,7 +59,8 @@ void SwervePath::generateTrajectory(bool spline)
 void SwervePath::generateLinearTrajectory()
 {
     trajectories_.clear();
-    for(int i = 0; i < points_.size() - 1; ++i)
+    
+    for(size_t i = 0; i < points_.size() - 1; ++i)
     {
         SwervePose p1 = points_[i];
         SwervePose p2 = points_[i + 1];
@@ -361,7 +362,7 @@ void SwervePath::addPoint(SwervePose point)
     points_.push_back(point);
 }
 
-SwervePose SwervePath::getPose(double time, bool& end)
+SwervePose* SwervePath::getPose(double time, bool& end)
 {
     double trajectoryTime = 0;
     int trajectory = trajectories_.size() - 1;
@@ -377,5 +378,11 @@ SwervePose SwervePath::getPose(double time, bool& end)
         }
     }
     
-    return trajectories_[trajectory].getPose(time - trajectoryTime);
+    //cout << "about to return pose" << endl;
+
+    //return new SwervePose(0, 0, 0, 0);
+    //SwervePose pose = trajectories_[trajectory].getPose(time - trajectoryTime);
+    //SwervePose* retPtr = new SwervePose(pose.getX(), pose.getY(), pose.getYaw(), pose.getXVel(), pose.getYVel(), pose.getYawVel(), pose.getXAcc(), pose.getYAcc(), pose.getYawAcc());
+
+    return new SwervePose(trajectories_[trajectory].getPose(time - trajectoryTime));
 }

@@ -34,12 +34,12 @@ class Turret
 
         void track();
         void calcUnloadAng();
-        //void flip();
 
         double calcAngularFF();
         double calcLinearFF();
         double calcError();
         double calcPID();
+        double calcProfileVolts();
 
         void setInPos(double pos);
         
