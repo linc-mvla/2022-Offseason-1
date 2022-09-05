@@ -32,6 +32,7 @@ class AutoPaths
 
         void startTimer();
         //void stopTimer();
+        void setSetPath(bool setPath);
 
         void periodic(double yaw, SwerveDrive* swerveDrive);
         double initYaw();
@@ -44,7 +45,7 @@ class AutoPaths
         frc::Timer timer_;
         frc::Timer failsafeTimer_;
         double startTime_;
-        bool nextPathReady_, failsafeStarted_, dumbTimerStarted_;
+        bool nextPathReady_, failsafeStarted_, dumbTimerStarted_, pathSet_;
 
         vector<SwervePath> swervePaths_;
         int pathNum_;

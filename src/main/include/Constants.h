@@ -97,39 +97,39 @@ namespace SwerveConstants
     //const double brPosAngle = 180 - trPosAngle;
     //const double blPosAngle = trPosAngle - 180;
 
-    const int TR_DRIVE_ID = 13;
-    const int TL_DRIVE_ID = 11;
-    const int BR_DRIVE_ID = 18;
-    const int BL_DRIVE_ID = 15;
+    const int TR_DRIVE_ID = 13; //13, 3
+    const int TL_DRIVE_ID = 11; //11, 1
+    const int BR_DRIVE_ID = 18; //18, 4
+    const int BL_DRIVE_ID = 15; //15, 22
 
-    const int TR_TURN_ID = 14;
-    const int TL_TURN_ID = 12;
-    const int BR_TURN_ID = 17;
-    const int BL_TURN_ID = 16;
+    const int TR_TURN_ID = 14; //14, 5
+    const int TL_TURN_ID = 12; //12, 7
+    const int BR_TURN_ID = 17; //17, 10
+    const int BL_TURN_ID = 16; //16, 19
 
-    const int TR_CANCODER_ID = 62;
-    const int TL_CANCODER_ID = 10;
-    const int BR_CANCODER_ID = 8;
-    const int BL_CANCODER_ID = 42;
+    const int TR_CANCODER_ID = 62; //62, 2
+    const int TL_CANCODER_ID = 10; //10, 9
+    const int BR_CANCODER_ID = 8; //8, 8
+    const int BL_CANCODER_ID = 42; //42, 6
     
-    const double TR_CANCODER_OFFSET = 19.77;
-    const double TL_CANCODER_OFFSET = -70.048 + 180;
-    const double BR_CANCODER_OFFSET = 17.5 + 180;
-    const double BL_CANCODER_OFFSET = 176.39 + 180;
+    const double TR_CANCODER_OFFSET = 19.77; //19.77, 
+    const double TL_CANCODER_OFFSET = 109.952; //109.952
+    const double BR_CANCODER_OFFSET = 197.5; //197.5
+    const double BL_CANCODER_OFFSET = 356.39; // 356.39
 
     const double MAX_LA = 1;
     const double MAX_LV = 2;
     const double MAX_AA = 180;
     const double MAX_AV = 360;
 
-    const double klV = 0;
-    const double klVI = 0;
+    const double klV = 2.044;
+    const double klVI = 0.669435;
     const double klA = 0;
     const double klP = 0;
     const double klD = 0;
 
-    const double kaV = 0;
-    const double kaVI = 0;
+    const double kaV = 0.0291946;
+    const double kaVI = 0.746574;
     const double kaA = 0;
     const double kaP = 0;
     const double kaD = 0;
@@ -217,7 +217,7 @@ namespace ShooterConstants
     const double TURRET_ZERO_CURRENT = 2.8; //TODO test value
     const double TICKS_PER_TURRET_DEGREE = 175; //TODO test value
 
-    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_raised.csv";
+    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_raised_2.csv";
     const string LOW_ANGLE_SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_low_angle.csv";
     const double Kr = 0.0762; //TODO get value, 3 inches = 0.0762
 

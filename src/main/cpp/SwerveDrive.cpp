@@ -39,10 +39,39 @@ void SwerveDrive::drive(double xSpeed, double ySpeed, double turn)
 
     // double volts = frc::SmartDashboard::GetNumber("Swerve Volts", 0.0);
 
-    // topRight_->periodic(volts, trAngle_, true);
-    // topLeft_->periodic(volts, tlAngle_, true);
-    // bottomRight_->periodic(volts, brAngle_, true);
-    // bottomLeft_->periodic(volts, blAngle_, true);
+    // if(abs(xSpeed) > 0.1 || abs(ySpeed) > 0.1 || abs(turn) > 0.1)
+    // {
+    //     topRight_->periodic(volts, trAngle_, true);
+    //     topLeft_->periodic(volts, tlAngle_, true);
+    //     bottomRight_->periodic(volts, brAngle_, true);
+    //     bottomLeft_->periodic(volts, blAngle_, true);
+    // }
+    // else
+    // {
+    //     topRight_->periodic(0, trAngle_, true);
+    //     topLeft_->periodic(0, tlAngle_, true);
+    //     bottomRight_->periodic(0, brAngle_, true);
+    //     bottomLeft_->periodic(0, blAngle_, true);
+    // }
+
+//0.65, 0, 0
+//1, 610, 0.15534
+//2, 2480, 0.63156
+//3, 4600, 1.17144
+//4, 6300, 1.60436
+//5, 8400, 2.13915
+//6, 10200, 2.59754
+//m = 2.044, b = 0.669435
+
+//turn
+//1, 530, 9.66532
+//2, 2400, 43.7675
+//3, 4000, 72.94584
+//4, 6200, 113.0661
+//5, 8100, 147.7153
+//6, 9800, 178.7173
+//m = 0.0291946, b = 0.746574
+    
 
     topRight_->periodic(trSpeed_, trAngle_, false);
     topLeft_->periodic(tlSpeed_, tlAngle_, false);

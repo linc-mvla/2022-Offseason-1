@@ -4,6 +4,10 @@ AutoPaths::AutoPaths(Channel *channel) : channel_(channel)
 {
     pathNum_ = 0;
     dumbTimerStarted_ = false;
+    pathSet_ = false;
+
+    intakeState_ = Intake::RETRACTED_IDLE;
+    shooterState_ = Shooter::IDLE;
 }
 
 void AutoPaths::setPath(Path path)
@@ -22,6 +26,7 @@ void AutoPaths::setPath(Path path)
     }
     case TWO_DUMB:
     {
+        break;
     }
     case TWO_RIGHT:
     {
@@ -31,7 +36,11 @@ void AutoPaths::setPath(Path path)
         p1.addPoint(SwervePose(1, 0, 90, 0)); // TODO get value
         p1.addPoint(SwervePose(0, 0, 90, 0));
 
+        p1.generateTrajectory(false);
+
         swervePaths_.push_back(p1);
+
+        cout << "SET PATH" << endl;
         break;
     }
     case TWO_MIDDLE:
@@ -41,6 +50,8 @@ void AutoPaths::setPath(Path path)
         p1.addPoint(SwervePose(0, 0, 135, 0));
         p1.addPoint(SwervePose(0.7, -0.7, 135, 0)); // TODO get value
         p1.addPoint(SwervePose(0, 0, 135, 0));
+
+        p1.generateTrajectory(false);
 
         swervePaths_.push_back(p1);
         break;
@@ -52,6 +63,8 @@ void AutoPaths::setPath(Path path)
         p1.addPoint(SwervePose(0, 0, -135, 0));
         p1.addPoint(SwervePose(-0.7, -0.7, -135, 0)); // TODO get value
         p1.addPoint(SwervePose(0, 0, -135, 0));
+
+        p1.generateTrajectory(false);
 
         swervePaths_.push_back(p1);
         break;
@@ -68,6 +81,9 @@ void AutoPaths::setPath(Path path)
 
         p2.addPoint(SwervePose(0, 0, 90, 0));
         p2.addPoint(SwervePose(-2, -2, -135, 1.5));
+
+        p1.generateTrajectory(false);
+        p2.generateTrajectory(false);
 
         swervePaths_.push_back(p1);
         swervePaths_.push_back(p2);
@@ -96,6 +112,11 @@ void AutoPaths::setPath(Path path)
         p4.addPoint(SwervePose(1, -4, 135, 2));
         p4.addPoint(SwervePose(-2, -2, 135, 0));
 
+        p1.generateTrajectory(false);
+        p2.generateTrajectory(false);
+        p3.generateTrajectory(false);
+        p4.generateTrajectory(false);
+
         swervePaths_.push_back(p1);
         swervePaths_.push_back(p2);
         swervePaths_.push_back(p3);
@@ -103,6 +124,8 @@ void AutoPaths::setPath(Path path)
         break;
     }
     }
+
+    pathSet_ = true;
 }
 
 AutoPaths::Path AutoPaths::getPath()
@@ -130,18 +153,33 @@ void AutoPaths::startTimer()
     timer_.Stop();
 }*/
 
+void AutoPaths::setSetPath(bool setPath)
+{
+    pathSet_ = setPath;
+}
+
 void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
 {
+    //cout << "periodic called" << endl;
+    if(!pathSet_)
+    {
+        //cout << "thing returned" << endl;
+        return;
+    }
+
     double time = timer_.GetFPGATimestamp().value() - startTime_;
 
     bool pathsOver = false;
     bool endOfSwervePath = false;
     if (path_ != TAXI_DUMB && path_ != TWO_DUMB)
     {
-        SwervePose *pose;
+        //cout << "Got into loop" << endl;
+        SwervePose *pose = nullptr;
         for (size_t i = pathNum_; i < swervePaths_.size(); ++i) // Maybe make a while loop idk
         {
+            //cout << "Getting pose" << endl;
             pose = swervePaths_[i].getPose(time, endOfSwervePath);
+            //cout << "got pose" << endl;
             if (!endOfSwervePath)
             {
                 break;
@@ -155,28 +193,37 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             if (nextPathReady_ && endOfSwervePath && i != swervePaths_.size() - 1)
             {
                 nextPathReady_ = false;
-                pathNum_++;
+                ++pathNum_;
                 startTimer();
                 time = timer_.GetFPGATimestamp().value() - startTime_;
                 break;
             }
         }
 
-        swerveDrive->drivePose(yaw, *pose);
-
         if(pose != nullptr)
         {
+            //cout << "About to drive pose" << endl;
+            swerveDrive->drivePose(yaw, *pose);
+            //cout << "Drove pose" << endl;
+            //cout << "Deleting pose" << endl;
             delete pose;
         }
+
+        //cout << "finished with pose" << endl;
         
     }
     else
     {
         if (!dumbTimerStarted_)
         {
+            timer_.Stop();
+            timer_.Reset();
             timer_.Start();
+            dumbTimerStarted_ = true;
         }
     }
+
+    //cout << "GOT TO SWITCH" << endl;
 
     switch (path_)
     {
@@ -184,6 +231,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     {
         intakeState_ = Intake::RETRACTED_IDLE;
         shooterState_ = Shooter::IDLE;
+        //cout << timer_.Get().value() << endl;
         if (timer_.Get().value() < 2.0) // TODO get values
         {
             swerveDrive->drive(0, 0.2, 0);

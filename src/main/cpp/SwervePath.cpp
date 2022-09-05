@@ -378,5 +378,11 @@ SwervePose* SwervePath::getPose(double time, bool& end)
         }
     }
     
+    //cout << "about to return pose" << endl;
+
+    //return new SwervePose(0, 0, 0, 0);
+    //SwervePose pose = trajectories_[trajectory].getPose(time - trajectoryTime);
+    //SwervePose* retPtr = new SwervePose(pose.getX(), pose.getY(), pose.getYaw(), pose.getXVel(), pose.getYVel(), pose.getYawVel(), pose.getXAcc(), pose.getYAcc(), pose.getYawAcc());
+
     return new SwervePose(trajectories_[trajectory].getPose(time - trajectoryTime));
 }

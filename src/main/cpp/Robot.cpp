@@ -22,7 +22,7 @@ Robot::Robot() : autoPaths_(channel_)
             shooter_->periodic(-yaw);
             climb_.periodic(navx_->GetRoll());
 
-            if(frc::DriverStation::IsAutonomous())
+            if(frc::DriverStation::IsAutonomous() && frc::DriverStation::IsEnabled())
             {
                 autoPaths_.periodic(yaw, swerveDrive_);
             }
@@ -107,11 +107,12 @@ void Robot::AutonomousInit()
 
     navx_->ZeroYaw();
     yawOffset_ = autoPaths_.initYaw();
+    
 
     swerveDrive_->reset();
 
     autoPaths_.startTimer();
-
+    //cout << "autoinit thing finished" << endl;
 }
 
 void Robot::AutonomousPeriodic()
@@ -394,6 +395,8 @@ void Robot::DisabledPeriodic() //TODO does this even do anything
     limelight_->lightOn(false);
 
     swerveDrive_->reset();
+
+    autoPaths_.setSetPath(false);
 }
 
 void Robot::TestInit() {}
