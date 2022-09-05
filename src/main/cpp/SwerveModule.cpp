@@ -100,8 +100,8 @@ void SwerveModule::move(double driveSpeed, double angle, bool inVolts)
     
     //frc::SmartDashboard::PutNumber(id_ + " Drive volts", driveVolts.value());
 
-    frc::SmartDashboard::PutNumber(id_ + " VEL", driveMotor_.GetSelectedSensorVelocity());
-    frc::SmartDashboard::PutNumber(id_ + "thing", cancoder_.GetAbsolutePosition());
+    //frc::SmartDashboard::PutNumber(id_ + " VEL", driveMotor_.GetSelectedSensorVelocity());
+    //frc::SmartDashboard::PutNumber(id_ + "thing", cancoder_.GetAbsolutePosition());
 
 }
 

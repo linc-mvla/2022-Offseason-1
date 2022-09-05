@@ -97,7 +97,9 @@ void Robot::RobotPeriodic()
 void Robot::AutonomousInit()
 {
     climb_.setPneumatics(false, false);
+    climb_.setState(Climb::MANUAL);
     climbTimer_.Stop();
+    climbTimer_.Reset();
     climbTimer_.Start();
 
     AutoPaths::Path path = autoChooser_.GetSelected();

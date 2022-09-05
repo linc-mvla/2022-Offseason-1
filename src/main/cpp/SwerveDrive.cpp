@@ -87,10 +87,15 @@ void SwerveDrive::drivePose(double yaw, SwervePose pose)
 
     double xVel = pose.getXVel();
     double yVel = pose.getYVel();
+    frc::SmartDashboard::PutNumber("WX", xVel);
+    frc::SmartDashboard::PutNumber("WY", yVel);
     xVel += (pose.getX() - autoX_) * SwerveConstants::klP + pose.getXAcc() * SwerveConstants::klA;
     yVel += (pose.getY() - autoY_) * SwerveConstants::klP + pose.getYAcc() * SwerveConstants::klA;
 
     double yawVel = pose.getYawVel();
+    frc::SmartDashboard::PutNumber("WYAW", yawVel);
+    
+    frc::SmartDashboard::PutNumber("wy", pose.getYaw());
     yawVel += (pose.getYaw() - (-yaw_)) * SwerveConstants::kaP + pose.getYawAcc() * SwerveConstants::kaA;
     
     calcModules(xVel, yVel, yawVel, true);
@@ -107,6 +112,11 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool in
 
     double newX = xSpeed * cos(angle) + ySpeed * sin(angle);
     double newY = ySpeed * cos(angle) + xSpeed * -sin(angle);
+
+    if(inVolts)
+    {
+        turn = (turn * M_PI / 180) * (SwerveConstants::WHEEL_DIAGONAL / 2);
+    }
 
     double turnComponent = sqrt(turn * turn / 2);
     if(turn < 0)
@@ -135,11 +145,26 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool in
     double maxSpeed;
     if(inVolts)
     {
-        trSpeed_ = (trSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
-        tlSpeed_ = (tlSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
-        brSpeed_ = (brSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
-        blSpeed_ = (blSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        if(trSpeed_ != 0)
+        {
+            trSpeed_ = (trSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        }
 
+        if(tlSpeed_ != 0)
+        {
+            tlSpeed_ = (tlSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        }
+
+        if(brSpeed_ != 0)
+        {
+            brSpeed_ = (brSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        }
+
+        if(blSpeed_ != 0)
+        {
+            blSpeed_ = (blSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
+        }
+        
         maxSpeed = GeneralConstants::MAX_VOLTAGE;
     }
     else
@@ -168,6 +193,9 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool in
             blSpeed_ *= GeneralConstants::MAX_VOLTAGE;
         }
     }
+
+    //cout << trSpeed_ << endl;
+
 }
 
 void SwerveDrive::calcOdometry()
