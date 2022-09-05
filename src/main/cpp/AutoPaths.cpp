@@ -17,6 +17,7 @@ void AutoPaths::setPath(Path path)
     swervePaths_.clear();
     nextPathReady_ = false;
     dumbTimerStarted_ = false;
+    failsafeStarted_ = false;
 
     switch (path_)
     {
@@ -193,9 +194,14 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             if (nextPathReady_ && endOfSwervePath && i != swervePaths_.size() - 1)
             {
                 nextPathReady_ = false;
+                //frc::SmartDashboard::PutBoolean("Advaced Path", true);
                 ++pathNum_;
                 startTimer();
                 time = timer_.GetFPGATimestamp().value() - startTime_;
+                //break;
+            }
+            else
+            {
                 break;
             }
         }
@@ -203,6 +209,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         if(pose != nullptr)
         {
             //cout << "About to drive pose" << endl;
+            //cout << pose->getX() << ", " << pose->getY() << endl;
             swerveDrive->drivePose(yaw, *pose);
             //cout << "Drove pose" << endl;
             //cout << "Deleting pose" << endl;
@@ -313,12 +320,18 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             if (!failsafeStarted_)
             {
                 failsafeStarted_ = true;
+                failsafeTimer_.Stop();
+                failsafeTimer_.Reset();
                 failsafeTimer_.Start();
             }
 
-            if (failsafeTimer_.Get().value() > 5 || channel_->getBallsShot() > 1)
+            //cout << failsafeTimer_.Get().value() << endl;
+            if (failsafeTimer_.Get().value() > 5/* || channel_->getBallsShot() > 1*/)
             {
+                //frc::SmartDashboard::PutBoolean("Started second", true);
                 failsafeTimer_.Stop();
+                failsafeTimer_.Reset();
+                failsafeStarted_ = false;
                 channel_->setBallsShot(0);
                 nextPathReady_ = true;
             }
@@ -349,12 +362,16 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                 if (!failsafeStarted_)
                 {
                     failsafeStarted_ = true;
+                    failsafeTimer_.Stop();
+                    failsafeTimer_.Reset();
                     failsafeTimer_.Start();
                 }
 
                 if (failsafeTimer_.Get().value() > 3 || channel_->getBallsShot() > 1)
                 {
                     failsafeTimer_.Stop();
+                    failsafeTimer_.Reset();
+                    failsafeStarted_ = false;
                     channel_->setBallsShot(0);
                     nextPathReady_ = true;
                 }
@@ -365,12 +382,16 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                 if (!failsafeStarted_)
                 {
                     failsafeStarted_ = true;
+                    failsafeTimer_.Stop();
+                    failsafeTimer_.Reset();
                     failsafeTimer_.Start();
                 }
 
                 if (failsafeTimer_.Get().value() > 2 || channel_->getBallsShot() > 0)
                 {
                     failsafeTimer_.Stop();
+                    failsafeTimer_.Reset();
+                    failsafeStarted_ = false;
                     channel_->setBallsShot(0);
                     nextPathReady_ = true;
                 }
@@ -381,12 +402,16 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                 if (!failsafeStarted_)
                 {
                     failsafeStarted_ = true;
+                    failsafeTimer_.Stop();
+                    failsafeTimer_.Reset();
                     failsafeTimer_.Start();
                 }
 
                 if (failsafeTimer_.Get().value() > 2)
                 {
                     failsafeTimer_.Stop();
+                    failsafeTimer_.Reset();
+                    failsafeStarted_ = false;
                     nextPathReady_ = true;
                 }
                 break;
