@@ -423,8 +423,8 @@ double SwerveDrive::getDistance(double turretAngle)
 
     //should be equivalent? seems like all of below is done in odometry calc anyway so just getting distance via odomety should be valid?
     
-    //TODO: if used for shooter, needs to return distance to limelight NOT center of robot
-    return sqrt(robotX_*robotX_ + robotY_*robotY_);
+    //returns distance to limelight??
+    return limelight_->getDist(yaw_, turretAngle);
 
     // double turretLimelightAngle = turretAngle - 180;
     // Helpers::normalizeAngle(turretLimelightAngle);
