@@ -170,7 +170,7 @@ void Shooter::periodic(double yaw)
     double swerveDistance = swerveDrive_->getDistance(turret_.getAngle());
     frc::SmartDashboard::PutNumber("SDistance", swerveDistance);
     frc::SmartDashboard::PutNumber("FDistance", distance);
-    frc::SmartDashboard::PutNumber("LDistance", limelight_->calcDistance());
+    frc::SmartDashboard::PutNumber("LDistance", limelight_->getDist(yaw_, turret_.getAngle()));
 
     //distance = 5;
 

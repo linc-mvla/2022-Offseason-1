@@ -244,13 +244,12 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
 
     if (limelight_->hasTarget() && !inAuto)
     {
-        double distance = limelight_->calcDistance() + GeneralConstants::GOAL_RADIUS; // Origin at goal center
-        robotGoalAngle_ = (180 - (turretAngle + limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET));
-        Helpers::normalizeAngle(robotGoalAngle_);
-        double angleToGoal = yaw_ + robotGoalAngle_ + 90;
-        limelightX_ = -distance * cos(angleToGoal * M_PI / 180);
-        limelightY_ = -distance * sin(angleToGoal * M_PI / 180);
+        //get limelight pose (so this is the position of the camera)
+        frc::Pose2d limelightPose = limelight_->getPose(yaw_, turretAngle);
+        limelightX_ = limelightPose.X().value();
+        limelightY_ = limelightPose.Y().value();        
 
+        //adjust to get position of actual robot
         double turretLimelightAngle = turretAngle - 180;
         Helpers::normalizeAngle(turretLimelightAngle);
         turretLimelightAngle = turretLimelightAngle * M_PI / 180;
@@ -406,22 +405,24 @@ double SwerveDrive::getDistance(double turretAngle)
         return -1;
     }*/
 
+    //should be equivalent? seems like all of below is done in odometry calc anyway so just getting distance via odomety should be valid?
+    return sqrt(robotX_*robotX_ + robotY_*robotY_);
 
-    double turretLimelightAngle = turretAngle - 180;
-    Helpers::normalizeAngle(turretLimelightAngle);
-    turretLimelightAngle = turretLimelightAngle * M_PI / 180;
-    double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
-    double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
+    // double turretLimelightAngle = turretAngle - 180;
+    // Helpers::normalizeAngle(turretLimelightAngle);
+    // turretLimelightAngle = turretLimelightAngle * M_PI / 180;
+    // double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
+    // double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
 
-    turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
+    // turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
 
-    double angle = yaw_ * M_PI / 180;
-    double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
-    double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
+    // double angle = yaw_ * M_PI / 180;
+    // double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
+    // double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
 
-    double limelightToGoalX = robotX_ + robotLimelightX;
-    double limelightTtoGoalY = robotY_ + robotLimelightY;
-    return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY) - GeneralConstants::GOAL_RADIUS;
+    // double limelightToGoalX = robotX_ + robotLimelightX;
+    // double limelightTtoGoalY = robotY_ + robotLimelightY;
+    // return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY) - GeneralConstants::GOAL_RADIUS;
 }
 
 bool SwerveDrive::foundGoal()
