@@ -13,13 +13,26 @@
   void Robot::AutonomousInit() {}
   void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+  //  try
+  //   {
+  //       navx_ = new AHRS(frc::SPI::Port::kMXP);
+  //   }
+  //   catch (const std::exception &e)
+  //   {
+  //       std::cout << e.what() << std::endl;
+  //   }
+  //   navx_->ZeroYaw();
+}
 
 void Robot::TeleopPeriodic() {
+  frc::Pose2d x = limelight_.getPose(0, 0);
+  
 }
 
   void Robot::TestInit() {}
-  void Robot::TestPeriodic() {}
+  void Robot::TestPeriodic() {
+  }
 
 void Robot::DisabledInit() {}
 

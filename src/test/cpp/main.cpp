@@ -46,12 +46,40 @@ class LimelightTest : public testing::Test {
 
 TEST_F(LimelightTest, leastSquaresTest) {
   std::vector<LL3DCoordinate> points = {
-    {1.32, 2.64, 5.91}, {1.16, 2.64, 5.91}, {1.3, 2.64, 5.84}, {1.18, 2.64, 5.93}, {2.25, 2.64, 5.65}, {2.14, 2.64, 5.65}, {2.23, 2.64, 5.58}, {2.11, 2.64, 5.58}, 
-    {1.59, 2.64, 5.57}, {1.5, 2.64, 5.57}, {1.59, 2.64, 5.58}, {1.44, 2.64, 5.67}, {1.89, 2.64, 5.5}, {1.78, 2.64 ,5.5}, {1.74, 2.64, 5.42}, {1.92, 2.64, 5.5}  
-  };
+    
+  {0.0666092, 2.641, 2.13232},
+  {0.00435346, 2.641, 2.07901},
+  {0.0300805, 2.5902, 2.06723},
+  {0.108157, 2.5902, 2.085},
+  {0.106006, 2.5902, 2.03238},
+  {-0.177332, 2.641, 2.06171},
+  {-0.227754, 2.641, 2.04462},
+  {-0.112989, 2.5902, 1.99845},
+  {-0.410891, 2.641, 2.06171},
+  {-0.442616, 2.641, 2.04462},
+  {-0.436746, 2.5902, 2.03238},
+  {-0.347336, 2.5902, 1.99845},
+  {-0.34285, 2.5902, 1.9654}
+ 
+};
+  
   LL3DCoordinate c = limelight_.getCenter(points);
-  std::cout << c.x << ", " << c.z << ", " << c.y << "\n";
+  std::cout << "center: " << c.x << ", " << c.z << ", " << c.y << "\n";
 }
+
+// std::pair<double, double> genPixels(double x, double z) {
+//   Eigen::Vector3d L{-x, GeneralConstants::cameraHeight, -z}; //treated as a point but needs to be vector for rotation later
+//   Eigen::Vector3d H{0, GeneralConstants::targetHeightUpper, 0}; //can change if we're doing full gen
+
+//   //so for the limelight's plane of view, the line would go through L in the direction of H
+// }
+
+// TEST_F(LimelightTest, fullTest) {
+//   std::vector<double> llpython;
+//   LL3DCoordinate center = limelight_.getCenter(limelight_.getCoords(llpython));
+//   std::cout << "center x: " << center.x << "\n";
+//   std::cout << "center y: " << center.z << "\n";
+// }
 
 int main(int argc, char** argv) {
   HAL_Initialize(500, 0);

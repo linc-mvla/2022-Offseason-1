@@ -36,46 +36,8 @@ Limelight::targetAquired(){
 
 // get corners
 std::vector<LLRectangle> 
-Limelight::getCorners() {
-    //REMEMBER TO COMMENT NEXT 2 LINES AFTER TESTING
-   // nt::NetworkTableEntry e = network_table->GetEntry("llpython");
-  //  std::vector<double> llpython = e.GetDoubleArray({});
-
-    //REMEMBER TO COMMENT OUT WHEN NOT TESTING
-
-    //first image
-    // std::vector<double> llpython = {
-    //     4, 114,167, 111,168, 112,170, 115,169,  113,168, 
-    //     3, 154,165, 160,167, 160,165,  157,165, 
-    //     3, 138,166, 145,164, 139,164,  140,164, 
-    //     4, 129,165, 128,164, 124,165, 124,167,  126,165
-    // };
-  
-
-    //second image
-    // std::vector<double> llpython = {
-    //     3, 225, 147, 231, 144, 227, 144, 227, 145, 
-    //     4, 250, 136, 243, 138, 242, 141, 249, 139, 246, 138, 
-    //     3, 273, 131, 262, 134, 273, 134, 268, 133, 
-    //     4, 286, 132, 296, 132, 296, 130, 290, 129, 291, 130
-    // };
-
-    //first image 2nd set
-    // std::vector<double> llpython = {
-    //     4, 177, 191, 176, 192, 176, 193, 177, 193, 176, 192, 
-    //     3, 122, 194, 127, 192, 123, 191, 124, 192, 3, 163, 190, 170, 192, 169, 189, 166, 190, 
-    //     4, 149, 188, 149, 191, 156, 190, 156, 188, 152, 189, 
-    //     4, 141, 189, 134, 190, 134, 192, 141, 191, 137, 190
-    // };
-
-    //second image 2nd set
-    std::vector<double> llpython = {
-        4, 229, 176, 221, 176, 222, 179, 229, 178, 225, 177, 
-        4, 277, 173, 277, 175, 284, 175, 283, 173, 279, 173, 
-        4, 239, 176, 248, 175, 248, 172, 243, 172, 244, 173, 
-        5, 259, 173, 260, 175, 268, 174, 266, 171, 260, 171, 263, 172
-    };
-
+Limelight::getCorners(std::vector<double> llpython) {
+    
     //start with num corners, then corners, then center, repeat
     //have to do a wierd system cause network tables can't handle outputting fancy data types like 2d arrays
     int corner = 0;
@@ -109,27 +71,44 @@ Limelight::getCorners() {
     
 }
 
+//113
 
 //coordinates: gonna assume angle is zero when robot facing directly away
 frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
-    LL3DCoordinate center = getCenter(getCoords());
 
+    //REMEMBER TO COMMENT NEXT 2 LINES AFTER TESTING
+   nt::NetworkTableEntry e = network_table->GetEntry("llpython");
+   std::vector<double> llpython = e.GetDoubleArray({});
+
+   if (llpython.size() == 0) return {};
+
+   // std::cout<<"here1\n";
+    LL3DCoordinate center = getCenter(getCoords(llpython));
+  //  std::cout << "here2\n";
+
+     std::cout << "center x: " << center.x << "\n";
+     std::cout << "center y: " << center.z << "\n";
     frc::SmartDashboard::PutNumber("Center x", center.x);
     frc::SmartDashboard::PutNumber("Center y", center.z);
 
-    frc::Translation2d pose{units::meter_t{-center.x}, units::meter_t{-center.z}};
+    frc::SmartDashboard::PutNumber("distance to center", sqrt(center.x*center.x + center.z*center.z));
+   // std::cout << "dist: " << sqrt(center.x*center.x + center.z*center.z) << "\n";
+
+    // frc::Translation2d pose{units::meter_t{-center.x}, units::meter_t{-center.z}};
     
-    double turretLimelightAngle = turretAngle - 180;
-    frc::InputModulus(turretLimelightAngle, -180.0, 180.0);
+    // double turretLimelightAngle = turretAngle - 180;
+    // frc::InputModulus(turretLimelightAngle, -180.0, 180.0);
 
-    frc::SmartDashboard::PutNumber("Turret limelight angle", turretLimelightAngle);
+    // frc::SmartDashboard::PutNumber("Turret limelight angle", turretLimelightAngle);
 
-    pose.RotateBy(frc::Rotation2d{units::degree_t{navx + turretLimelightAngle}});
+    // pose.RotateBy(frc::Rotation2d{units::degree_t{navx + turretLimelightAngle}});
 
-    frc::SmartDashboard::PutNumber("Pose x", pose.X().value());
-    frc::SmartDashboard::PutNumber("Pose y", pose.Y().value());
+    // frc::SmartDashboard::PutNumber("Pose x", pose.X().value());
+    // frc::SmartDashboard::PutNumber("Pose y", pose.Y().value());
+    
 
-    return frc::Pose2d{pose.X(), pose.Y(), frc::Rotation2d{units::degree_t{navx}}};
+    //return frc::Pose2d{pose.X(), pose.Y(), frc::Rotation2d{units::degree_t{navx}}};
+    return frc::Pose2d{};
 }
 
 //hub coords are (0, 0)
@@ -190,11 +169,12 @@ Limelight::pixelsToAngle(double px, double py) {
 
 LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points) {
     //https://goodcalculators.com/best-fit-circle-least-squares-calculator/
-    
-    //step 1: find A and B in Ax=B
-    double a00, a01, a02, a10, a11, a12, a20, a21, a22;
+
+    double a00 = 0; double a01 = 0;   double a02 = 0;  double a10 = 0; double a11 = 0;    double a12 = 0;   double a20 = 0;  double a21 = 0; double a22 = 0;
     a22 = points.size();
-    double b0, b1, b2;
+    double b0 = 0; double b1 = 0; double b2 = 0;
+
+    a22 = points.size();
     for (LL3DCoordinate c : points) {
         a00 += c.x*c.x;
         a01 += c.x*c.z;
@@ -217,11 +197,14 @@ LL3DCoordinate Limelight::getCenter(std::vector<LL3DCoordinate> points) {
     A(1, 0) = a10; A(1, 1) = a11; A(1, 2) = a12;
     A(2, 0) = a20; A(2, 1) = a21; A(2, 2) = a22;
 
+
     Eigen::Vector3d B;
     B(0) = b0; B(1) = b1; B(2) = b2;
 
+
     //step 2: least squares. compute x = (A_t*A)^-1 * A_t*b
     //https://textbooks.math.gatech.edu/ila/least-squares.html
+
     Eigen::Vector3d x = (A.transpose() * A).inverse() * (A.transpose()*B);
 
     //step 3: transform x0 & x1 into k & m in circle equation
@@ -406,13 +389,21 @@ Limelight::sortCorners(LLRectangle rectCorners) {
 }
 
 std::vector<LL3DCoordinate> 
-Limelight::getCoords() {
-    std::vector<LLRectangle> corners = getCorners();
+Limelight::getCoords(std::vector<double> llpython) {
+  //  std::cout << "in get coords\n";
+    std::vector<LLRectangle> corners = getCorners(llpython);
+
+    if (corners.size() < 3) {
+        std::cout << "sus\n";
+        return {};
+    }
 
     std::vector<LL3DCoordinate> coords = std::vector<LL3DCoordinate> ();
 
     for (int i = 0; i < corners.size(); i++) {
+      //  std::cout << "before sort corners\n";
         corners[i] = sortCorners(corners[i]);
+     //   std::cout << "after sort corners\n";
 
         // if (corners[i].size() != 4) {
         //     std::cout << "Something went wrong... rectangle array corners is: " << corners[i].size();
@@ -422,9 +413,10 @@ Limelight::getCoords() {
             if (corners[i][j].first == -1 || corners[i][j].second == -1) {
                 continue;
             }
-         //   std::cout << "corner: (" << corners[i][j].first << ", " << corners[i][j].second << ")\n";
+          //  std::cout << "corner: (" << corners[i][j].first << ", " << corners[i][j].second << ")\n";
             std::pair<double, double> anglePair = pixelsToAngle(corners[i][j].first, corners[i][j].second);
-            std::cout << "angle x: " << anglePair.first * 180 / M_PI << ", angle y: " << anglePair.second * 180 / M_PI << "\n";
+         //   std::cout << "angle x: " << anglePair.first * 180 / M_PI << ", angle y: " << anglePair.second * 180 / M_PI << "\n";
+            
             coords.push_back(
                 angleToCoords(
                     anglePair.first, 
@@ -432,14 +424,10 @@ Limelight::getCoords() {
                     j < 2 ? GeneralConstants::targetHeightUpper : GeneralConstants::targetHeightLower
                 )
             );
-         //   std::cout << "coordinate: (" << coords[coords.size()-1].x << ", " << coords[coords.size()-1].y << ", " << coords[coords.size()-1].z << ")\n";
+          //  std::cout << "coordinate: (" << coords[coords.size()-1].x << ", " << coords[coords.size()-1].y << ", " << coords[coords.size()-1].z << ")\n";
         }
     }
-
-    for (int i = 0; i < coords.size(); i++) {
-        std::vector<double> temp = {coords[i].x, coords[i].y, coords[i].z};
-        frc::SmartDashboard::PutNumberArray("coords " + i, temp);
-    }
-
+    std::cout << "\n";
+  //  std::cout << "after for loop\n";
     return coords;
 }

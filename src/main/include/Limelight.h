@@ -14,7 +14,7 @@ namespace GeneralConstants{
     const double goalHeight = 2.641;
     const double targetHeightUpper = 2.641;
     const double targetHeightLower = targetHeightUpper - 0.0508;
-    const double cameraHeight = 0.28;//1.384; //1.19
+    const double cameraHeight = 1.36;//1.384; //1.19
     const double cameraPitch = 24;//22;
     const double radius = 0.6096;
 }
@@ -38,13 +38,13 @@ class Limelight{
         double getYOff();
         bool targetAquired();
 
-        std::vector<LLRectangle> getCorners();
+        std::vector<LLRectangle> getCorners(std::vector<double> llpython);
         void setLEDMode(std::string mode);
         double getDist(double navx, double turretAngle);
         frc::Pose2d getPose(double navx, double turretAngle);
         std::shared_ptr<nt::NetworkTable> GetNetworkTable();
 
-        std::vector<LL3DCoordinate> getCoords();
+        std::vector<LL3DCoordinate> getCoords(std::vector<double> llpython);
 
         //should be private
         LL3DCoordinate getCenter(std::vector<LL3DCoordinate> points);

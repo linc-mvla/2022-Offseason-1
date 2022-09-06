@@ -8,6 +8,7 @@
 #include <Limelight.h>
 #include <frc/TimedRobot.h>
 #include <frc/smartdashboard/SendableChooser.h>
+#include <AHRS.h>
 
 class Robot : public frc::TimedRobot {
  public:
@@ -29,5 +30,6 @@ class Robot : public frc::TimedRobot {
  private:
 
  Limelight limelight_;
+//  AHRS * navx_;
 
 };
