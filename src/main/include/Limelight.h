@@ -2,6 +2,8 @@
 
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableInstance.h"
+#include <networktables/EntryListenerFlags.h>
+#include <frc/Timer.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/geometry/Pose2d.h>
 #include <iostream>
@@ -38,6 +40,7 @@ class Limelight{
         double getYOff();
         bool hasTarget();
         void lightOn(bool light);
+        double getLastUpdated() {return lastUpdated_;}
 
         double getDist(double navx, double turretAngle);
         frc::Pose2d getPose(double navx, double turretAngle);
@@ -47,6 +50,8 @@ class Limelight{
 
     private:
         void ReadPeriodicIn();
+
+        double lastUpdated_ = 0;
 
         std::vector<double> getLLPython();
 
