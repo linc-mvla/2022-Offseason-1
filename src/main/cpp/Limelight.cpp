@@ -53,7 +53,7 @@ frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
 
     frc::SmartDashboard::PutNumber("Turret limelight angle", turretLimelightAngle);
 
-    pose.RotateBy(frc::Rotation2d{units::degree_t{navx + turretLimelightAngle}});
+    pose = pose.RotateBy(frc::Rotation2d{units::degree_t{navx + turretLimelightAngle}});
 
     frc::SmartDashboard::PutNumber("Pose x", pose.X().value());
     frc::SmartDashboard::PutNumber("Pose y", pose.Y().value());
