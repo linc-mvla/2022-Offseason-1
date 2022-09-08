@@ -98,25 +98,25 @@ namespace SwerveConstants
     //const double brPosAngle = 180 - trPosAngle;
     //const double blPosAngle = trPosAngle - 180;
 
-    const int TR_DRIVE_ID = 13; //13, 3
-    const int TL_DRIVE_ID = 11; //11, 1
-    const int BR_DRIVE_ID = 18; //18, 4
-    const int BL_DRIVE_ID = 15; //15, 22
+    const int FRspeedPort = 13; //13, 3
+    const int FLspeedPort = 11; //11, 1
+    const int BRspeedPort = 18; //18, 4
+    const int BLspeedPort = 15; //15, 22
 
-    const int TR_TURN_ID = 14; //14, 5
-    const int TL_TURN_ID = 12; //12, 7
-    const int BR_TURN_ID = 17; //17, 10
-    const int BL_TURN_ID = 16; //16, 19
+    const int FRanglePort = 14; //14, 5
+    const int FLanglePort = 12; //12, 7
+    const int BRanglePort = 17; //17, 10
+    const int BLanglePort = 16; //16, 19
 
-    const int TR_CANCODER_ID = 62; //62, 2
-    const int TL_CANCODER_ID = 10; //10, 9
-    const int BR_CANCODER_ID = 8; //8, 8
-    const int BL_CANCODER_ID = 42; //42, 6
+    const int FRencoder = 62; //62, 2
+    const int FLencoder = 10; //10, 9
+    const int BRencoder = 8; //8, 8
+    const int BLencoder = 42; //42, 6
     
-    const double TR_CANCODER_OFFSET = 19.77; //19.77, 
-    const double TL_CANCODER_OFFSET = 109.952; //109.952
-    const double BR_CANCODER_OFFSET = 197.5; //197.5
-    const double BL_CANCODER_OFFSET = 356.39; // 356.39
+    const double FROFF = 19.77; //19.77, 
+    const double FLOFF = 109.952; //109.952
+    const double BROFF = 197.5; //197.5
+    const double BLOFF = 356.39; // 356.39
 
     const double MAX_LA = 2;
     const double MAX_LV = 3;
@@ -134,6 +134,14 @@ namespace SwerveConstants
     const double kaA = 0;
     const double kaP = 0;
     const double kaD = 0;
+
+    const double P = 0.08;
+    const double I = 0.1;
+    const double D = 0.0;
+
+    const double sP = 0.08;
+    const double sI = 0.1;
+    const double sD = 0.0;
 
 }
 

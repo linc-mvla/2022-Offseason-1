@@ -1,10 +1,14 @@
 #include "SwerveDrive.h"
 
-SwerveDrive::SwerveDrive(Limelight *limelight)
+SwerveDrive::SwerveDrive(AHRS * nx, Limelight* limelight): navx_{nx}, limelight_{limelight}
 {
-    limelight_ = limelight;
-    autoX_ = 0;
-    autoY_ = 0;
+    angPID_.EnableContinuousInput(-180, 180);
+    angPID_.SetIntegratorRange(-0.5, 0.5);
+}
+
+void SwerveDrive::initializeOdometry(frc::Rotation2d gyroAngle, frc::Pose2d initPose) {
+  delete odometry_;
+  odometry_ = new frc::SwerveDriveOdometry<4>(m_kinematics, gyroAngle, initPose);
 }
 
 void SwerveDrive::setYaw(double yaw)
@@ -12,363 +16,123 @@ void SwerveDrive::setYaw(double yaw)
     yaw_ = yaw;
 }
 
-void SwerveDrive::periodic(double yaw, Controls *controls)
-{
-    setYaw(yaw);
-    drive(controls->getXStrafe(), controls->getYStrafe(), controls->getTurn());
+//returns an object that contains the speed and angle of each swerve module
+wpi::array<frc::SwerveModuleState, 4> SwerveDrive::getRealModuleStates() {
+  wpi::array<frc::SwerveModuleState, 4> moduleStates = {
+    flModule_.getState(), frModule_.getState(), blModule_.getState(), brModule_.getState() };
+  return moduleStates;
 }
 
-void SwerveDrive::drive(double xSpeed, double ySpeed, double turn)
+void SwerveDrive::Periodic(units::meters_per_second_t dx, units::meters_per_second_t dy, units::radians_per_second_t dtheta, 
+units::degree_t navx_yaw, double turretAngle) {
+  //converts field-relative joystick input to robot-relative speeds
+  speeds_ = frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+    dx, dy, dtheta, frc::Rotation2d(navx_yaw));
+
+  //convert robot speeds into swerve module states (speed & angle of each module)
+  auto [fl, fr, bl, br] = m_kinematics.ToSwerveModuleStates(speeds_);
+  
+  //update odometry
+  odometry_->Update(navx_yaw, getRealModuleStates());
+  lPose = limelight_->getPose(navx_->GetYaw(), turretAngle);
+  if (!(abs(lPose.X().value()) > 10 || abs(lPose.Y().value()) > 10 || (frc::Timer::GetFPGATimestamp().value() - limelight_->getLastUpdated()) >= 35)) {
+      updateLimelightOdom(turretAngle, false);
+  }
+
+
+  //optimize module states so they can have most direct path to goal
+  auto fl_opt = flModule_.getOptState(fl);
+  auto fr_opt = frModule_.getOptState(fr);
+  auto bl_opt = blModule_.getOptState(bl);
+  auto br_opt = brModule_.getOptState(br);
+
+ //TODO: fix weird thing with speed if drivers complain or we have time
+  flModule_.setAngMotorVoltage( std::clamp(
+      angPID_.Calculate(flModule_.getYaw(), fl_opt.angle.Degrees().value()),
+      -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE) );
+
+  flModule_.setSpeedMotor( 0.2*std::clamp(fl_opt.speed.value(), -1.0, 1.0) );
+
+  frModule_.setAngMotorVoltage( std::clamp(
+      angPID_.Calculate(frModule_.getYaw(), fr_opt.angle.Degrees().value()),
+      -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE) );
+
+  frModule_.setSpeedMotor( 0.2*std::clamp(fr_opt.speed.value(), -1.0, 1.0) );
+
+  blModule_.setAngMotorVoltage( std::clamp(
+      angPID_.Calculate(blModule_.getYaw(), bl_opt.angle.Degrees().value()),
+      -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE) );
+
+  blModule_.setSpeedMotor( 0.2*std::clamp(bl_opt.speed.value(), -1.0, 1.0) );
+
+  brModule_.setAngMotorVoltage( std::clamp(
+      angPID_.Calculate(brModule_.getYaw(), br_opt.angle.Degrees().value()),
+      -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE) );
+
+  brModule_.setSpeedMotor( 0.2*std::clamp(br_opt.speed.value(), -1.0, 1.0) );
+
+
+}
+
+frc::ChassisSpeeds SwerveDrive::getRobotSpeeds() {
+  frc::ChassisSpeeds speeds = m_kinematics.ToChassisSpeeds(getRealModuleStates());
+  //rest of stuff would be for conversion to field-relative speeds
+//   frc::Translation2d t{units::meter_t{speeds.vx.value()}, units::meter_t{speeds.vy.value()}}; //sus units... if we hate it i can write this myself
+//   t.RotateBy(frc::Rotation2d{units::degree_t{m_navx->GetYaw()}});
+//   speeds.vx = units::meters_per_second_t{t.X().value()};
+//   speeds.vy = units::meters_per_second_t{t.Y().value()};
+  return speeds;
+}
+
+double SwerveDrive::getDistance(double turretAngle)
 {
-    /*double p = frc::SmartDashboard::GetNumber("p", 0);
-    frc::SmartDashboard::PutNumber("p", p);
-    topRight_->setP(p);
-    topLeft_->setP(p);
-    bottomRight_->setP(p);
-    bottomLeft_->setP(p);
-
-    double d = frc::SmartDashboard::GetNumber("d", 0);
-    frc::SmartDashboard::PutNumber("d", d);
-    topRight_->setD(d);
-    topLeft_->setD(d);
-    bottomRight_->setD(d);
-    bottomLeft_->setD(d);*/
-
-    // calcOdometry();
-    calcModules(xSpeed, ySpeed, turn, false);
-
-    // double volts = frc::SmartDashboard::GetNumber("Swerve Volts", 0.0);
-
-    // if(abs(xSpeed) > 0.1 || abs(ySpeed) > 0.1 || abs(turn) > 0.1)
-    // {
-    //     topRight_->periodic(volts, trAngle_, true);
-    //     topLeft_->periodic(volts, tlAngle_, true);
-    //     bottomRight_->periodic(volts, brAngle_, true);
-    //     bottomLeft_->periodic(volts, blAngle_, true);
-    // }
-    // else
-    // {
-    //     topRight_->periodic(0, trAngle_, true);
-    //     topLeft_->periodic(0, tlAngle_, true);
-    //     bottomRight_->periodic(0, brAngle_, true);
-    //     bottomLeft_->periodic(0, blAngle_, true);
-    // }
-
-//0.65, 0, 0
-//1, 610, 0.15534
-//2, 2480, 0.63156
-//3, 4600, 1.17144
-//4, 6300, 1.60436
-//5, 8400, 2.13915
-//6, 10200, 2.59754
-//m = 2.044, b = 0.669435
-
-//turn
-//1, 530, 9.66532
-//2, 2400, 43.7675
-//3, 4000, 72.94584
-//4, 6200, 113.0661
-//5, 8100, 147.7153
-//6, 9800, 178.7173
-//m = 0.0291946, b = 0.746574
+        /*if (!limelight_->hasTarget())
+    {
+        return -1;
+    }*/
+    //could just use limelightDist, but i want to take advantage of averaging for smoothness
+    std::pair<double, double> robotLimelight = camToBot(turretAngle); //so that 
     
-
-    topRight_->periodic(trSpeed_, trAngle_, false);
-    topLeft_->periodic(tlSpeed_, tlAngle_, false);
-    bottomRight_->periodic(brSpeed_, brAngle_, false);
-    bottomLeft_->periodic(blSpeed_, blAngle_, false);
+    double limelightToGoalX = odometry_->GetPose().X().value() + robotLimelight.first;
+    double limelightTtoGoalY = odometry_->GetPose().Y().value() + robotLimelight.second;
+    return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY);
 }
 
-void SwerveDrive::drivePose(double yaw, SwervePose pose)
-{
-    setYaw(yaw);
+std::pair<double, double> SwerveDrive::camToBot(double turretAngle) {
 
-    calcOdometry();
+    double turretLimelightAngle = turretAngle - 180;
 
-    double xVel = pose.getXVel();
-    double yVel = pose.getYVel();
-    frc::SmartDashboard::PutNumber("WX", xVel);
-    frc::SmartDashboard::PutNumber("WY", yVel);
-    xVel += (pose.getX() - autoX_) * SwerveConstants::klP + pose.getXAcc() * SwerveConstants::klA;
-    yVel += (pose.getY() - autoY_) * SwerveConstants::klP + pose.getYAcc() * SwerveConstants::klA;
+    frc::InputModulus(turretLimelightAngle, -180.0, 180.0);
+    turretLimelightAngle = turretLimelightAngle * M_PI / 180;
+    double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
+    double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
 
-    double yawVel = pose.getYawVel();
-    frc::SmartDashboard::PutNumber("WYAW", yawVel);
-    
-    frc::SmartDashboard::PutNumber("wy", pose.getYaw());
-    yawVel += (pose.getYaw() - (-yaw_)) * SwerveConstants::kaP + pose.getYawAcc() * SwerveConstants::kaA;
-    
-    calcModules(xVel, yVel, yawVel, true);
-    
-    topRight_->periodic(trSpeed_, trAngle_, true);
-    topLeft_->periodic(tlSpeed_, tlAngle_, true);
-    bottomRight_->periodic(brSpeed_, brAngle_, true);
-    bottomLeft_->periodic(blSpeed_, blAngle_, true);
+    turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
+
+    double angle = navx_->GetYaw();
+    double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
+    double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
+
+    return {robotLimelightX, robotLimelightY};    
 }
 
-void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool inVolts)
+void SwerveDrive::updateLimelightOdom(double turretAngle, bool inAuto)
 {
-    double angle = yaw_ * M_PI / 180;
-
-    double newX = xSpeed * cos(angle) + ySpeed * sin(angle);
-    double newY = ySpeed * cos(angle) + xSpeed * -sin(angle);
-
-    if(inVolts)
-    {
-        turn = (turn * M_PI / 180) * (SwerveConstants::WHEEL_DIAGONAL / 2);
-    }
-
-    double turnComponent = sqrt(turn * turn / 2);
-    if(turn < 0)
-    {
-        turnComponent *= -1;
-    }
-
-    double A = newX - (turnComponent);
-    double B = newX + (turnComponent);
-    double C = newY - (turnComponent);
-    double D = newY + (turnComponent);
-
-    trSpeed_ = sqrt(B * B + C * C);
-    tlSpeed_ = sqrt(B * B + D * D);
-    brSpeed_ = sqrt(A * A + C * C);
-    blSpeed_ = sqrt(A * A + D * D);
-
-    if (xSpeed != 0 || ySpeed != 0 || turn != 0)
-    {
-        trAngle_ = -atan2(B, C) * 180 / M_PI;
-        tlAngle_ = -atan2(B, D) * 180 / M_PI;
-        brAngle_ = -atan2(A, C) * 180 / M_PI;
-        blAngle_ = -atan2(A, D) * 180 / M_PI;
-    }
-
-    double maxSpeed;
-    if(inVolts)
-    {
-        if(trSpeed_ != 0)
-        {
-            trSpeed_ = (trSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
-        }
-
-        if(tlSpeed_ != 0)
-        {
-            tlSpeed_ = (tlSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
-        }
-
-        if(brSpeed_ != 0)
-        {
-            brSpeed_ = (brSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
-        }
-
-        if(blSpeed_ != 0)
-        {
-            blSpeed_ = (blSpeed_ - SwerveConstants::klVI) / SwerveConstants::klV;
-        }
-        
-        maxSpeed = GeneralConstants::MAX_VOLTAGE;
-    }
-    else
-    {
-        maxSpeed = 1;
-    }
-
-    if (trSpeed_ > maxSpeed || tlSpeed_ > maxSpeed || brSpeed_ > maxSpeed || brSpeed_ > maxSpeed)
-    {
-        double max = trSpeed_;
-
-        max = (tlSpeed_ > max) ? tlSpeed_ : max;
-        max = (brSpeed_ > max) ? brSpeed_ : max;
-        max = (blSpeed_ > max) ? blSpeed_ : max;
-
-        trSpeed_ = (trSpeed_ / max);
-        tlSpeed_ = (tlSpeed_ / max);
-        brSpeed_ = (brSpeed_ / max);
-        blSpeed_ = (blSpeed_ / max);
-
-        if(inVolts)
-        {
-            trSpeed_ *= GeneralConstants::MAX_VOLTAGE;
-            tlSpeed_ *= GeneralConstants::MAX_VOLTAGE;
-            brSpeed_ *= GeneralConstants::MAX_VOLTAGE;
-            blSpeed_ *= GeneralConstants::MAX_VOLTAGE;
-        }
-    }
-
-    //cout << trSpeed_ << endl;
-
-}
-
-void SwerveDrive::calcOdometry()
-{
-    calcOdometry(0, true);
-}
-
-void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
-{
-    double time = timer_.GetFPGATimestamp().value();
-    dT_ = time - prevTime_;
-    prevTime_ = time;
-
-    // resetGoalOdometry(turretAngle); //TODO change into this function if it works?
-
-    if (!limelight_->hasTarget() && !foundGoal_)
-    {
-        return;
-    }
-
-    double frX = -topRight_->getDriveVelocity() * sin(topRight_->getAngle() * M_PI / 180);
-    double frY = topRight_->getDriveVelocity() * cos(topRight_->getAngle() * M_PI / 180);
-    double flX = -topLeft_->getDriveVelocity() * sin(topLeft_->getAngle() * M_PI / 180);
-    double flY = topLeft_->getDriveVelocity() * cos(topLeft_->getAngle() * M_PI / 180);
-    double brX = -bottomRight_->getDriveVelocity() * sin(bottomRight_->getAngle() * M_PI / 180);
-    double brY = bottomRight_->getDriveVelocity() * cos(bottomRight_->getAngle() * M_PI / 180);
-    double blX = -bottomLeft_->getDriveVelocity() * sin(bottomLeft_->getAngle() * M_PI / 180);
-    double blY = bottomLeft_->getDriveVelocity() * cos(bottomLeft_->getAngle() * M_PI / 180);
-
-    double avgX = (frX + flX + brX + blX) / 4;
-    double avgY = (frY + flY + brY + blY) / 4;
-
-    // frc::SmartDashboard::PutNumber("XVEL", avgX);
-    // frc::SmartDashboard::PutNumber("YVEL", avgY);
-
-    double angle = yaw_ * M_PI / 180;
-
-    double rotatedX = avgX * cos(angle) + avgY * -sin(angle);
-    double rotatedY = avgX * sin(angle) + avgY * cos(angle);
-
-    robotX_ += rotatedX * dT_;
-    robotY_ += rotatedY * dT_;
-
-    autoX_ += rotatedX * dT_;
-    autoY_ += rotatedY * dT_;
-
-    if (limelight_->hasTarget() && !inAuto)
-    {
-        //get limelight pose (so this is the position of the camera)
-        frc::Pose2d limelightPose = limelight_->getPose(yaw_, turretAngle);
-        limelightX_ = limelightPose.X().value();
-        limelightY_ = limelightPose.Y().value();        
+    //get limelight pose (so this is the position of the camera)
+        limelightX_ = lPose.X().value();
+        limelightY_ = lPose.Y().value();        
 
         //adjust to get position of actual robot
-        double turretLimelightAngle = turretAngle - 180;
-        Helpers::normalizeAngle(turretLimelightAngle);
-        turretLimelightAngle = turretLimelightAngle * M_PI / 180;
-        double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
-        double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
+       std::pair<double, double> trans = camToBot(turretAngle);
 
-        turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
+        limelightX_ -= trans.first;
+        limelightY_ -= trans.second;
 
-        double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
-        double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
+        units::meter_t averagedX = units::meter_t{0.04*limelightX_ + 0.96*odometry_->GetPose().X().value()};
+        units::meter_t averagedY = units::meter_t{0.04*limelightY_ + 0.96*odometry_->GetPose().Y().value()};
+        frc::Rotation2d rot = frc::Rotation2d{units::degree_t{navx_->GetYaw()}};
 
-        limelightX_ -= robotLimelightX;
-        limelightY_ -= robotLimelightY;
-
-        //average with wheel odometry. using mechanical advantage's for now, along with basic error checking
-        //error checking: only avg with limelight if values are reasonable & data is recent enough (all vals subject to change ofc)
-        if (!(abs(limelightX_) > 10 || abs(limelightY_) > 10 || (frc::Timer::GetFPGATimestamp().value() - limelight_->getLastUpdated()) >= 35)) {
-
-            //take weighted average of limelight & wheel with 4% limelight
-            double averagedX = 0.04*limelightX_ + 0.96*robotX_;
-            double averagedY = 0.04*limelightY_ + 0.96*robotY_;
-
-            //what else lol?
-
-            robotX_ = averagedX;
-            robotY_ = averagedY;
-        } 
-
-
-        
-        // if (!foundGoal_)
-        // {
-        //     foundGoal_ = true;
-        //     robotX_ = limelightX_;
-        //     robotY_ = limelightY_;
-        //     // smoothX_ = limelightX_;
-        //     // smoothY_ = limelightY_;
-        //     // smoothWheelX_ = limelightX_;
-        //     // smoothWheelY_ = limelightY_;
-        // }
-        // else
-        // {
-        //     double dX = limelightX_ - robotX_;
-        //     double dY = limelightY_ - robotY_;
-        //     frc::SmartDashboard::PutNumber("dx", dX);
-        //     frc::SmartDashboard::PutNumber("dy", dY);
-            
-        //     double turretError = abs(180 - robotGoalAngle_ - turretAngle);
-        //     Helpers::normalizeAngle(turretError);
-        //     frc::SmartDashboard::PutNumber("40", turretError);
-
-        //     //TODO, change weight based on velocity?
-        //     if(abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40)
-        //     {
-        //         robotX_ += dX * 0.05;
-        //         robotY_ += dY * 0.05;
-        //         frc::SmartDashboard::PutBoolean("Swerve Using Limelight", true);
-        //     }
-        //     else
-        //     {
-        //         frc::SmartDashboard::PutBoolean("Swerve Using Limelight", false);
-        //     }
-            
-        // }
-
-        //  double transWX = ((limelightX_ - smoothX_) + (rotatedX * dT_)) / 2;
-        //  double transWY = ((limelightY_ - smoothY_) + (rotatedY * dT_)) / 2;
-
-        // double transX = limelightX_ - smoothX_;
-        // double transY = limelightY_ - smoothY_;
-
-        // smoothWheelX_ *= 0.95;
-        // smoothWheelX_ += 0.05 * transWX;
-
-        // smoothWheelY_ *= 0.95;
-        // smoothWheelY_ += 0.05 * transWY;
-
-        // smoothX_ *= 0.95;
-        // smoothX_ += 0.05 * transX;
-
-        // smoothY_ *= 0.95;
-        // smoothY_ += 0.05 * transY;
-    }
-    else if (!inAuto)
-    {
-        if (robotX_ != 0 || robotY_ != 0)
-        {
-            robotGoalAngle_ = -yaw_ - 90 + atan2(-robotY_, -robotX_) * 180 / M_PI;
-            Helpers::normalizeAngle(robotGoalAngle_);
-        }
-        else
-        {
-            robotGoalAngle_ = 0;
-        }
-    }
-
-
-    frc::SmartDashboard::PutNumber("x", robotX_);
-    frc::SmartDashboard::PutNumber("y", robotY_);
-
-    // frc::SmartDashboard::PutNumber("RGA", robotGoalAngle_);
-    goalXVel_ = avgX * cos(robotGoalAngle_ * M_PI / 180) + avgY * sin(robotGoalAngle_ * M_PI / 180);
-    goalYVel_ = avgX * -sin(robotGoalAngle_ * M_PI / 180) + avgY * cos(robotGoalAngle_ * M_PI / 180);
-
-    /*double goalAngle = (-yaw_ - yawOffset_);
-    goalAngle += 360 * 10;
-    goalAngle = ((int)floor(goalAngle) % 360) + (goalAngle - floor(goalAngle));
-    goalAngle -= 360 * floor(goalAngle / 360 + 0.5);
-
-    goalAngle = goalAngle * M_PI / 180;
-
-    goalXVel_ = avgX * cos(goalAngle) + avgY * -sin(goalAngle);
-    goalYVel_ = avgX * sin(goalAngle) + avgY * cos(goalAngle);
-
-    goalX_ += goalXVel_ * GeneralConstants::Kdt;
-    goalY_ += goalYVel_ * GeneralConstants::Kdt;
-
-    frc::SmartDashboard::PutNumber("gx", goalX_);
-    frc::SmartDashboard::PutNumber("gy", goalY_);*/
+        updateOdometry(rot, frc::Pose2d{averagedX, averagedY, rot});
 }
 
 /*void SwerveDrive::resetGoalOdometry(double turretAngle)
@@ -386,10 +150,12 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
 
 void SwerveDrive::reset()
 {
-    robotX_ = 0;
-    robotY_ = 0;
-    autoX_ = 0;
-    autoY_ = 0;
+    limelightX_ = 0;
+    limelightY_ = 0;
+    //reset odometry
+    //goalX_ = 0;
+    //goalY_ = 0;
+    //yawOffset_ = 0;
     foundGoal_ = false;
 }
 
@@ -397,7 +163,7 @@ double SwerveDrive::getRobotGoalAng()
 {
     /*if(foundGoal_)
     {
-
+        
         double robotGoalAng = -yaw_ - yawOffset_;
 
         robotGoalAng += 360 * 10;
@@ -410,37 +176,8 @@ double SwerveDrive::getRobotGoalAng()
     {
         return 0;
     }*/
-
-    return robotGoalAngle_;
-}
-
-double SwerveDrive::getDistance(double turretAngle)
-{
-    /*if (!limelight_->hasTarget())
-    {
-        return -1;
-    }*/
-
-    //should be equivalent? seems like all of below is done in odometry calc anyway so just getting distance via odomety should be valid?
     
-    //returns distance to limelight??
-    return limelight_->getDist(yaw_, turretAngle);
-
-    // double turretLimelightAngle = turretAngle - 180;
-    // Helpers::normalizeAngle(turretLimelightAngle);
-    // turretLimelightAngle = turretLimelightAngle * M_PI / 180;
-    // double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
-    // double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
-
-    // turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
-
-    // double angle = yaw_ * M_PI / 180;
-    // double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
-    // double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
-
-    // double limelightToGoalX = robotX_ + robotLimelightX;
-    // double limelightTtoGoalY = robotY_ + robotLimelightY;
-    // return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY) - GeneralConstants::GOAL_RADIUS;
+    return robotGoalAngle_;
 }
 
 bool SwerveDrive::foundGoal()
@@ -455,33 +192,33 @@ void SwerveDrive::setFoundGoal(bool foundGoal)
 
 double SwerveDrive::getX()
 {
-    return robotX_;
+    return odometry_->GetPose().X().value();
 }
 
 double SwerveDrive::getY()
 {
-    return robotY_;
+    return odometry_->GetPose().Y().value();
 }
 
-// double SwerveDrive::getSmoothX()
-// {
-//     return smoothX_;
-// }
+double SwerveDrive::getSmoothX()
+{
+    return smoothX_;
+}
 
-// double SwerveDrive::getSmoothY()
-// {
-//     return smoothY_;
-// }
+double SwerveDrive::getSmoothY()
+{
+    return smoothY_;
+}
 
-// double SwerveDrive::getSWX()
-// {
-//     return smoothWheelX_;
-// }
+double SwerveDrive::getSWX()
+{
+    return smoothWheelX_;
+}
 
-// double SwerveDrive::getSWY()
-// {
-//     return smoothWheelY_;
-// }
+double SwerveDrive::getSWY()
+{
+    return smoothWheelY_;
+}
 
 /*double SwerveDrive::getGoalX()
 {
@@ -493,7 +230,7 @@ double SwerveDrive::getGoalY()
     return goalY_;
 }*/
 
-double SwerveDrive::getGoalXVel() // TODO implement limelight distance if math works?
+double SwerveDrive::getGoalXVel() //TODO implement limelight distance if math works?
 {
     /*if(limelight_->calcDistance() != -1)
     {
@@ -512,6 +249,7 @@ double SwerveDrive::getGoalXVel() // TODO implement limelight distance if math w
 
     frc::SmartDashboard::PutNumber("RGXV", goalXVel_);
     return goalXVel_;
+
 }
 
 double SwerveDrive::getGoalYVel()

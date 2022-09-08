@@ -6,57 +6,81 @@
 #include "Controls.h"
 #include "Constants.h"
 #include "Limelight.h"
-#include "SwervePose.h"
-
+#include <AHRS.h>
+#include <frc/kinematics/SwerveDriveOdometry.h>
 #include "SwerveModule.h"
-
+#include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/controller/PIDController.h>
 
 
 class SwerveDrive
 {
     public:
-        SwerveDrive(Limelight* limelight);
+        SwerveDrive(AHRS * nx, Limelight* limelight); //todo: add logger
         void setYaw(double yaw);
         
-        void periodic(double yaw, Controls* controls);
-        void drive(double xSpeed, double ySpeed, double turn);
-        void drivePose(double yaw, SwervePose pose);
+        void Periodic(units::meters_per_second_t joy_x, units::meters_per_second_t joy_y, 
+        units::radians_per_second_t joy_theta, units::degree_t navx_yaw, double turretAngle);
 
-        void calcModules(double xSpeed, double ySpeed, double turn, bool inVolts);
+        void initializeOdometry(frc::Rotation2d gyroAngle, frc::Pose2d initPose);
+        void updateOdometry(frc::Rotation2d robotAngle, frc::Pose2d robotPose) { odometry_->ResetPosition(robotPose, robotAngle); }
 
-        void calcOdometry();
-        void calcOdometry(double turretAngle, bool inAuto);
+        wpi::array<frc::SwerveModuleState, 4> getRealModuleStates(); //real as upposed to goal
+
+        void calcModules(double xSpeed, double ySpeed, double turn);
+
+        void updateLimelightOdom(double turretAngle, bool inAuto);
+        std::pair<double, double> camToBot(double turretAngle);
         //void resetGoalOdometry(double turretAngle);
         void reset();
         bool foundGoal();
         void setFoundGoal(bool foundGoal);
 
+        double getDistance(double turretAngle);
+
         double getX();
         double getY();
-        // double getSmoothX();
-        // double getSmoothY();
-        // double getSWX();
-        // double getSWY();
+        double getSmoothX();
+        double getSmoothY();
+        double getSWX();
+        double getSWY();
         //double getGoalX();
         //double getGoalY();
         double getGoalXVel();
         double getGoalYVel();
         double getRobotGoalAng();
-        double getDistance(double turretAngle);
     private:
-        SwerveModule* topRight_ = new SwerveModule(SwerveConstants::TR_TURN_ID, SwerveConstants::TR_DRIVE_ID, SwerveConstants::TR_CANCODER_ID, SwerveConstants::TR_CANCODER_OFFSET);
-        SwerveModule* topLeft_ = new SwerveModule(SwerveConstants::TL_TURN_ID, SwerveConstants::TL_DRIVE_ID, SwerveConstants::TL_CANCODER_ID, SwerveConstants::TL_CANCODER_OFFSET);
-        SwerveModule* bottomRight_ = new SwerveModule(SwerveConstants::BR_TURN_ID, SwerveConstants::BR_DRIVE_ID, SwerveConstants::BR_CANCODER_ID, SwerveConstants::BR_CANCODER_OFFSET);
-        SwerveModule* bottomLeft_ = new SwerveModule(SwerveConstants::BL_TURN_ID, SwerveConstants::BL_DRIVE_ID, SwerveConstants::BL_CANCODER_ID, SwerveConstants::BL_CANCODER_OFFSET);
+        AHRS * navx_;
+        Limelight* limelight_;
+        frc::SwerveDriveOdometry<4> * odometry_; //will need to be initialized later with selected robot start pose
 
-        double limelightX_, limelightY_, robotX_, robotY_, autoX_, autoY_, yaw_, goalXVel_, goalYVel_, robotGoalAngle_;
-        //double smoothX_, smoothY_, smoothWheelX_, smoothWheelY_;
+        frc::ChassisSpeeds speeds_;
+
+        frc::ChassisSpeeds getRobotSpeeds();
+
+
+        frc::SwerveDriveKinematics<4> m_kinematics{
+            frc::Translation2d{0.3683_m, 0.3683_m}, frc::Translation2d{0.3683_m, -0.3683_m},
+            frc::Translation2d{-0.3683_m, 0.3683_m}, frc::Translation2d{-0.3683_m, -0.3683_m}
+        };
+
+
+        SwerveModule flModule_{SwerveConstants::FLanglePort, SwerveConstants::FLspeedPort, SwerveConstants::FLencoder, false, SwerveConstants::FLOFF};
+        SwerveModule frModule_{SwerveConstants::FRanglePort, SwerveConstants::FRspeedPort, SwerveConstants::FRencoder, true, SwerveConstants::FROFF};
+        SwerveModule blModule_{SwerveConstants::BLanglePort, SwerveConstants::BLspeedPort, SwerveConstants::BLencoder, true, SwerveConstants::BLOFF};
+        SwerveModule brModule_{SwerveConstants::BRanglePort, SwerveConstants::BRspeedPort, SwerveConstants::BRencoder, false, SwerveConstants::BROFF};
+
+        frc2::PIDController angPID_{SwerveConstants::P , SwerveConstants::I, SwerveConstants::D};
+        frc2::PIDController speedPID_{SwerveConstants::sP , SwerveConstants::sI, SwerveConstants::sD};
+
+
+        frc::Pose2d lPose;
+        double limelightX_, limelightY_, yaw_, /*goalX_, goalY_, yawOffset_,*/ goalXVel_, goalYVel_, robotGoalAngle_;
+        double smoothX_, smoothY_, smoothWheelX_, smoothWheelY_;
         bool foundGoal_ = false;
 
         double prevTime_, dT_;
-
-        Limelight* limelight_;
 
         frc::Timer timer_;
 

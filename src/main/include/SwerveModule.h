@@ -7,8 +7,10 @@
 #include <string.h>
 #include "Controls.h"
 #include "Constants.h"
-#include "Helpers.h"
 #include "TrajectoryCalc.h"
+#include <units/units.h> //todo only include what we need to decrease compile time
+#include <frc/kinematics/SwerveDriveKinematics.h>
+#include <frc/MathUtil.h>
 
 //#include <frc/MotorSafety.h>
 //#include <frc/smartdashboard/SmartDashboard.h>
@@ -17,26 +19,29 @@
 class SwerveModule
 {
     public:
-        SwerveModule(int turnID, int driveID, int cancoderID, double offset);
-
-        void periodic(double driveSpeed, double angle, bool inVolts);
-        void move(double driveSpeed, double angle, bool inVolts);
+        SwerveModule(int turnID, int driveID, int cancoderID, double offset, bool inverted);
 
         double calcAngPID(double setAngle);
         double calcDrivePID(double driveSpeed);
         double findError(double setAngle, double angle);
 
+        frc::SwerveModuleState getState();
+        frc::SwerveModuleState getOptState(frc::SwerveModuleState state);
         
-        double getDriveVelocity();
-        double getAngle();
+        double getVelocity();
+        double getYaw();
+
+        void setAngMotorVoltage(double voltage);
+        void setSpeedMotor(double power);
 
         void setP(double p){ akP_ = p; }
         void setD(double d){ akD_ = d; }
 
     private:
-        WPI_TalonFX turnMotor_;
-        WPI_TalonFX driveMotor_;
-        WPI_CANCoder cancoder_;
+
+        WPI_TalonFX angleMotor_;
+        WPI_TalonFX speedMotor_;
+        WPI_CANCoder canCoder_;
 
         double maxV = 1440;
         double maxA = 14400 * 10;
@@ -45,9 +50,11 @@ class SwerveModule
         double kV = 1 / 261.864;
         double kVI = -131.727;
         double kA = 0;
-        TrajectoryCalc trajectoryCalc_;
-        bool initTrajectory_;
-        double posOffset_, setTrajectoryPos_;
+        // TrajectoryCalc trajectoryCalc_;
+        // bool initTrajectory_;
+        // double posOffset_, setTrajectoryPos_;
+
+        units::meters_per_second_t talonVelToMps(double vel);
         
         std::string id_;
         double offset_;

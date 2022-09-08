@@ -31,6 +31,7 @@ class Shooter
             OUTAKING
         };
         State getState();
+        double getTurretAngle() {return turret_.getAngle();}
         void setState(State state);
         //void setPID(double p, double i, double d);
         //void setHoodPID(double p, double i, double d);

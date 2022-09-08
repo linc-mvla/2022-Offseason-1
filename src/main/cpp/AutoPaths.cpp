@@ -210,7 +210,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         {
             //cout << "About to drive pose" << endl;
             //cout << pose->getX() << ", " << pose->getY() << endl;
-            swerveDrive->drivePose(yaw, *pose);
+//            swerveDrive->drivePose(yaw, *pose);
             //cout << "Drove pose" << endl;
             //cout << "Deleting pose" << endl;
             delete pose;
@@ -241,11 +241,11 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         //cout << timer_.Get().value() << endl;
         if (timer_.Get().value() < 2.0) // TODO get values
         {
-            swerveDrive->drive(0, 0.2, 0);
+//            swerveDrive->drive(0, 0.2, 0);
         }
         else
         {
-            swerveDrive->drive(0, 0, 0);
+//            swerveDrive->drive(0, 0, 0);
         }
         break;
     }
@@ -255,11 +255,11 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         if (timer_.Get().value() < 2.0) // TODO get values
         {
             shooterState_ = Shooter::TRACKING;
-            swerveDrive->drive(0, 0.2, 0);
+//            swerveDrive->drive(0, 0.2, 0);
         }
         else
         {
-            swerveDrive->drive(0, 0, 0);
+//            swerveDrive->drive(0, 0, 0);
             shooterState_ = Shooter::SHOOTING;
         }
         break;
