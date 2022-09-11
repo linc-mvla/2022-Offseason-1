@@ -24,7 +24,7 @@ namespace GeneralConstants
     const double GOAL_HEIGHT = 2.641;
     const double GOAL_RADIUS = 0.6096;
 
-    const double HANGAR_X = -3; //-4, -8
+    const double HANGAR_X = -2.5;
     const double HANGAR_Y = -7;
 
     const int MAX_BALL_COUNT = 1;
@@ -35,7 +35,7 @@ namespace LimelightConstants
 {
     const double ANGLE_OFFSET = 31.4; //49.5 from 0 at top (90-49.5), 30
     const double HEIGHT_OFFSET = 0.9144; //0.533, 0.7874, 0.9144 raised
-    const double TURRET_ANGLE_OFFSET = 7; //5.0, 4?
+    const double TURRET_ANGLE_OFFSET = 5; //
     const double TURRET_CENTER_RADIUS = 0.127;
     const double ROBOT_TURRET_CENTER_DISTANCE = 0.127;
     const double LIMELIGHT_TO_BALL_CENTER_DIST = -0.2032; //TODO get more precise, -0.1145, -0.2032?
