@@ -166,7 +166,7 @@ void Robot::TeleopInit()
     //hoodLogger_->openFile();
     //turretLogger_->openFile();
 
-    //frc::SmartDashboard::PutNumber("InV", 0);
+    frc::SmartDashboard::PutNumber("InV", 0);
     //frc::SmartDashboard::PutNumber("InA", 0);
     //frc::SmartDashboard::PutNumber("InHV", 0);
     //frc::SmartDashboard::PutNumber("fKp", 0);
@@ -178,7 +178,7 @@ void Robot::TeleopInit()
     //frc::SmartDashboard::PutNumber("InT", 0.0);
     //frc::SmartDashboard::PutNumber("smiv", 0.0);
     //frc::SmartDashboard::PutNumber("InCV", 0.0);
-    frc::SmartDashboard::PutNumber("Swerve Volts", 0.0);
+    //frc::SmartDashboard::PutNumber("Swerve Volts", 0.0);
 
     //REMOVE FOR COMP
     //yawOffset_ = frc::SmartDashboard::GetNumber("YOff", 0.0);
@@ -246,19 +246,19 @@ void Robot::TeleopPeriodic()
         if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
         {
             shooter_->setState(Shooter::UNLOADING);
+            //intake_.setState(Intake::LOADING);
             intake_.setState(Intake::INTAKING);
-            //intake_.setState(Intake::INTAKING);
         }
         else if(controls_->shootPressed())
         {
             shooter_->setState(Shooter::SHOOTING);
+            //intake_.setState(Intake::LOADING);
             intake_.setState(Intake::INTAKING);
-            //intake_.setState(Intake::INTAKING);
         }
-        /*else if(channel_->getBallCount() > 0)
+        else if(channel_->getBallCount() > 0)
         {
             shooter_->setState(Shooter::REVING);
-        }*/
+        }
         else
         {
             shooter_->setState(Shooter::TRACKING);

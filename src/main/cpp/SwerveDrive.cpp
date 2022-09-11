@@ -406,6 +406,11 @@ double SwerveDrive::getDistance(double turretAngle)
         return -1;
     }*/
 
+    if(!foundGoal_)
+    {
+        return -1;
+    }
+
 
     double turretLimelightAngle = turretAngle - 180;
     Helpers::normalizeAngle(turretLimelightAngle);

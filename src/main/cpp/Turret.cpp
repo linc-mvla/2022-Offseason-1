@@ -80,7 +80,7 @@ void Turret::setManualVolts(double manualVolts)
 
 bool Turret::isAimed()
 {
-    // return true;
+    //return true;
     return aimed_;
 }
 
@@ -104,14 +104,14 @@ void Turret::reset()
 void Turret::track()
 {
     frc::SmartDashboard::PutBoolean("Found goal", swerveDrive_->foundGoal());
-    if (!limelight_->hasTarget() && !swerveDrive_->foundGoal())
+    if (!limelight_->hasTarget() && !swerveDrive_->foundGoal() && state_ != CLIMB)
     {
         turretMotor_.SetVoltage(units::volt_t(0));
         limelight_->lightOn(true);
     }
     else
     {
-        double time = timer_.GetFPGATimestamp().value();
+        /*double time = timer_.GetFPGATimestamp().value();
         dT_ = time - prevTime_;
         yawDT_ = time - yawPrevTime_;
 
@@ -130,7 +130,7 @@ void Turret::track()
 
             yawVel_ = deltaYaw_ / yawDT_;
             yawPrevTime_ = time;
-        }
+        }*/
 
         double volts = calcPID();
         // double volts = calcProfileVolts();
@@ -147,7 +147,7 @@ void Turret::track()
         }
         else
         {
-            //turretMotor_.SetVoltage(units::volt_t(volts));
+            turretMotor_.SetVoltage(units::volt_t(volts));
         }
     }
 }
@@ -242,29 +242,38 @@ double Turret::calcError()
         error = -getAngle();
         return error;
     }
-    else if (limelight_->hasTarget())
-    {
-        error = offset_ + limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET;
-    }
     else
     {
         double wantedTurretAng = (180 - swerveDrive_->getRobotGoalAng()) + offset_;
         Helpers::normalizeAngle(wantedTurretAng);
 
         error = wantedTurretAng - getAngle();
+
+        if(limelight_->hasTarget())
+        {
+            double limelightError = offset_ + limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET;
+            if(abs(limelightError - error) < 10)
+            {
+                error = limelightError;
+            }
+        }
     }
+    
+
+    double wantedGoalAng = (180 - swerveDrive_->getRobotGoalAng());
+    Helpers::normalizeAngle(wantedGoalAng);
+    goalError = wantedGoalAng - getAngle();
 
     if (limelight_->hasTarget())
     {
-        goalError = limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET;
+        double limelightGoalError = limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET;
+        if(abs(limelightGoalError - goalError) < 5)
+        {
+            goalError = limelightGoalError;
+        }
     }
-    else
-    {
-        double wantedGoalAng = (180 - swerveDrive_->getRobotGoalAng());
-        Helpers::normalizeAngle(wantedGoalAng);
 
-        goalError = wantedGoalAng - getAngle();
-    }
+
 
     frc::SmartDashboard::PutNumber("Terror", error);
 
@@ -277,7 +286,7 @@ double Turret::calcError()
 
         else if (getAngle() < 0 && error < 0)
         {
-            error += 0;
+            error += 360;
         }
 
         // error = (error > 0) ? error - 360 : error + 360;
@@ -292,8 +301,8 @@ double Turret::calcError()
         limelight_->lightOn(true);
     }
 
-    aimed_ = (abs(error) < ShooterConstants::TURRET_AIMED);              // TODO get value, change back to 2.5
-    unloadReady_ = (abs(error) < ShooterConstants::TURRET_UNLOAD_AIMED); // TODO get value
+    aimed_ = (abs(error) < ShooterConstants::TURRET_AIMED);
+    unloadReady_ = (abs(error) < ShooterConstants::TURRET_UNLOAD_AIMED);
 
     return error;
 }
@@ -342,8 +351,11 @@ double Turret::calcPID()
 
     power = std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE * 0.3, (double)GeneralConstants::MAX_VOLTAGE * 0.3);
     // power = 0;
-    power += calcAngularFF();
-    power += calcLinearFF();
+    if(abs(error) < 50)
+    {
+        power += calcAngularFF();
+    }
+    //power += calcLinearFF();
     // frc::SmartDashboard::PutNumber("LTFF", calcLinearFF());
 
     // return power;
