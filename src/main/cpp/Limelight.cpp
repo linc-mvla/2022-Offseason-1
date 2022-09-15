@@ -62,7 +62,7 @@ frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
 }
 
 //hub coords are (0, 0)
-double Limelight::getDist(double navx, double turretAngle) {
+double Limelight::calcDistance(double navx, double turretAngle) {
     frc::Pose2d pose = getPose(navx, turretAngle); 
     return sqrt(pose.X().value()*pose.X().value() + pose.Y().value()*pose.Y().value());
 }

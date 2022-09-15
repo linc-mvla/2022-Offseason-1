@@ -42,7 +42,7 @@ class Limelight{
         void lightOn(bool light);
         double getLastUpdated() {return lastUpdated_;}
 
-        double getDist(double navx, double turretAngle);
+        double calcDistance(double navx, double turretAngle);
         frc::Pose2d getPose(double navx, double turretAngle);
         double getAdjustedX();
         std::shared_ptr<nt::NetworkTable> GetNetworkTable();

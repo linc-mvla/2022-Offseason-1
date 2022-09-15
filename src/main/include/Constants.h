@@ -24,7 +24,7 @@ namespace GeneralConstants
     const double GOAL_HEIGHT = 2.641;
     const double GOAL_RADIUS = 0.6096;
 
-    const double HANGAR_X = -3; //-4, -8
+    const double HANGAR_X = -2.5;
     const double HANGAR_Y = -7;
 
     const int MAX_BALL_COUNT = 1;
@@ -35,7 +35,7 @@ namespace LimelightConstants
 {
     const double ANGLE_OFFSET = 31.4; //49.5 from 0 at top (90-49.5), 30
     const double HEIGHT_OFFSET = 0.9144; //0.533, 0.7874, 0.9144 raised
-    const double TURRET_ANGLE_OFFSET = 7; //5.0, 4?
+    const double TURRET_ANGLE_OFFSET = 5; //
     const double TURRET_CENTER_RADIUS = 0.127;
     const double ROBOT_TURRET_CENTER_DISTANCE = 0.127;
     const double LIMELIGHT_TO_BALL_CENTER_DIST = -0.2032; //TODO get more precise, -0.1145, -0.2032?
@@ -178,7 +178,7 @@ namespace ClimbConstants
 
     const double SUPER_SLOW_RAISE_VOLTAGE = -1;
     const double SLOW_RAISE_VOLTAGE = -2.5; //TODO make sure to lower on bar
-    const double SLOW_CLIMB_VOLTAGE = 3;
+    const double SLOW_CLIMB_VOLTAGE = 5;
 
     const double ROLL_MAX = 170; //TODO yeah these two
     const double ROLL_MIN = -180;
@@ -228,7 +228,7 @@ namespace ShooterConstants
     const int TURRET_AIMED = 4;
     const int TURRET_UNLOAD_AIMED = 7;
 
-    const double KICKER_VOLTS = 2;
+    const double KICKER_VOLTS = 6;
 
     const double UNLOADING_CURRENT = 15;
     const double UNLOADING_CURRENT_LOW = 5;

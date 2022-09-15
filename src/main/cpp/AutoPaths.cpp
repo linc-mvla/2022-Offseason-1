@@ -18,6 +18,7 @@ void AutoPaths::setPath(Path path)
     nextPathReady_ = false;
     dumbTimerStarted_ = false;
     failsafeStarted_ = false;
+    channel_->setBallsShot(0);
 
     switch (path_)
     {
@@ -49,7 +50,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, 135, 0));
-        p1.addPoint(SwervePose(0.7, -0.7, 135, 0)); // TODO get value
+        p1.addPoint(SwervePose(0.707, -0.707, 135, 0)); // TODO get value
         p1.addPoint(SwervePose(0, 0, 135, 0));
 
         p1.generateTrajectory(false);
@@ -62,7 +63,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, -135, 0));
-        p1.addPoint(SwervePose(-0.7, -0.7, -135, 0)); // TODO get value
+        p1.addPoint(SwervePose(-0.707, -0.707, -135, 0)); // TODO get value
         p1.addPoint(SwervePose(0, 0, -135, 0));
 
         p1.generateTrajectory(false);
@@ -81,7 +82,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p2(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p2.addPoint(SwervePose(0, 0, 90, 0));
-        p2.addPoint(SwervePose(-2, -2, -135, 1.5));
+        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -168, 1.5));
 
         p1.generateTrajectory(false);
         p2.generateTrajectory(false);
@@ -101,17 +102,17 @@ void AutoPaths::setPath(Path path)
         SwervePath p2(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p2.addPoint(SwervePose(0, 0, 90, 0));
-        p2.addPoint(SwervePose(-2, -2, -135, 1.5));
+        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -168, 1.5));
 
         SwervePath p3(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p3.addPoint(SwervePose(-2, -2, -135, 1.5));
-        p3.addPoint(SwervePose(1, -4, 135, 2));
+        p3.addPoint(SwervePose(-0.5291328, -2.4728424, -168, 0));
+        p3.addPoint(SwervePose(0.1895856, -6.35508, 135, 3));
 
         SwervePath p4(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p4.addPoint(SwervePose(1, -4, 135, 2));
-        p4.addPoint(SwervePose(-2, -2, 135, 0));
+        p4.addPoint(SwervePose(0.1895856, -6.35508, 135, 0));
+        p4.addPoint(SwervePose(-0.5291328, -2.4728424, 135, 0));
 
         p1.generateTrajectory(false);
         p2.generateTrajectory(false);
@@ -306,7 +307,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     case THREE:
     {
         intakeState_ = Intake::INTAKING;
-        if (endOfSwervePath && (channel_->getBallsShot() < 2 || channel_->getBallCount() > 0))
+        if (endOfSwervePath/* && (channel_->getBallsShot() < 2 || channel_->getBallCount() > 0)*/)
         {
             shooterState_ = Shooter::SHOOTING;
         }
@@ -326,7 +327,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             }
 
             //cout << failsafeTimer_.Get().value() << endl;
-            if (failsafeTimer_.Get().value() > 5/* || channel_->getBallsShot() > 1*/)
+            if (failsafeTimer_.Get().value() > 5 || channel_->getBallsShot() > 1)
             {
                 //frc::SmartDashboard::PutBoolean("Started second", true);
                 failsafeTimer_.Stop();
@@ -355,6 +356,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             {
                 shooterState_ = Shooter::TRACKING;
             }
+
             switch (pathNum_)
             {
             case 0:
