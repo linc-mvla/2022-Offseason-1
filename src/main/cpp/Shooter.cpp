@@ -295,6 +295,7 @@ void Shooter::periodic(double yaw)
     //double hoodV = frc::SmartDashboard::GetNumber("InHV", 0);
     //hood_.setInVolts(hoodV);
     //turretOffset = 0;
+
     frc::SmartDashboard::PutBoolean("Unloading", (state_ == UNLOADING));
 
     frc::SmartDashboard::PutNumber("Balls", channel_->getBallCount());
@@ -362,6 +363,7 @@ void Shooter::periodic(double yaw)
 
             units::volt_t volts {calcFlyPID(velocity)};
             //units::volt_t volts{calcFlyVolts(velocity)};
+            //units::volt_t volts {0};
             flywheelMaster_.SetVoltage(volts);
 
             shootStarted_ = false;
@@ -371,7 +373,7 @@ void Shooter::periodic(double yaw)
         case SHOOTING: //TODO combine for auto shoot later, hood anti-windup
         {
             hood_.setWantedPos(hoodAngle);
-            //hood_.setWantedPos(0); //-100
+            //hood_.setWantedPos(ShooterConstants::MAX_HOOD_ANGLE); //-100
             hood_.setState(Hood::AIMING);
 
             turret_.setState(Turret::TRACKING);
@@ -381,7 +383,7 @@ void Shooter::periodic(double yaw)
 
             units::volt_t volts {calcFlyPID(velocity)};
             //units::volt_t volts{calcFlyVolts(velocity)};
-            //units::volt_t volts {calcFlyPID(7000)};
+            //units::volt_t volts {calcFlyPID(5)};
 
             //units::volt_t volts {calcFlyPID(frc::SmartDashboard::GetNumber("InV", 0))};
             //units::volt_t volts{frc::SmartDashboard::GetNumber("FINV", 0)};

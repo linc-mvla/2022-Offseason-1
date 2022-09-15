@@ -300,13 +300,13 @@ bool Climb::climbBar()
 bool Climb::raiseToBar()
 {
     double pos = gearboxMaster_.GetSelectedSensorPosition();
-    frc::SmartDashboard::PutNumber("CP", pos);
+    //frc::SmartDashboard::PutNumber("CP", pos);
     //double posFromBottom = bottomPos_ - pos;
     //frc::SmartDashboard::PutNumber("CPFB", posFromBottom);
     //18442
     //22201
 
-    trajectoryCalc_.setPrintError(true);
+    //trajectoryCalc_.setPrintError(true);
     
     if(pos > bottomPos_ - ClimbConstants::TOO_FAR_FROM_STATIC_HOOKS)
     {
@@ -331,7 +331,7 @@ bool Climb::raiseToBar()
 
     if(autoState_ == EXTEND_TO_MID)
     {
-        if(abs(pos) < ClimbConstants::EXTEND_THRESHOLD || waiting_) //TODO make more strict, maybe when motion is slow?
+        if(abs(pos) < ClimbConstants::EXTEND_THRESHOLD || waiting_ || (abs(pos) < ClimbConstants::EXTEND_THRESHOLD + 1000 && abs(gearboxMaster_.GetSelectedSensorVelocity()) < 100)) //TODO make more strict, maybe when motion is slow?
         {
             setPneumatics(true, true);
             if(!waiting_)

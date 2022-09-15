@@ -178,7 +178,7 @@ namespace ClimbConstants
 
     const double SUPER_SLOW_RAISE_VOLTAGE = -1;
     const double SLOW_RAISE_VOLTAGE = -2.5; //TODO make sure to lower on bar
-    const double SLOW_CLIMB_VOLTAGE = 3;
+    const double SLOW_CLIMB_VOLTAGE = 5;
 
     const double ROLL_MAX = 170; //TODO yeah these two
     const double ROLL_MIN = -180;
@@ -228,7 +228,7 @@ namespace ShooterConstants
     const int TURRET_AIMED = 4;
     const int TURRET_UNLOAD_AIMED = 7;
 
-    const double KICKER_VOLTS = 2;
+    const double KICKER_VOLTS = 6;
 
     const double UNLOADING_CURRENT = 15;
     const double UNLOADING_CURRENT_LOW = 5;

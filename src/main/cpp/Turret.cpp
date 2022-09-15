@@ -252,7 +252,11 @@ double Turret::calcError()
         if(limelight_->hasTarget())
         {
             double limelightError = offset_ + limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET;
-            if(abs(limelightError - error) < 10)
+            /*if(abs(limelightError - error) < 10)
+            {
+                error = limelightError;
+            }*/
+            if(limelight_->calcDistance() != -1 && (limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1)
             {
                 error = limelightError;
             }
