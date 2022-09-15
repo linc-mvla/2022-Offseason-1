@@ -247,35 +247,31 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
         //get limelight pose (so this is the position of the camera)
         frc::Pose2d limelightPose = limelight_->getPose(yaw_, turretAngle);
         limelightX_ = limelightPose.X().value();
-        limelightY_ = limelightPose.Y().value();        
+        limelightY_ = limelightPose.Y().value();     
 
-        //adjust to get position of actual robot
-        double turretLimelightAngle = turretAngle - 180;
-        Helpers::normalizeAngle(turretLimelightAngle);
-        turretLimelightAngle = turretLimelightAngle * M_PI / 180;
-        double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
-        double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
-
-        turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
-
-        double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
-        double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
+        std::pair<double, double> translation = camToBot(turretAngle);   
+        double robotLimelightX = translation.first;
+        double robotLimelightY = translation.second;
 
         limelightX_ -= robotLimelightX;
         limelightY_ -= robotLimelightY;
 
         //average with wheel odometry. using mechanical advantage's for now, along with basic error checking
         //error checking: only avg with limelight if values are reasonable & data is recent enough (all vals subject to change ofc)
-        if (!(abs(limelightX_) > 10 || abs(limelightY_) > 10 || (frc::Timer::GetFPGATimestamp().value() - limelight_->getLastUpdated()) >= 35)) {
+        double dX = limelightX_ - robotX_;
+        double dY = limelightY_ - robotY_;
+        double turretError = frc::InputModulus(abs(180 - robotGoalAngle_ - turretAngle), -180.0, 180.0);
+        if (!(abs(limelightX_) > 10 || abs(limelightY_) > 10 || (frc::Timer::GetFPGATimestamp().value() - limelight_->getLastUpdated()) >= 35)
+            && abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40) {
 
-            //take weighted average of limelight & wheel with 4% limelight
-            double averagedX = 0.04*limelightX_ + 0.96*robotX_;
-            double averagedY = 0.04*limelightY_ + 0.96*robotY_;
+            robotX_ += dY * 0.05;
+            robotY_ += dY * 0.05;
 
-            //what else lol?
-
-            robotX_ = averagedX;
-            robotY_ = averagedY;
+            // //take weighted average of limelight & wheel with 4% limelight
+            // double averagedX = 0.04*limelightX_ + 0.96*robotX_;
+            // double averagedY = 0.04*limelightY_ + 0.96*robotY_;
+            // robotX_ = averagedX;
+            // robotY_ = averagedY;
         } 
 
 
@@ -421,26 +417,30 @@ double SwerveDrive::getDistance(double turretAngle)
         return -1;
     }*/
 
-    //should be equivalent? seems like all of below is done in odometry calc anyway so just getting distance via odomety should be valid?
+    std::pair<double, double> robotLimelight = camToBot(turretAngle); //so that 
     
-    //returns distance to limelight??
-    return limelight_->getDist(yaw_, turretAngle);
+    double limelightToGoalX = robotX_ + robotLimelight.first;
+    double limelightTtoGoalY = robotY_ + robotLimelight.second;
+    return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY);
 
-    // double turretLimelightAngle = turretAngle - 180;
-    // Helpers::normalizeAngle(turretLimelightAngle);
-    // turretLimelightAngle = turretLimelightAngle * M_PI / 180;
-    // double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
-    // double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
+}
 
-    // turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
+std::pair<double, double> SwerveDrive::camToBot(double turretAngle) {
 
-    // double angle = yaw_ * M_PI / 180;
-    // double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
-    // double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
+    double turretLimelightAngle = turretAngle - 180;
 
-    // double limelightToGoalX = robotX_ + robotLimelightX;
-    // double limelightTtoGoalY = robotY_ + robotLimelightY;
-    // return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY) - GeneralConstants::GOAL_RADIUS;
+    frc::InputModulus(turretLimelightAngle, -180.0, 180.0);
+    turretLimelightAngle = turretLimelightAngle * M_PI / 180;
+    double turretLimelightX = LimelightConstants::TURRET_CENTER_RADIUS * sin(turretLimelightAngle);
+    double turretLimelightY = LimelightConstants::TURRET_CENTER_RADIUS * cos(turretLimelightAngle);
+
+    turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
+
+    double angle = yaw_;
+    double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
+    double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
+
+    return {robotLimelightX, robotLimelightY};    
 }
 
 bool SwerveDrive::foundGoal()

@@ -25,6 +25,8 @@ class SwerveDrive
 
         void calcModules(double xSpeed, double ySpeed, double turn, bool inVolts);
 
+        std::pair<double, double> camToBot(double turretAngle);
+
         void calcOdometry();
         void calcOdometry(double turretAngle, bool inAuto);
         //void resetGoalOdometry(double turretAngle);
