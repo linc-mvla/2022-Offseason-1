@@ -118,10 +118,10 @@ namespace SwerveConstants
     const double BR_CANCODER_OFFSET = 197.5; //197.5
     const double BL_CANCODER_OFFSET = 356.39; // 356.39
 
-    const double MAX_LA = 2;
-    const double MAX_LV = 3;
-    const double MAX_AA = 180;
-    const double MAX_AV = 360;
+    const double MAX_LA = 3;
+    const double MAX_LV = 4;
+    const double MAX_AA = 270;
+    const double MAX_AV = 450;
 
     const double klV = 0.489016;
     const double klVI = -0.32683;

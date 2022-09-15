@@ -36,7 +36,7 @@ void AutoPaths::setPath(Path path)
 
         p1.addPoint(SwervePose(0, 0, 90, 0));
         p1.addPoint(SwervePose(1, 0, 90, 0)); // TODO get value
-        p1.addPoint(SwervePose(0, 0, 90, 0));
+        //p1.addPoint(SwervePose(0, 0, 90, 0));
 
         p1.generateTrajectory(false);
 
@@ -51,7 +51,7 @@ void AutoPaths::setPath(Path path)
 
         p1.addPoint(SwervePose(0, 0, 135, 0));
         p1.addPoint(SwervePose(0.707, -0.707, 135, 0)); // TODO get value
-        p1.addPoint(SwervePose(0, 0, 135, 0));
+        //p1.addPoint(SwervePose(0, 0, 135, 0));
 
         p1.generateTrajectory(false);
 
@@ -64,7 +64,7 @@ void AutoPaths::setPath(Path path)
 
         p1.addPoint(SwervePose(0, 0, -135, 0));
         p1.addPoint(SwervePose(-0.707, -0.707, -135, 0)); // TODO get value
-        p1.addPoint(SwervePose(0, 0, -135, 0));
+        //p1.addPoint(SwervePose(0, 0, -135, 0));
 
         p1.generateTrajectory(false);
 
@@ -77,12 +77,12 @@ void AutoPaths::setPath(Path path)
 
         p1.addPoint(SwervePose(0, 0, 90, 0));
         p1.addPoint(SwervePose(1, 0, 90, 0)); // TODO get value
-        p1.addPoint(SwervePose(0, 0, 90, 0));
+        //p1.addPoint(SwervePose(0, 0, 90, 0));
 
         SwervePath p2(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p2.addPoint(SwervePose(0, 0, 90, 0));
-        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -168, 1.5));
+        p2.addPoint(SwervePose(1, 0, 90, 0));
+        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 1.5)); //-168
 
         p1.generateTrajectory(false);
         p2.generateTrajectory(false);
@@ -97,21 +97,22 @@ void AutoPaths::setPath(Path path)
 
         p1.addPoint(SwervePose(0, 0, 90, 0));
         p1.addPoint(SwervePose(1, 0, 90, 0)); // TODO get value
-        p1.addPoint(SwervePose(0, 0, 90, 0));
+        //p1.addPoint(SwervePose(0, 0, 90, 0));
 
         SwervePath p2(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p2.addPoint(SwervePose(0, 0, 90, 0));
-        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -168, 1.5));
+        p2.addPoint(SwervePose(1, 0, 90, 0));
+        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 1.5));
 
         SwervePath p3(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p3.addPoint(SwervePose(-0.5291328, -2.4728424, -168, 0));
+        p3.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 0));
         p3.addPoint(SwervePose(0.1895856, -6.35508, 135, 3));
+        p3.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
 
         SwervePath p4(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p4.addPoint(SwervePose(0.1895856, -6.35508, 135, 0));
+        p4.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
         p4.addPoint(SwervePose(-0.5291328, -2.4728424, 135, 0));
 
         p1.generateTrajectory(false);
@@ -354,7 +355,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             }
             else
             {
-                shooterState_ = Shooter::TRACKING;
+                shooterState_ = Shooter::REVING;
             }
 
             switch (pathNum_)
@@ -369,7 +370,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                     failsafeTimer_.Start();
                 }
 
-                if (failsafeTimer_.Get().value() > 3 || channel_->getBallsShot() > 1)
+                if (failsafeTimer_.Get().value() > 2 || channel_->getBallsShot() > 1)
                 {
                     failsafeTimer_.Stop();
                     failsafeTimer_.Reset();
@@ -389,7 +390,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                     failsafeTimer_.Start();
                 }
 
-                if (failsafeTimer_.Get().value() > 2 || channel_->getBallsShot() > 0)
+                if (failsafeTimer_.Get().value() > 1 || ((channel_->getBallsShot() > 0) && channel_->getBallCount() == 0))
                 {
                     failsafeTimer_.Stop();
                     failsafeTimer_.Reset();
