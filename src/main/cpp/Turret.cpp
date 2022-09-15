@@ -256,7 +256,7 @@ double Turret::calcError()
             {
                 error = limelightError;
             }*/
-            if(limelight_->calcDistance() != -1 && (limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1)
+            if(limelight_->calcDistance() != -1 && abs(limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1)
             {
                 error = limelightError;
             }
