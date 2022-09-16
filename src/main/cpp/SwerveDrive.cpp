@@ -256,60 +256,43 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
         limelightX_ -= robotLimelightX;
         limelightY_ -= robotLimelightY;
 
-        //average with wheel odometry. using mechanical advantage's for now, along with basic error checking
-        //error checking: only avg with limelight if values are reasonable & data is recent enough (all vals subject to change ofc)
-        double dX = limelightX_ - robotX_;
-        double dY = limelightY_ - robotY_;
-        double turretError = frc::InputModulus(abs(180 - robotGoalAngle_ - turretAngle), -180.0, 180.0);
-        if (!(abs(limelightX_) > 10 || abs(limelightY_) > 10 || (frc::Timer::GetFPGATimestamp().value() - limelight_->getLastUpdated()) >= 35)
-            && abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40) {
-
-            robotX_ += dY * 0.05;
-            robotY_ += dY * 0.05;
-
-            // //take weighted average of limelight & wheel with 4% limelight
-            // double averagedX = 0.04*limelightX_ + 0.96*robotX_;
-            // double averagedY = 0.04*limelightY_ + 0.96*robotY_;
-            // robotX_ = averagedX;
-            // robotY_ = averagedY;
-        } 
-
-
         
-        // if (!foundGoal_)
-        // {
-        //     foundGoal_ = true;
-        //     robotX_ = limelightX_;
-        //     robotY_ = limelightY_;
-        //     // smoothX_ = limelightX_;
-        //     // smoothY_ = limelightY_;
-        //     // smoothWheelX_ = limelightX_;
-        //     // smoothWheelY_ = limelightY_;
-        // }
-        // else
-        // {
-        //     double dX = limelightX_ - robotX_;
-        //     double dY = limelightY_ - robotY_;
-        //     frc::SmartDashboard::PutNumber("dx", dX);
-        //     frc::SmartDashboard::PutNumber("dy", dY);
-            
-        //     double turretError = abs(180 - robotGoalAngle_ - turretAngle);
-        //     Helpers::normalizeAngle(turretError);
-        //     frc::SmartDashboard::PutNumber("40", turretError);
+        if (!foundGoal_)
+        {
+            foundGoal_ = true;
+            robotX_ = limelightX_;
+            robotY_ = limelightY_;
+            // smoothX_ = limelightX_;
+            // smoothY_ = limelightY_;
+            // smoothWheelX_ = limelightX_;
+            // smoothWheelY_ = limelightY_;
+        }
+        else
+        {
+            //average with wheel odometry. using mechanical advantage's for now, along with basic error checking
+            //error checking: only avg with limelight if values are reasonable & data is recent enough (all vals subject to change ofc)
+            double dX = limelightX_ - robotX_;
+            double dY = limelightY_ - robotY_;
+            frc::SmartDashboard::PutNumber("dx", dX);
+            frc::SmartDashboard::PutNumber("dy", dY);
+            double turretError = frc::InputModulus(abs(180 - robotGoalAngle_ - turretAngle), -180.0, 180.0);
+            if (!(abs(limelightX_) > 10 || abs(limelightY_) > 10 || (frc::Timer::GetFPGATimestamp().value() - limelight_->getLastUpdated()) >= 35)
+                && abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40) {
 
-        //     //TODO, change weight based on velocity?
-        //     if(abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40)
-        //     {
-        //         robotX_ += dX * 0.05;
-        //         robotY_ += dY * 0.05;
-        //         frc::SmartDashboard::PutBoolean("Swerve Using Limelight", true);
-        //     }
-        //     else
-        //     {
-        //         frc::SmartDashboard::PutBoolean("Swerve Using Limelight", false);
-        //     }
+                robotX_ += dY * 0.05;
+                robotY_ += dY * 0.05;
+
+                // //take weighted average of limelight & wheel with 4% limelight
+                // double averagedX = 0.04*limelightX_ + 0.96*robotX_;
+                // double averagedY = 0.04*limelightY_ + 0.96*robotY_;
+                // robotX_ = averagedX;
+                // robotY_ = averagedY;
+                frc::SmartDashboard::PutBoolean("Swerve Using Limelight", true);
+            } else {
+                frc::SmartDashboard::PutBoolean("Swerve Using Limelight", false);
+        }
             
-        // }
+        }
 
         //  double transWX = ((limelightX_ - smoothX_) + (rotatedX * dT_)) / 2;
         //  double transWY = ((limelightY_ - smoothY_) + (rotatedY * dT_)) / 2;
@@ -417,11 +400,11 @@ double SwerveDrive::getDistance(double turretAngle)
         return -1;
     }*/
 
-    std::pair<double, double> robotLimelight = camToBot(turretAngle); //so that 
+    std::pair<double, double> robotLimelight = camToBot(turretAngle);  
     
     double limelightToGoalX = robotX_ + robotLimelight.first;
     double limelightTtoGoalY = robotY_ + robotLimelight.second;
-    return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY);
+    return sqrt(limelightToGoalX * limelightToGoalX + limelightTtoGoalY * limelightTtoGoalY) - GeneralConstants::radius;
 
 }
 
@@ -436,7 +419,7 @@ std::pair<double, double> SwerveDrive::camToBot(double turretAngle) {
 
     turretLimelightY -= LimelightConstants::ROBOT_TURRET_CENTER_DISTANCE;
 
-    double angle = yaw_;
+    double angle = yaw_ * M_PI / 180;
     double robotLimelightX = turretLimelightX * cos(angle) - turretLimelightY * sin(angle);
     double robotLimelightY = turretLimelightX * sin(angle) + turretLimelightY * cos(angle);
 
