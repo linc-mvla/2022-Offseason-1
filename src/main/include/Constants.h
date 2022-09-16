@@ -7,6 +7,8 @@
 
 using namespace std;
 
+#define M_PI 3.14159265358979323846
+
 namespace GeneralConstants
 {
     const double Kdt = 0.005; //0.005, 0.02
@@ -21,8 +23,12 @@ namespace GeneralConstants
     const double RESISTANCE = MAX_VOLTAGE/STALL_CURRENT;
     const double Kv = ((FREE_SPEED * 2 * M_PI) / 60 ) / (MAX_VOLTAGE - FREE_CURRENT * RESISTANCE);
 
-    const double GOAL_HEIGHT = 2.641;
-    const double GOAL_RADIUS = 0.6096;
+    const double goalHeight = 2.641;
+    const double targetHeightUpper = 2.641;
+    const double targetHeightLower = targetHeightUpper - 0.0508;
+    const double radius = 0.6096;
+    const double cameraHeight = 0.9144;
+    const double cameraPitch = 31.4;
 
     const double HANGAR_X = -2.5;
     const double HANGAR_Y = -7;

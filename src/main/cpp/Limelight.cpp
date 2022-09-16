@@ -40,10 +40,10 @@ frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
 
     // std::cout << "center x: " << center.x << "\n";
     // std::cout << "center y: " << center.z << "\n";
-    frc::SmartDashboard::PutNumber("Center x", center.x);
-    frc::SmartDashboard::PutNumber("Center y", center.z);
+  //  frc::SmartDashboard::PutNumber("Center x", center.x);
+  //  frc::SmartDashboard::PutNumber("Center y", center.z);
 
-    frc::SmartDashboard::PutNumber("distance to center", sqrt(center.x*center.x + center.z*center.z));
+  //  frc::SmartDashboard::PutNumber("distance to center", sqrt(center.x*center.x + center.z*center.z));
    // std::cout << "dist: " << sqrt(center.x*center.x + center.z*center.z) << "\n";
 
     frc::Translation2d pose{units::meter_t{-center.x}, units::meter_t{-center.z}};
@@ -51,7 +51,7 @@ frc::Pose2d Limelight::getPose(double navx, double turretAngle) {
     double turretLimelightAngle = turretAngle - 180;
     frc::InputModulus(turretLimelightAngle, -180.0, 180.0);
 
-    frc::SmartDashboard::PutNumber("Turret limelight angle", turretLimelightAngle);
+//    frc::SmartDashboard::PutNumber("Turret limelight angle", turretLimelightAngle);
 
     pose = pose.RotateBy(frc::Rotation2d{units::degree_t{navx + turretLimelightAngle}});
 
@@ -91,7 +91,16 @@ Limelight::getCorners(std::vector<double> llpython) {
             if (corner < numCorners) { //getting points of rect
                 tempRectangle.push_back(LLCoordinate{llpython[i], llpython[i+1]});
             } else { //getting last element, the center
-                tempRectangle.insert(tempRectangle.begin(), LLCoordinate{llpython[i], llpython[i+1]});
+                if (llpython[i] == -1 && llpython[i+1] == -1) { //rect too small for center, manually compute center
+                    double xavg = 0; double yavg = 0;
+                    for (LLCoordinate c : tempRectangle) {
+                        xavg += c.first; yavg += c.second;
+                    }
+                    xavg /= tempRectangle.size(); yavg /= tempRectangle.size();
+                    tempRectangle.insert(tempRectangle.begin(), LLCoordinate{xavg, yavg});
+                } else {
+                    tempRectangle.insert(tempRectangle.begin(), LLCoordinate{llpython[i], llpython[i+1]});
+                }      
                 formingRect = false;
                 LLRectangle copy = tempRectangle; //copies by default in c++
                 rectangles.push_back(copy); 
@@ -100,9 +109,66 @@ Limelight::getCorners(std::vector<double> llpython) {
             i++;
         }
     }
-   
+
+    //outlier rejection
+    //todo find c++ statistics library
+
+    //get centers of each rectangle
+    std::vector<double> centersX(rectangles.size());
+    std::vector<double> centersY(rectangles.size());
+    for (int i = 0; i < rectangles.size(); i++) {
+        centersX[i] = rectangles[i][0].first;
+        centersY[i] = rectangles[i][0].second;
+    }
+
+    //reject using median absolute deviation. have to do x and y independently
+    //DOESNT WORK goes outside bounds
+    // me llamo Gustavo Fring, pero puedes llamarme Gus, y bienvenidos a la familia de Los Pollos Hermanos.
+    std::vector<LLRectangle> tmpR;
+    for (int i = 0; i < centersX.size(); i++) {
+        // std::cout << "value x: " << abs(centersX[i] - median(centersX)) / mad(centersX) << "\n";
+        //  std::cout << "value y: " << abs(centersY[i] - median(centersY)) / mad(centersY) << "\n";
+        if (!((abs(centersX[i] - median(centersX)) / mad(centersX) > 5 && mad(centersX) != 0)
+            || (abs(centersY[i] - median(centersY)) / mad(centersY) > 5 && mad(centersY) != 0))) {
+            tmpR.push_back(rectangles[i]);
+        }
+        else {
+           // std::cout << "outlier at: " << i << "\n";
+        }
+    }
+
+    rectangles = tmpR;
     return rectangles;
+}
+
+double Limelight::median(std::vector<double> x) {
+    if (x.size() % 2 != 0) return x[x.size()/2];
+    else return (x[x.size()/2-1] + x[x.size()/2])/2;
+}
+
+double Limelight::mad(std::vector<double> x) {
+   // https://eurekastatistics.com/using-the-median-absolute-deviation-to-find-outliers/
     
+    std::sort(x.begin(), x.end());
+    double med;
+    if (x.size() % 2 != 0) med = x[x.size()/2];
+    else med = (x[x.size()/2-1] + x[x.size()/2])/2;
+ //   std::cout << "med: " << med << "\n";
+
+    std::vector<double> dev(x.size());
+    for (int i = 0; i < x.size(); i++) {
+        dev[i] = abs(x[i] - med);
+    //    std::cout << dev[i] << "\n";
+    }
+
+    std::sort(dev.begin(), dev.end());
+    double med2;
+    if (dev.size() % 2 != 0) med2 = dev[dev.size()/2];
+    else med2 = (dev[dev.size()/2-1] + dev[dev.size()/2])/2;
+    med2 *= 1.4826;
+   
+  // std::cout << "med2: " << med2 << "\n";
+    return med2;
 }
 
 
