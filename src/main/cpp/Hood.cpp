@@ -47,7 +47,7 @@ double Hood::getHoodWantedVel()
 
 bool Hood::isReady()
 {
-    frc::SmartDashboard::PutNumber("Herror", abs(setPos_ - hoodMotor_.GetSelectedSensorPosition()));
+    frc::SmartDashboard::PutNumber("H-Error", abs(setPos_ - hoodMotor_.GetSelectedSensorPosition()));
     return (abs(setPos_ - hoodMotor_.GetSelectedSensorPosition()) < ShooterConstants::HOOD_READY);
 }
 
@@ -55,7 +55,9 @@ void Hood::periodic()
 {
     if(hoodMotor_.GetSelectedSensorPosition() < ShooterConstants::MAX_HOOD_TICKS - 100)
     {
-        zeroed_ = false;
+        /*zeroed_ = false;
+        currentStopHit_ = false;*/
+        setState(ZEROING); //HERE
     }
 
 
@@ -124,7 +126,7 @@ void Hood::zero()
         if(abs(hoodMotor_.GetSelectedSensorVelocity()) < 5 && hoodMotor_.GetSelectedSensorPosition() < -10)
         {
             hoodMotor_.SetSelectedSensorPosition(0);
-            currentStopHit_ = false;
+            currentStopHit_ = false; //HERE
             zeroed_ = true;
             state_ = IMMOBILE;
         }
@@ -198,7 +200,7 @@ void Hood::move()
             kVVolts = ShooterConstants::HOOD_WEIGHT_FF;
         }
 
-        if(profileVel == 0 && profileAcc == 0/* && vel < 10*/)
+        if(profileVel == 0 && profileAcc == 0 && vel < 50) //HERE
         {
             volts = ((setPos_ - pos) * kP_) + ShooterConstants::HOOD_WEIGHT_FF;
             //volts = ((profilePos - pos) * kP_) + ShooterConstants::HOOD_WEIGHT_FF;

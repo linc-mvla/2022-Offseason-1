@@ -15,8 +15,11 @@ class AutoPaths
     public:
         enum Path
         {
+            DEAD_BOT,
             TAXI_DUMB,
             TWO_DUMB,
+            ONE_DUMB_DELAYED,
+            STRAIGHT_BACK,
             TWO_RIGHT,
             TWO_MIDDLE,
             TWO_LEFT,

@@ -22,12 +22,33 @@ void AutoPaths::setPath(Path path)
 
     switch (path_)
     {
+    case DEAD_BOT:
+    {
+        break;
+    }
     case TAXI_DUMB:
     {
         break;
     }
     case TWO_DUMB:
     {
+        break;
+    }
+    case ONE_DUMB_DELAYED:
+    {
+        break;
+    }
+    case STRAIGHT_BACK:
+    {
+        SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
+
+        p1.addPoint(SwervePose(0, 0, 180, 0));
+        p1.addPoint(SwervePose(0, -1.5, 180, 0)); // TODO get value
+        //p1.addPoint(SwervePose(0, 0, 90, 0));
+
+        p1.generateTrajectory(false);
+
+        swervePaths_.push_back(p1);
         break;
     }
     case TWO_RIGHT:
@@ -42,7 +63,7 @@ void AutoPaths::setPath(Path path)
 
         swervePaths_.push_back(p1);
 
-        cout << "SET PATH" << endl;
+        //cout << "SET PATH" << endl;
         break;
     }
     case TWO_MIDDLE:
@@ -174,7 +195,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
 
     bool pathsOver = false;
     bool endOfSwervePath = false;
-    if (path_ != TAXI_DUMB && path_ != TWO_DUMB)
+    if (path_ != TAXI_DUMB && path_ != TWO_DUMB && path_ != DEAD_BOT && path_ != ONE_DUMB_DELAYED)
     {
         //cout << "Got into loop" << endl;
         SwervePose *pose = nullptr;
@@ -236,6 +257,12 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
 
     switch (path_)
     {
+    case DEAD_BOT:
+    {
+        intakeState_ = Intake::RETRACTED_IDLE;
+        shooterState_ = Shooter::IDLE;
+        break;
+    }
     case TAXI_DUMB:
     {
         intakeState_ = Intake::RETRACTED_IDLE;
@@ -263,6 +290,38 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         {
             swerveDrive->drive(0, 0, 0);
             shooterState_ = Shooter::SHOOTING;
+        }
+        break;
+    }
+    case ONE_DUMB_DELAYED:
+    {
+        intakeState_ = Intake::INTAKING;
+        if (timer_.Get().value() < 10.0)
+        {
+            shooterState_ = Shooter::TRACKING;
+            swerveDrive->drive(0, 0.0, 0);
+        }
+        else if (timer_.Get().value() > 10.0 && timer_.Get().value() < 12.0)
+        {
+            swerveDrive->drive(0, 0.2, 0);
+            shooterState_ = Shooter::TRACKING;
+        }
+        else
+        {
+            shooterState_ = Shooter::SHOOTING;
+        }
+        break;
+    }
+    case STRAIGHT_BACK:
+    {
+        intakeState_ = Intake::INTAKING;
+        if (pathsOver)
+        {
+            shooterState_ = Shooter::SHOOTING;
+        }
+        else
+        {
+            shooterState_ = Shooter::TRACKING;
         }
         break;
     }
@@ -328,7 +387,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             }
 
             //cout << failsafeTimer_.Get().value() << endl;
-            if (failsafeTimer_.Get().value() > 5 || channel_->getBallsShot() > 1)
+            if (failsafeTimer_.Get().value() > 4/* || channel_->getBallsShot() > 1*/)
             {
                 //frc::SmartDashboard::PutBoolean("Started second", true);
                 failsafeTimer_.Stop();
@@ -370,7 +429,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                     failsafeTimer_.Start();
                 }
 
-                if (failsafeTimer_.Get().value() > 2 || channel_->getBallsShot() > 1)
+                if (failsafeTimer_.Get().value() > 2/* || channel_->getBallsShot() > 1*/)
                 {
                     failsafeTimer_.Stop();
                     failsafeTimer_.Reset();
@@ -435,6 +494,11 @@ double AutoPaths::initYaw()
 {
     switch (path_)
     {
+    case DEAD_BOT:
+    {
+        return frc::SmartDashboard::GetNumber("Auto Yaw Offset", 0);
+        break;
+    }
     case TAXI_DUMB:
     {
         return 0;
@@ -443,6 +507,16 @@ double AutoPaths::initYaw()
     case TWO_DUMB:
     {
         return 0;
+        break;
+    }
+    case ONE_DUMB_DELAYED:
+    {
+        return 0;
+        break;
+    }
+    case STRAIGHT_BACK:
+    {
+        return 180;
         break;
     }
     case TWO_RIGHT:

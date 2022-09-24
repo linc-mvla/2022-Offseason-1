@@ -81,7 +81,7 @@ double Controls::getTurn()
     {
         return 0;
     }
-    turn = (turn > 0) ? ((turn - 0.05) / 0.95) * 0.5 : ((turn + 0.05) / 0.95) * 0.5;
+    turn = (turn > 0) ? ((turn - 0.05) / 0.95) * 0.3 : ((turn + 0.05) / 0.95) * 0.3;
 
     return turn;
     //return (shootPressed()) ? turn * 0.1 : turn;

@@ -27,7 +27,7 @@ void Shooter::createMap(string fileName, map<double, tuple<double, double, doubl
     }
     ifstream infile(fileName);
     
-    cout << "started creating a map" << endl;
+    //cout << "started creating a map" << endl;
 
     string data;
     double distance, angle, velocity, partDer;
@@ -166,6 +166,7 @@ void Shooter::periodic(double yaw)
         distance = prevDistance_;
     }*/
     distance = swerveDrive_->getDistance(turret_.getAngle());
+    //frc::SmartDashboard::PutNumber("Distance", distance);
 
     //double swerveDistance = swerveDrive_->getDistance(turret_.getAngle());
     //frc::SmartDashboard::PutNumber("SDistance", swerveDistance);
@@ -178,7 +179,43 @@ void Shooter::periodic(double yaw)
 
     if(distance != -1)
     {
-        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST)/* - 0.1524*/; //TODO, change or something
+        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST)/* + 0.6096 - 0.1524*/; //TODO, change or something
+        if(distance < 2 || distance > 7)
+        {
+            hasShot_ = false;
+        }
+        frc::SmartDashboard::PutNumber("Distance", distance);
+        //double distanceOff = distance * 0.359673 - 0.965060808;
+        double distanceOff = distance * 0.326153 - 0.753111;
+        if(distanceOff < 0)
+        {
+            distanceOff = 0;
+        }
+        else if(distanceOff > 1.2)
+        {
+            distanceOff = 1.2;
+        }
+        //distance += distanceOff;
+
+        double turretAng = abs(turret_.getAngle());
+        double angleOff = turretAng * turretAng * 0.00000654621 - turretAng * 0.00393303 + 0.00299541;
+
+        if(angleOff > 0)
+        {
+            angleOff = 0;
+        }
+        else if(angleOff < -0.5)
+        {
+            distanceOff = -0.5;
+        }
+
+        distance += angleOff;
+        //90, 0
+        //164, 2
+        //206, 3
+        //234, 4
+        //281, 4
+
     }
     /*else if(swerveDrive_->foundGoal())
     {
@@ -193,7 +230,7 @@ void Shooter::periodic(double yaw)
     
     frc::SmartDashboard::PutNumber("Range Adjustment", rangeAdjustment_);
     auto shot = shotsMap_.upper_bound(distance);
-    if (shot != shotsMap_.begin() && shot != shotsMap_.end() && distance > 2)
+    if (shot != shotsMap_.begin() && shot != shotsMap_.end()/* && distance > 2 && distance < 7*/)
     {
         //TODO disable interpolation when not using Andrew's points
         /*double higher = shot->first;
@@ -298,7 +335,7 @@ void Shooter::periodic(double yaw)
 
     frc::SmartDashboard::PutBoolean("Unloading", (state_ == UNLOADING));
 
-    frc::SmartDashboard::PutNumber("Balls", channel_->getBallCount());
+    //frc::SmartDashboard::PutNumber("Balls", channel_->getBallCount());
     if(channel_->getBallCount() > 0 && shootStarted_)
     {
         state_ = SHOOTING;
@@ -353,7 +390,7 @@ void Shooter::periodic(double yaw)
         case REVING:
         {
             hood_.setWantedPos(hoodAngle);
-            //hood_.setWantedPos(0); //-100
+            //hood_.setWantedPos(ShooterConstants::MAX_HOOD_ANGLE);
             hood_.setState(Hood::AIMING);
             
             turret_.setState(Turret::TRACKING);
@@ -362,6 +399,7 @@ void Shooter::periodic(double yaw)
             kickerMotor_.SetVoltage(units::volt_t(0));
 
             units::volt_t volts {calcFlyPID(velocity)};
+            //units::volt_t volts {calcFlyPID(frc::SmartDashboard::GetNumber("InV", 0))};
             //units::volt_t volts{calcFlyVolts(velocity)};
             //units::volt_t volts {0};
             flywheelMaster_.SetVoltage(volts);
@@ -382,6 +420,7 @@ void Shooter::periodic(double yaw)
             //cout << velocity << endl;
 
             units::volt_t volts {calcFlyPID(velocity)};
+            //units::volt_t volts{3};
             //units::volt_t volts{calcFlyVolts(velocity)};
             //units::volt_t volts {calcFlyPID(5)};
 
@@ -535,6 +574,8 @@ double Shooter::linVelToSensVel(double velocity)
 
 double Shooter::calcFlyPID(double velocity)
 {
+    //return 0;
+
     double time = timer_.GetFPGATimestamp().value();
     dT_ = time - prevTime_;
     prevTime_ = time;
@@ -544,7 +585,7 @@ double Shooter::calcFlyPID(double velocity)
     double error = setAngVel - flywheelMaster_.GetSelectedSensorVelocity();
 
     //frc::SmartDashboard::PutNumber("setFV", setAngVel);
-    frc::SmartDashboard::PutNumber("Ferror", error);
+    frc::SmartDashboard::PutNumber("F-Error", error);
     //frc::SmartDashboard::PutNumber("FV", flywheelMaster_.GetSelectedSensorVelocity());
 
     integralError_ += error * dT_;

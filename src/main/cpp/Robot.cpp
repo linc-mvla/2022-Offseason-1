@@ -37,13 +37,18 @@ Robot::Robot() : autoPaths_(channel_)
 void Robot::RobotInit()
 {
     autoChooser_.SetDefaultOption("Taxi Dumb", AutoPaths::TAXI_DUMB);
+    autoChooser_.AddOption("Dead Bot", AutoPaths::DEAD_BOT);
     autoChooser_.AddOption("Two Dumb", AutoPaths::TWO_DUMB);
+    autoChooser_.AddOption("One Dumb Delayed", AutoPaths::ONE_DUMB_DELAYED);
+    autoChooser_.AddOption("Straight Back", AutoPaths::STRAIGHT_BACK);
     autoChooser_.AddOption("Two Right", AutoPaths::TWO_RIGHT);
     autoChooser_.AddOption("Two Middle", AutoPaths::TWO_MIDDLE);
     autoChooser_.AddOption("Two Left", AutoPaths::TWO_LEFT);
     autoChooser_.AddOption("Three", AutoPaths::THREE);
     autoChooser_.AddOption("BIG BOY", AutoPaths::BIG_BOY);
     frc::SmartDashboard::PutData("Auto Modes", &autoChooser_);
+
+    frc::SmartDashboard::PutNumber("Auto Yaw Offset", 0);
 
     controls_->setClimbMode(false);
 
@@ -56,7 +61,7 @@ void Robot::RobotInit()
         std::cout << e.what() << std::endl;
     }
     navx_->ZeroYaw();
-    frc::SmartDashboard::PutNumber("YOff", 0.0);
+    //frc::SmartDashboard::PutNumber("YOff", 0.0);
 }
 
 /**
@@ -166,7 +171,7 @@ void Robot::TeleopInit()
     //hoodLogger_->openFile();
     //turretLogger_->openFile();
 
-    frc::SmartDashboard::PutNumber("InV", 0);
+    //frc::SmartDashboard::PutNumber("InV", 0);
     //frc::SmartDashboard::PutNumber("InA", 0);
     //frc::SmartDashboard::PutNumber("InHV", 0);
     //frc::SmartDashboard::PutNumber("fKp", 0);
@@ -179,9 +184,6 @@ void Robot::TeleopInit()
     //frc::SmartDashboard::PutNumber("smiv", 0.0);
     //frc::SmartDashboard::PutNumber("InCV", 0.0);
     //frc::SmartDashboard::PutNumber("Swerve Volts", 0.0);
-
-    //REMOVE FOR COMP
-    //yawOffset_ = frc::SmartDashboard::GetNumber("YOff", 0.0);
 
 }
 
@@ -265,11 +267,6 @@ void Robot::TeleopPeriodic()
             intake_.setState(Intake::RETRACTED_IDLE);
         }
 
-        if(controls_->manuallyOverrideTurret())
-        {
-            shooter_->setState(Shooter::MANUAL);
-        }
-
         if (controls_->intakePressed())
         {
             if(shooter_->getState() != Shooter::SHOOTING)
@@ -287,6 +284,11 @@ void Robot::TeleopPeriodic()
         {
             intake_.setState(Intake::RETRACTED_IDLE);
             //intake_.setState(Intake::EXTENDED_IDLE);
+        }
+
+        if(controls_->manuallyOverrideTurret())
+        {
+            shooter_->setState(Shooter::MANUAL);
         }
 
     }
@@ -370,6 +372,7 @@ void Robot::TeleopPeriodic()
 
 void Robot::DisabledInit()
 {
+    //COMP Disable from here
     shooter_->reset();
     limelight_->lightOn(false);
 
@@ -377,7 +380,7 @@ void Robot::DisabledInit()
     //TODO check yaw
     shooter_->periodic(-navx_->GetYaw());
 
-    swerveDrive_->reset();
+    swerveDrive_->reset(); //COMP Disable to here
 
     autoPaths_.setSetPath(false);
 

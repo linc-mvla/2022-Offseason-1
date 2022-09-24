@@ -104,7 +104,7 @@ void Turret::reset()
 void Turret::track()
 {
     frc::SmartDashboard::PutBoolean("Found goal", swerveDrive_->foundGoal());
-    if (!limelight_->hasTarget() && !swerveDrive_->foundGoal() && state_ != CLIMB)
+    if (/*!limelight_->hasTarget() && */!swerveDrive_->foundGoal() && state_ != CLIMB)
     {
         turretMotor_.SetVoltage(units::volt_t(0));
         limelight_->lightOn(true);
@@ -135,12 +135,12 @@ void Turret::track()
         double volts = calcPID();
         // double volts = calcProfileVolts();
 
-        if (volts > 0 && getAngle() > 175)
+        if (volts > 0 && getAngle() > 180)
         {
             std::cout << "trying to decapitate itself" << std::endl;
             turretMotor_.SetVoltage(units::volt_t(0));
         }
-        else if (volts < 0 && getAngle() < -175)
+        else if (volts < 0 && getAngle() < -180)
         {
             std::cout << "trying to decapitate itself" << std::endl;
             turretMotor_.SetVoltage(units::volt_t(0));
@@ -256,9 +256,9 @@ double Turret::calcError()
             {
                 error = limelightError;
             }*/
-            if(limelight_->calcDistance() != -1 && abs(limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1)
+            if(limelight_->calcDistance() != -1 && abs(limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1 && abs(limelightError - error) < 20)
             {
-                error = limelightError;
+                //error = limelightError;
             }
         }
     }
