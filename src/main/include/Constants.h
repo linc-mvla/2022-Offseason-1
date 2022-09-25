@@ -35,7 +35,7 @@ namespace LimelightConstants
 {
     const double ANGLE_OFFSET = 34; //31.4
     const double HEIGHT_OFFSET = 0.9652; //0.533, 0.7874, 0.9144 raised, 0.9652 raised new mount
-    const double TURRET_ANGLE_OFFSET = 4.20; //
+    const double TURRET_ANGLE_OFFSET = 4.75; //4.2 shot left
     const double TURRET_CENTER_RADIUS = 0.127;
     const double ROBOT_TURRET_CENTER_DISTANCE = 0.127;
     const double LIMELIGHT_TO_BALL_CENTER_DIST = -0.2032; //TODO get more precise, -0.1145, -0.2032?
@@ -116,7 +116,7 @@ namespace SwerveConstants
     const double TR_CANCODER_OFFSET = 19.77; //19.77, 
     const double TL_CANCODER_OFFSET = 109.952; //109.952
     const double BR_CANCODER_OFFSET = 197.5; //197.5
-    const double BL_CANCODER_OFFSET = 356.39; // 356.39
+    const double BL_CANCODER_OFFSET = -236; // 356.39, -184 + 90, -236.3 + 180, 
 
     const double MAX_LA = 3;
     const double MAX_LV = 4;

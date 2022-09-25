@@ -86,6 +86,20 @@ void Robot::RobotPeriodic()
         channel_->setColor(Channel::RED);
         frc::SmartDashboard::PutBoolean("Alliance Color", false);
     }
+
+    if(frc::DriverStation::IsAutonomous() && !frc::DriverStation::IsEnabled())
+    {
+        AutoPaths::Path path = autoChooser_.GetSelected();
+        autoPaths_.setPath(path);
+
+        navx_->ZeroYaw();
+        swerveDrive_->setFoundGoal(false);
+        yawOffset_ = autoPaths_.initYaw();
+    }
+
+    double printYaw = navx_->GetYaw() - yawOffset_;
+    Helpers::normalizeAngle(printYaw);
+    frc::SmartDashboard::PutNumber("Yaw Thing", printYaw);
 }
 
 /**
@@ -129,6 +143,11 @@ void Robot::AutonomousPeriodic()
     {
         climb_.extendArms(-3);
     }
+    /*else if(climbTimer_.Get().value() > 0.2 && climbTimer_.Get().value() < 0.25)
+    {
+        swerveDrive_->setFoundGoal(false);
+        climb_.stop();
+    }*/
     else
     {
         climb_.stop();
@@ -373,14 +392,13 @@ void Robot::TeleopPeriodic()
 void Robot::DisabledInit()
 {
     //COMP Disable from here
-    shooter_->reset();
-    limelight_->lightOn(false);
+    //shooter_->reset();
+    limelight_->lightOn(true);
 
     shooter_->setState(Shooter::IDLE);
-    //TODO check yaw
-    shooter_->periodic(-navx_->GetYaw());
+    //shooter_->periodic(-navx_->GetYaw());
 
-    swerveDrive_->reset(); //COMP Disable to here
+    //swerveDrive_->reset(); //COMP Disable to here
 
     autoPaths_.setSetPath(false);
 
@@ -394,10 +412,10 @@ void Robot::DisabledInit()
 
 void Robot::DisabledPeriodic() //TODO does this even do anything
 {
-    shooter_->reset();
-    limelight_->lightOn(false);
+    //shooter_->reset();
+    limelight_->lightOn(true);
 
-    swerveDrive_->reset();
+    //swerveDrive_->reset();
 
     autoPaths_.setSetPath(false);
 }

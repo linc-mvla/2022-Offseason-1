@@ -83,7 +83,8 @@ void SwerveDrive::drivePose(double yaw, SwervePose pose)
 {
     setYaw(yaw);
 
-    calcOdometry();
+    //calcOdometry();
+
     /*frc::SmartDashboard::PutNumber("AX", autoX_);
     frc::SmartDashboard::PutNumber("AY", autoY_);
     frc::SmartDashboard::PutNumber("WAX", pose.getX());
@@ -213,16 +214,22 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool in
 
 }
 
-void SwerveDrive::calcOdometry()
+/*void SwerveDrive::calcOdometry()
 {
     calcOdometry(0, true);
-}
+}*/
 
 void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
 {
     double time = timer_.GetFPGATimestamp().value();
     dT_ = time - prevTime_;
     prevTime_ = time;
+
+    if(!frc::DriverStation::IsEnabled())
+    {
+        reset();
+        return;
+    }
 
     // resetGoalOdometry(turretAngle); //TODO change into this function if it works?
 
@@ -352,6 +359,8 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
 
     frc::SmartDashboard::PutNumber("x", robotX_);
     frc::SmartDashboard::PutNumber("y", robotY_);
+    frc::SmartDashboard::PutNumber("ax", autoX_);
+    frc::SmartDashboard::PutNumber("ay", autoY_);
 
     // frc::SmartDashboard::PutNumber("RGA", robotGoalAngle_);
     goalXVel_ = avgX * cos(robotGoalAngle_ * M_PI / 180) + avgY * sin(robotGoalAngle_ * M_PI / 180);

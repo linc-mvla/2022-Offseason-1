@@ -11,6 +11,7 @@
 #include "SwerveModule.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DriverStation.h>
 
 
 class SwerveDrive

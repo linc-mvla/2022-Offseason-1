@@ -43,7 +43,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, 180, 0));
-        p1.addPoint(SwervePose(0, -1.5, 180, 0)); // TODO get value
+        p1.addPoint(SwervePose(0, -2, 180, 0)); // TODO get value
         //p1.addPoint(SwervePose(0, 0, 90, 0));
 
         p1.generateTrajectory(false);
@@ -103,7 +103,8 @@ void AutoPaths::setPath(Path path)
         SwervePath p2(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p2.addPoint(SwervePose(1, 0, 90, 0));
-        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 1.5)); //-168
+        //p2.addPoint(SwervePose(-0.5291328, -2.4728424, -156.77, 1.5)); //-168
+        p2.addPoint(SwervePose(-0.0893064, -2.1558504, -156.77, 1.5));
 
         p1.generateTrajectory(false);
         p2.generateTrajectory(false);
@@ -123,17 +124,22 @@ void AutoPaths::setPath(Path path)
         SwervePath p2(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p2.addPoint(SwervePose(1, 0, 90, 0));
-        p2.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 1.5));
+        //p2.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 1.5));
+        p2.addPoint(SwervePose(-0.0893064, -2.1558504, -156.77, 1.5));
 
         SwervePath p3(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p3.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 0));
-        p3.addPoint(SwervePose(0.1895856, -6.35508, 135, 3));
-        p3.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
+        //p3.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 0));
+        p3.addPoint(SwervePose(-0.0893064, -2.1558504, -156.77, 0));
+        //p3.addPoint(SwervePose(0.1895856, -6.35508, 135, 3));
+        p3.addPoint(SwervePose(0.6096, -5.9021472, 135, 3));
+        //p3.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
+        p3.addPoint(SwervePose(0.3941, -5.6866472, 135, 0));
 
         SwervePath p4(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
-        p4.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
+        //p4.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
+        p4.addPoint(SwervePose(0.3941, -5.6866472, 135, 0));
         p4.addPoint(SwervePose(-0.5291328, -2.4728424, 135, 0));
 
         p1.generateTrajectory(false);
@@ -469,7 +475,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                     failsafeTimer_.Start();
                 }
 
-                if (failsafeTimer_.Get().value() > 2)
+                if (failsafeTimer_.Get().value() > 1)
                 {
                     failsafeTimer_.Stop();
                     failsafeTimer_.Reset();

@@ -195,7 +195,7 @@ void Shooter::periodic(double yaw)
         {
             distanceOff = 1.2;
         }
-        //distance += distanceOff;
+        distance += distanceOff;
 
         double turretAng = abs(turret_.getAngle());
         double angleOff = turretAng * turretAng * 0.00000654621 - turretAng * 0.00393303 + 0.00299541;

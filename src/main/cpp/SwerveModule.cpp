@@ -1,6 +1,6 @@
 #include "SwerveModule.h"
 
-SwerveModule::SwerveModule(int turnID, int driveID, int cancoderID, double offset) : turnMotor_(turnID, "Drivebase"), driveMotor_(driveID, "Drivebase"), cancoder_(cancoderID, "Drivebase"), trajectoryCalc_(maxV, maxA, kP, kD, kV, kA, kVI), offset_(offset)
+SwerveModule::SwerveModule(int turnID, int driveID, int cancoderID, double offset) : turnMotor_(turnID, "Default Name"), driveMotor_(driveID, "Default Name"), cancoder_(cancoderID, "Default Name"), trajectoryCalc_(maxV, maxA, kP, kD, kV, kA, kVI), offset_(offset)
 {
     turnMotor_.SetInverted(TalonFXInvertType::CounterClockwise);
     driveMotor_.SetInverted(TalonFXInvertType::Clockwise);
