@@ -34,7 +34,6 @@ class AutoPaths
         Intake::State getIntakeState();
 
         void startTimer();
-        //void stopTimer();
         void setSetPath(bool setPath);
 
         void periodic(double yaw, SwerveDrive* swerveDrive);
@@ -52,6 +51,4 @@ class AutoPaths
 
         vector<SwervePath> swervePaths_;
         int pathNum_;
-        //SwervePath swervePath_;
-        //SwervePath swervePath_(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV)
 };

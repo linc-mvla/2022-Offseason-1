@@ -19,7 +19,7 @@ void Controls::periodic()
 
 double Controls::getXStrafe()
 {
-    /*if(manuallyOverrideTurret())
+    /*if(manuallyOverrideTurret()) //For child proofing
     {
         return xbox_.GetRawAxis(InputConstants::XBOX_LJOY_X);
     }*/
@@ -31,21 +31,11 @@ double Controls::getXStrafe()
     }
     x = (x > 0) ? (x - 0.05) / 0.95 : (x + 0.05) / 0.95;
     return x;
-    //return (shootPressed()) ? x * 0.25 : x;
-
-    /*if(abs(lJoy_.GetRawAxis(InputConstants::LJOY_X)) > 0.5)
-    {
-        return 0.1;
-    }
-    else
-    {
-        return 0;
-    }*/
 }
 
 double Controls::getYStrafe()
 {
-    /*if(manuallyOverrideTurret())
+    /*if(manuallyOverrideTurret()) //For child proofing
     {
         return -xbox_.GetRawAxis(InputConstants::XBOX_LJOY_Y);
     }*/
@@ -57,16 +47,6 @@ double Controls::getYStrafe()
     }
     y = (y > 0) ? (y - 0.05) / 0.95 : (y + 0.05) / 0.95;
     return y;
-    //return (shootPressed()) ? y * 0.25 : y;
-
-    /*if(abs(lJoy_.GetRawAxis(InputConstants::LJOY_X)) > 0.5)
-    {
-        return 0;
-    }
-    else
-    {
-        return 0.1;
-    }*/
 }
 
 double Controls::getTurn()
@@ -77,14 +57,13 @@ double Controls::getTurn()
     }*/
 
     double turn = rJoy_.GetRawAxis(InputConstants::RJOY_X);
-    if(abs(turn) < 0.05) //TODO get value
+    if(abs(turn) < 0.05)
     {
         return 0;
     }
     turn = (turn > 0) ? ((turn - 0.05) / 0.95) * 0.3 : ((turn + 0.05) / 0.95) * 0.3;
 
     return turn;
-    //return (shootPressed()) ? turn * 0.1 : turn;
 }
 
 bool Controls::fieldOrient()
@@ -94,21 +73,11 @@ bool Controls::fieldOrient()
 
 double Controls::getClimbPower()
 {
-    /*if(abs(xbox_.GetRawAxis(InputConstants::LJOY_Y)) > 0.2)
-    {
-        double thing = frc::SmartDashboard::GetNumber("InCV", 0.0);
-        return (xbox_.GetRawAxis(InputConstants::LJOY_Y) > 0) ? thing : -thing;
-    }
-    else
-    {
-        return 0;
-    }*/
     return xbox_.GetRawAxis(InputConstants::XBOX_LJOY_Y) * 0.5 * GeneralConstants::MAX_VOLTAGE;
 }
 
 bool Controls::getPneumatic1Toggle()
 {
-    //return xbox_.GetRawButton(InputConstants::CLIMB_PNEUMATIC2_BUTTON); //TODO change
     return xbox_.GetRawButtonPressed(InputConstants::CLIMB_PNEUMATIC1_BUTTON);
 }
 
@@ -139,7 +108,7 @@ bool Controls::outakePressed()
 
 bool Controls::shootPressed()
 {
-    return lJoy_.GetTrigger()/* && resetUnload()*/;
+    return lJoy_.GetTrigger()/* && resetUnload()*/; //Second part for child proofing
 }
 
 bool Controls::increaseRange()
@@ -154,18 +123,6 @@ bool Controls::decreaseRange()
 
 double Controls::getTurretManual()
 {
-    /*if(abs(xbox_.GetRawAxis(InputConstants::XBOX_RJOY_X)) > 0.2)
-    {
-        if(xbox_.GetRawAxis(InputConstants::XBOX_RJOY_X) > 0)
-        {
-            return frc::SmartDashboard::GetNumber("ITV", 0.0);
-        }
-        else
-        {
-            return -frc::SmartDashboard::GetNumber("ITV", 0.0);
-        }
-    }*/
-
     return xbox_.GetRawAxis(InputConstants::XBOX_RJOY_X) * 0.3 * GeneralConstants::MAX_VOLTAGE;
 }
 //0,7 0
@@ -178,7 +135,6 @@ double Controls::getTurretManual()
 bool Controls::resetUnload()
 {
     return xbox_.GetRawAxis(InputConstants::XBOX_LTRIGGER) > 0.75;
-    //cout << "resetting unload" << endl;
 }
 
 bool Controls::manuallyOverrideTurret()

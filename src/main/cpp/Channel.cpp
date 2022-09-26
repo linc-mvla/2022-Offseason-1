@@ -63,10 +63,6 @@ bool Channel::badIdea()
     {
         ballColor = UNKNOWN;
     }
-
-    //frc::SmartDashboard::PutBoolean("RED", (ballColor == RED));
-    //frc::SmartDashboard::PutBoolean("BLUE", (ballColor == BLUE));
-
     //0.394, 0.1856, red
     //0.5003, 0.1207, red
     //0.3907, 0.1861, red
@@ -76,14 +72,11 @@ bool Channel::badIdea()
 
     if(proximity < ChannelConstants::BALL_PROXIMITY)
     {
-        //frc::SmartDashboard::PutBoolean("BadIdea", false);
         return false;
     }
 
     bool badIdea = (ballColor != color_ && ballColor != UNKNOWN);
-    //frc::SmartDashboard::PutBoolean("BadIdea", badIdea);
 
-    //return false;
     return badIdea;
 }
 

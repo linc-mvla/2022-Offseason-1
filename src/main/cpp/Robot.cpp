@@ -14,13 +14,8 @@ Robot::Robot() : autoPaths_(channel_)
     AddPeriodic(
         [&]
         {
-            //autoPaths_.periodic(swerveDrive_);
-
             double yaw = navx_->GetYaw() - yawOffset_;
             Helpers::normalizeAngle(yaw);
-
-            
-            //climb_.periodic(navx_->GetRoll());
 
             if(frc::DriverStation::IsAutonomous() && frc::DriverStation::IsEnabled())
             {
@@ -30,13 +25,12 @@ Robot::Robot() : autoPaths_(channel_)
             {
                 swerveDrive_->periodic(yaw, controls_);
             }
-            //shooter_->periodic(-yaw);
 
             if(frc::DriverStation::IsEnabled())
             {
                 shooter_->periodic(-yaw);
                 climb_.periodic(navx_->GetRoll());
-            } //Test here, for auto
+            }
 
         }, 5_ms, 2_ms);
 
@@ -69,7 +63,6 @@ void Robot::RobotInit()
         std::cout << e.what() << std::endl;
     }
     navx_->ZeroYaw();
-    //frc::SmartDashboard::PutNumber("YOff", 0.0);
 }
 
 /**
@@ -94,20 +87,6 @@ void Robot::RobotPeriodic()
         channel_->setColor(Channel::RED);
         frc::SmartDashboard::PutBoolean("Alliance Color", false);
     }
-
-    // if(frc::DriverStation::IsAutonomous() && !frc::DriverStation::IsEnabled())
-    // {
-    //     AutoPaths::Path path = autoChooser_.GetSelected();
-    //     autoPaths_.setPath(path);
-
-    //     navx_->ZeroYaw();
-    //     swerveDrive_->setFoundGoal(false);
-    //     yawOffset_ = autoPaths_.initYaw();
-    // }
-
-    double printYaw = navx_->GetYaw() - yawOffset_;
-    Helpers::normalizeAngle(printYaw);
-    frc::SmartDashboard::PutNumber("Yaw Thing", printYaw);
 }
 
 /**
@@ -142,7 +121,6 @@ void Robot::AutonomousInit()
     swerveDrive_->reset();
 
     autoPaths_.startTimer();
-    //cout << "autoinit thing finished" << endl;
 }
 
 void Robot::AutonomousPeriodic()
@@ -152,11 +130,6 @@ void Robot::AutonomousPeriodic()
     {
         climb_.extendArms(-3);
     }
-    /*else if(climbTimer_.Get().value() > 0.2 && climbTimer_.Get().value() < 0.25)
-    {
-        swerveDrive_->setFoundGoal(false);
-        climb_.stop();
-    }*/
     else
     {
         climb_.stop();
@@ -177,14 +150,6 @@ void Robot::AutonomousPeriodic()
 
     intake_.setState(autoPaths_.getIntakeState());
     shooter_->setState(autoPaths_.getShooterState());
-    
-    /*double yaw = navx_->GetYaw() - yawOffset_;
-    Helpers::normalizeAngle(yaw);
-
-    //swerveDrive_->periodic(yaw, controls_);
-    swerveDrive_->setYaw(yaw);
-    shooter_->periodic(-yaw);
-    climb_.periodic(navx_->GetRoll());*/
 
     intake_.periodic();
 }
@@ -192,7 +157,6 @@ void Robot::AutonomousPeriodic()
 void Robot::TeleopInit()
 {
     controls_->setClimbMode(false);
-    //autoPaths_.stopTimer();
 
     //odometryLogger_->openFile();
     //flywheelLogger_->openFile();
@@ -226,27 +190,9 @@ void Robot::TeleopPeriodic()
         yawOffset_ = 0;
     }
 
-    //TODO implement robot state machine?
     if(!controls_->getClimbMode())
     {
-        /*double fKp = frc::SmartDashboard::GetNumber("fKp", 0.0);
-        double fKi = frc::SmartDashboard::GetNumber("fKi", 0.0);
-        double fKd = frc::SmartDashboard::GetNumber("fKd", 0.0);
-
-        double hKp = frc::SmartDashboard::GetNumber("hKp", 0.0);
-        double hKi = frc::SmartDashboard::GetNumber("hKi", 0.0);
-        double hKd = frc::SmartDashboard::GetNumber("hKd", 0.0);
-
-        if(controls_->autoClimbPressed()) //TODO resusing buttons, remove later
-        {
-            shooter_->setPID(fKp, fKi, fKd);
-            shooter_->setHoodPID(hKp, hKi, hKd);
-        }*/
-
-        //shooter_->setTurretPos(controls_->getTurretPos());
-        //shooter_->setHoodTicks(controls_->getHoodTicks());
-
-        if(controls_->autoClimbCancelled()) //TODO remove later?
+        if(controls_->autoClimbCancelled()) 
         {
             shooter_->zeroHood();
         }
@@ -256,8 +202,6 @@ void Robot::TeleopPeriodic()
             channel_->setBallCount(0);
             shooter_->clearBallShooting();
         }
-
-        //shooter_->setVel(8300);
 
         climb_.setState(Climb::DOWN);
         climb_.setAutoState(Climb::UNINITIATED);
@@ -402,9 +346,9 @@ void Robot::DisabledInit()
 {
     //COMP Disable from here
     //shooter_->reset();
-    limelight_->lightOn(true);
+    limelight_->lightOn(true); //Not here
 
-    shooter_->setState(Shooter::IDLE);
+    shooter_->setState(Shooter::IDLE); //Not here
     //shooter_->periodic(-navx_->GetYaw());
 
     //swerveDrive_->reset(); //COMP Disable to here
@@ -419,9 +363,9 @@ void Robot::DisabledInit()
     //hoodLogger_->print();
 }
 
-void Robot::DisabledPeriodic() //TODO does this even do anything
+void Robot::DisabledPeriodic()
 {
-    //shooter_->reset();
+    //shooter_->reset(); //COMP Disable this
     limelight_->lightOn(true);
 
     swerveDrive_->reset();

@@ -85,8 +85,6 @@ void SwerveModule::move(double driveSpeed, double angle, bool inVolts)
 
     units::volt_t turnVolts{calcAngPID(angle)};
     turnMotor_.SetVoltage(turnVolts);
-    //turnMotor_.SetVoltage(units::volt_t(frc::SmartDashboard::GetNumber("smiv", 0)));
-    //frc::SmartDashboard::PutNumber(id_ + " Turn volts", turnVolts.value());
 
     if(inVolts)
     {
@@ -97,12 +95,6 @@ void SwerveModule::move(double driveSpeed, double angle, bool inVolts)
         units::volt_t driveVolts{direction_ * calcDrivePID(driveSpeed)};
         driveMotor_.SetVoltage(driveVolts);
     }
-    
-    //frc::SmartDashboard::PutNumber(id_ + " Drive volts", driveVolts.value());
-
-    //frc::SmartDashboard::PutNumber(id_ + " VEL", driveMotor_.GetSelectedSensorVelocity());
-    //frc::SmartDashboard::PutNumber(id_ + "thing", cancoder_.GetAbsolutePosition());
-
 }
 
 //1, 107
@@ -122,7 +114,6 @@ double SwerveModule::calcAngPID(double setAngle)
 {
 
     double error = findError(setAngle, getAngle());
-    //frc::SmartDashboard::PutNumber(id_ + "Angle error", error);
 
     aIntegralError_ += error * dT_;
     double deltaError = (error - aPrevError_) / dT_;
@@ -139,33 +130,10 @@ double SwerveModule::calcAngPID(double setAngle)
     return std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE, (double)GeneralConstants::MAX_VOLTAGE);
 }
 
-/*void SwerveModule::normalizeAngle() //test later for math mistake
-{
-    //angle_ = turnMotor_.GetSelectedSensorPosition() * GEAR_RATIO * 360.0 / 2048.0;
-    angle_ = cancoder_.GetAbsolutePosition();
-
-    //angle_ += (360 * 100);
-
-    //double angleDec = angle_ - floor(angle_);
-
-    //angle_ = ((int)floor(angle_) % 360);
-    //angle_ += angleDec;
-
-    angle_ -= 360 * floor(angle_ / 360 + 0.5); 
-
-}*/
-
-/*double rpmToTicksPerDS(double rpm)
-{
-        return (rpm * TICKS_PER_ROTATION) / (600);
-}*/
-
 double SwerveModule::calcDrivePID(double driveSpeed)
 {
     double velocity = (driveSpeed * GeneralConstants::MAX_RPM * GeneralConstants::TICKS_PER_ROTATION) / 600;
     double error = velocity - driveMotor_.GetSelectedSensorVelocity(); //This is probably wrong
-
-    //frc::SmartDashboard::PutNumber(id_ + "velocity error", error);
 
     dIntegralError_ += error * dT_;
     double deltaError = (error - dPrevError_) / dT_;
@@ -176,11 +144,7 @@ double SwerveModule::calcDrivePID(double driveSpeed)
         deltaError = 0;
         dIntegralError_ = 0;
     }
-
-    //double radPSec = (driveSpeed * GeneralConstants::MAX_RPM) * 2 * M_PI / 60;
-    //double feedForward = radPSec / GeneralConstants::Kv;
     double feedForward = GeneralConstants::MAX_VOLTAGE * driveSpeed;
-    //feedForward = 0;
 
     double power = (dkP_*error) + (dkI_*aIntegralError_) + (dkD_*deltaError) + feedForward;
 
@@ -191,8 +155,6 @@ double SwerveModule::calcDrivePID(double driveSpeed)
 double SwerveModule::findError(double setAngle, double angle)
 {
     double rawError = setAngle - angle;
-
-    //frc::SmartDashboard::PutNumber(id_ + "Angle", getAngle());
 
     Helpers::normalizeAngle(rawError);
 
@@ -206,23 +168,6 @@ double SwerveModule::findError(double setAngle, double angle)
     }
     
     return (abs(rawError) <= 90) ? rawError : (rawError > 0) ? rawError - 180 : rawError + 180;
-    /*if(abs(error) <= 90)
-    {
-        return error;
-    }
-    else
-    {
-        return (error > 0) ? error - 180 : error + 180;
-    }*/
-
-    //return rawError;
-
-    
-
-    /*double error = setAngle - getAngle();
-    frc::SmartDashboard::PutNumber(id_ + "Angle", getAngle());*/
-
-    //return error;
 }
 
 double SwerveModule::getDriveVelocity()

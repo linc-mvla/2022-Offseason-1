@@ -226,7 +226,7 @@ namespace ShooterConstants
     const int FLYWHEEL_EJECT_READY = 500;
     const int HOOD_READY = 150;
     const int TURRET_AIMED = 3;
-    const int TURRET_UNLOAD_AIMED = 7;
+    const int TURRET_UNLOAD_AIMED = 3;
 
     const double KICKER_VOLTS = 5;
 

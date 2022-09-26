@@ -9,13 +9,11 @@ Limelight::Limelight()
 
 double Limelight::getXOff()
 {
-    //frc::SmartDashboard::PutNumber("LX", table->GetNumber("tx", 10000.0));
     return table->GetNumber("tx", 10000.0);
 }
 
 double Limelight::getYOff()
 {
-    //frc::SmartDashboard::PutNumber("LY", table->GetNumber("ty", 10000.0));
     return table->GetNumber("ty", 10000.0);
 }
 
@@ -25,19 +23,12 @@ double Limelight::getAdjustedX()
     double y = getYOff();
     adjustAngles(x, y);
 
-    //frc::SmartDashboard::PutNumber("LAX", x);
-    //frc::SmartDashboard::PutNumber("LAY", y);
-
     return x;
 }
 
 bool Limelight::hasTarget()
 {
     double targets = table->GetNumber("tv", -1);
-
-    //std::vector<double> thing = table->GetEntry("llpython").GetDoubleArray(std::vector<double>());
-    //cout << thing[0] << endl;
-
     if(targets == -1 || targets == 0)
     {
         return false;

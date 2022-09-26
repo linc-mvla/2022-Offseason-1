@@ -43,8 +43,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, 180, 0));
-        p1.addPoint(SwervePose(0, -2, 180, 0)); // TODO get value
-        //p1.addPoint(SwervePose(0, 0, 90, 0));
+        p1.addPoint(SwervePose(0, -2, 180, 0));
 
         p1.generateTrajectory(false);
 
@@ -56,14 +55,11 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, 90, 0));
-        p1.addPoint(SwervePose(1, 0, 90, 0)); // TODO get value
-        //p1.addPoint(SwervePose(0, 0, 90, 0));
+        p1.addPoint(SwervePose(1, 0, 90, 0));
 
         p1.generateTrajectory(false);
 
         swervePaths_.push_back(p1);
-
-        //cout << "SET PATH" << endl;
         break;
     }
     case TWO_MIDDLE:
@@ -71,8 +67,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, 135, 0));
-        p1.addPoint(SwervePose(0.707, -0.707, 135, 0)); // TODO get value
-        //p1.addPoint(SwervePose(0, 0, 135, 0));
+        p1.addPoint(SwervePose(0.707, -0.707, 135, 0));
 
         p1.generateTrajectory(false);
 
@@ -84,8 +79,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, -135, 0));
-        p1.addPoint(SwervePose(-0.707, -0.707, -135, 0)); // TODO get value
-        //p1.addPoint(SwervePose(0, 0, -135, 0));
+        p1.addPoint(SwervePose(-0.707, -0.707, -135, 0));
 
         p1.generateTrajectory(false);
 
@@ -97,8 +91,7 @@ void AutoPaths::setPath(Path path)
         SwervePath p1(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         p1.addPoint(SwervePose(0, 0, 90, 0));
-        p1.addPoint(SwervePose(1, 0, 90, 0)); // TODO get value
-        //p1.addPoint(SwervePose(0, 0, 90, 0));
+        p1.addPoint(SwervePose(1, 0, 90, 0));
 
         SwervePath p2(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
@@ -178,11 +171,6 @@ void AutoPaths::startTimer()
     startTime_ = timer_.GetFPGATimestamp().value();
 }
 
-/*void AutoPaths::stopTimer()
-{
-    timer_.Stop();
-}*/
-
 void AutoPaths::setSetPath(bool setPath)
 {
     pathSet_ = setPath;
@@ -190,10 +178,8 @@ void AutoPaths::setSetPath(bool setPath)
 
 void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
 {
-    //cout << "periodic called" << endl;
     if(!pathSet_)
     {
-        //cout << "thing returned" << endl;
         return;
     }
 
@@ -203,13 +189,10 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     bool endOfSwervePath = false;
     if (path_ != TAXI_DUMB && path_ != TWO_DUMB && path_ != DEAD_BOT && path_ != ONE_DUMB_DELAYED)
     {
-        //cout << "Got into loop" << endl;
         SwervePose *pose = nullptr;
-        for (size_t i = pathNum_; i < swervePaths_.size(); ++i) // Maybe make a while loop idk
+        for (size_t i = pathNum_; i < swervePaths_.size(); ++i)
         {
-            //cout << "Getting pose" << endl;
             pose = swervePaths_[i].getPose(time, endOfSwervePath);
-            //cout << "got pose" << endl;
             if (!endOfSwervePath)
             {
                 break;
@@ -223,11 +206,9 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
             if (nextPathReady_ && endOfSwervePath && i != swervePaths_.size() - 1)
             {
                 nextPathReady_ = false;
-                //frc::SmartDashboard::PutBoolean("Advaced Path", true);
                 ++pathNum_;
                 startTimer();
                 time = timer_.GetFPGATimestamp().value() - startTime_;
-                //break;
             }
             else
             {
@@ -237,15 +218,9 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
 
         if(pose != nullptr)
         {
-            //cout << "About to drive pose" << endl;
-            //cout << pose->getX() << ", " << pose->getY() << endl;
             swerveDrive->drivePose(yaw, *pose);
-            //cout << "Drove pose" << endl;
-            //cout << "Deleting pose" << endl;
             delete pose;
         }
-
-        //cout << "finished with pose" << endl;
         
     }
     else
@@ -259,8 +234,6 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
         }
     }
 
-    //cout << "GOT TO SWITCH" << endl;
-
     switch (path_)
     {
     case DEAD_BOT:
@@ -273,8 +246,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     {
         intakeState_ = Intake::RETRACTED_IDLE;
         shooterState_ = Shooter::IDLE;
-        //cout << timer_.Get().value() << endl;
-        if (timer_.Get().value() < 2.0) // TODO get values
+        if (timer_.Get().value() < 2.0)
         {
             swerveDrive->drive(0, 0.2, 0);
         }
@@ -287,7 +259,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     case TWO_DUMB:
     {
         intakeState_ = Intake::INTAKING;
-        if (timer_.Get().value() < 2.0) // TODO get values
+        if (timer_.Get().value() < 2.0)
         {
             shooterState_ = Shooter::TRACKING;
             swerveDrive->drive(0, 0.2, 0);
@@ -392,7 +364,6 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
                 failsafeTimer_.Start();
             }
 
-            //cout << failsafeTimer_.Get().value() << endl;
             if (failsafeTimer_.Get().value() > 4/* || channel_->getBallsShot() > 1*/)
             {
                 //frc::SmartDashboard::PutBoolean("Started second", true);

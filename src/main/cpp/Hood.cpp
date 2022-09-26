@@ -64,7 +64,6 @@ void Hood::periodic()
     if(!zeroed_)
     {
         state_ = ZEROING;
-        //zeroed_ = false;
     }
 
     switch(state_)
@@ -106,17 +105,11 @@ void Hood::reset()
 
 void Hood::zero()
 {
-    //frc::SmartDashboard::PutNumber("HCUR", hoodMotor_.GetSupplyCurrent());
-    //frc::SmartDashboard::PutNumber("HOOD ZVEL", hoodMotor_.GetSelectedSensorVelocity());
-    //frc::SmartDashboard::PutNumber("HOOD ZPOS", hoodMotor_.GetSelectedSensorPosition());
-    if(/*hoodMotor_.GetSelectedSensorVelocity() < 20*/hoodMotor_.GetSupplyCurrent() > ShooterConstants::HOOD_ZERO_CURRENT)
+    if(hoodMotor_.GetSupplyCurrent() > ShooterConstants::HOOD_ZERO_CURRENT)
     {
         hoodMotor_.SetVoltage(units::volt_t(0));
         currentStopHit_ = true;
         hoodMotor_.SetSelectedSensorPosition(0);
-        //hoodMotor_.SetSelectedSensorPosition(230); //TODO change to a constant
-        //zeroed_ = true;
-        //state_ = IMMOBILE;
     }
 
     if(currentStopHit_)
@@ -126,14 +119,14 @@ void Hood::zero()
         if(abs(hoodMotor_.GetSelectedSensorVelocity()) < 5 && hoodMotor_.GetSelectedSensorPosition() < -10)
         {
             hoodMotor_.SetSelectedSensorPosition(0);
-            currentStopHit_ = false; //HERE
+            currentStopHit_ = false;
             zeroed_ = true;
             state_ = IMMOBILE;
         }
     }
     else
     {
-        hoodMotor_.SetVoltage(units::volt_t(1)); //TODO change to constant
+        hoodMotor_.SetVoltage(units::volt_t(1));
     }
 }
 
@@ -147,9 +140,6 @@ void Hood::move()
 {
     //double volts = calcPID();
 
-    //volts = inVolts_;
-
-    //volts = frc::SmartDashboard::GetNumber("HINV", 0);
     //setPos_ = frc::SmartDashboard::GetNumber("InA", 0);
 
     double volts;
@@ -218,7 +208,6 @@ void Hood::move()
     }
     
     frc::SmartDashboard::PutNumber("Ang Ticks", hoodMotor_.GetSelectedSensorPosition());
-    //frc::SmartDashboard::PutNumber("HVEL", hoodMotor_.GetSelectedSensorVelocity());
     
     //0, 100-120
     //0.5, 540
@@ -240,10 +229,6 @@ void Hood::move()
     {
         hoodMotor_.SetVoltage(units::volt_t(volts));
     }
-    //hoodMotor_.SetVoltage(units::volt_t(volts));
-    
-    //cout << volts << endl;
-    //frc::SmartDashboard::PutNumber("HV", volts);
 }
 
 void Hood::setInVolts(double inVolts)
@@ -271,8 +256,6 @@ double Hood::calcPID()
     double power = (kP_*error) + (kI_*integralError_) + (kD_*deltaError);
     power += ShooterConstants::HOOD_WEIGHT_FF;
 
-    //frc::SmartDashboard::PutNumber("Herror", error);
-    //frc::SmartDashboard::PutNumber("HP", power);
     return std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE * 0.3, (double)GeneralConstants::MAX_VOLTAGE * 0.3);
 }
 

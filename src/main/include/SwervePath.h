@@ -30,9 +30,6 @@ class SwervePath
 
         SwervePose* getPose(double time, bool& end);
 
-        //tuple<double, double, double> getPosition();
-        //pair<double, double> getVelocity();
-
     private:
         double MAX_LA, MAX_LV, MAX_AA, MAX_AV, klP_, klD_, kaP_, kaD_, klV_, klA_, kaV_, kaA_;
 
