@@ -11,6 +11,7 @@
 #include "SwerveModule.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/DriverStation.h>
 
 
 class SwerveDrive
@@ -25,21 +26,13 @@ class SwerveDrive
 
         void calcModules(double xSpeed, double ySpeed, double turn, bool inVolts);
 
-        void calcOdometry();
-        void calcOdometry(double turretAngle, bool inAuto);
-        //void resetGoalOdometry(double turretAngle);
+        void calcOdometry(double turretAngle);
         void reset();
         bool foundGoal();
         void setFoundGoal(bool foundGoal);
 
         double getX();
         double getY();
-        // double getSmoothX();
-        // double getSmoothY();
-        // double getSWX();
-        // double getSWY();
-        //double getGoalX();
-        //double getGoalY();
         double getGoalXVel();
         double getGoalYVel();
         double getRobotGoalAng();
@@ -51,7 +44,6 @@ class SwerveDrive
         SwerveModule* bottomLeft_ = new SwerveModule(SwerveConstants::BL_TURN_ID, SwerveConstants::BL_DRIVE_ID, SwerveConstants::BL_CANCODER_ID, SwerveConstants::BL_CANCODER_OFFSET);
 
         double limelightX_, limelightY_, robotX_, robotY_, autoX_, autoY_, yaw_, goalXVel_, goalYVel_, robotGoalAngle_;
-        //double smoothX_, smoothY_, smoothWheelX_, smoothWheelY_;
         bool foundGoal_ = false;
 
         double prevTime_, dT_;

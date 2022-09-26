@@ -33,9 +33,9 @@ namespace GeneralConstants
 
 namespace LimelightConstants
 {
-    const double ANGLE_OFFSET = 31.4; //49.5 from 0 at top (90-49.5), 30
-    const double HEIGHT_OFFSET = 0.9144; //0.533, 0.7874, 0.9144 raised
-    const double TURRET_ANGLE_OFFSET = 5; //
+    const double ANGLE_OFFSET = 34; //31.4
+    const double HEIGHT_OFFSET = 0.9652; //0.533, 0.7874, 0.9144 raised, 0.9652 raised new mount
+    const double TURRET_ANGLE_OFFSET = 4.75; //4.2 shot left
     const double TURRET_CENTER_RADIUS = 0.127;
     const double ROBOT_TURRET_CENTER_DISTANCE = 0.127;
     const double LIMELIGHT_TO_BALL_CENTER_DIST = -0.2032; //TODO get more precise, -0.1145, -0.2032?
@@ -116,23 +116,23 @@ namespace SwerveConstants
     const double TR_CANCODER_OFFSET = 19.77; //19.77, 
     const double TL_CANCODER_OFFSET = 109.952; //109.952
     const double BR_CANCODER_OFFSET = 197.5; //197.5
-    const double BL_CANCODER_OFFSET = 356.39; // 356.39
+    const double BL_CANCODER_OFFSET = -236; // 356.39, -184 + 90, -236.3 + 180, 
 
-    const double MAX_LA = 2;
-    const double MAX_LV = 3;
-    const double MAX_AA = 180;
-    const double MAX_AV = 360;
+    const double MAX_LA = 3;
+    const double MAX_LV = 4;
+    const double MAX_AA = 270;
+    const double MAX_AV = 450;
 
     const double klV = 0.489016;
     const double klVI = -0.32683;
     const double klA = 0;
-    const double klP = 0;
+    const double klP = 0.05;
     const double klD = 0;
 
     const double kaV = 34.2064;
     const double kaVI = -25.4095;
     const double kaA = 0;
-    const double kaP = 0;
+    const double kaP = 0.008; //0.0075
     const double kaD = 0;
 
 }
@@ -156,7 +156,7 @@ namespace ClimbConstants
 
     const double TOO_FAR_FROM_STATIC_HOOKS = 16500;
     const double ABOVE_STATIC_HOOKS = 25000;
-    const double CLEAR_OF_BARS = 70850;
+    const double CLEAR_OF_BARS = 90850;
     const double NEARING_HARDSTOP = 110000;
     //const double OFF_HOOKS = -110500;
     const double EXTEND_THRESHOLD = 1000; //TODO experiment for value
@@ -218,17 +218,17 @@ namespace ShooterConstants
     const double TURRET_ZERO_CURRENT = 2.8; //TODO test value
     const double TICKS_PER_TURRET_DEGREE = 175; //TODO test value
 
-    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_raised_2.csv";
+    const string SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_raised_2_edited.csv";
     const string LOW_ANGLE_SHOTS_FILE_NAME = frc::filesystem::GetDeployDirectory() + "/shots_low_angle.csv";
     const double Kr = 0.0762; //TODO get value, 3 inches = 0.0762
 
     const int FLYWHEEL_READY = 330;
     const int FLYWHEEL_EJECT_READY = 500;
-    const int HOOD_READY = 200;
-    const int TURRET_AIMED = 4;
-    const int TURRET_UNLOAD_AIMED = 7;
+    const int HOOD_READY = 150;
+    const int TURRET_AIMED = 3;
+    const int TURRET_UNLOAD_AIMED = 3;
 
-    const double KICKER_VOLTS = 6;
+    const double KICKER_VOLTS = 5;
 
     const double UNLOADING_CURRENT = 15;
     const double UNLOADING_CURRENT_LOW = 5;

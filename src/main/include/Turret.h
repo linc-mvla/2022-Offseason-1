@@ -29,7 +29,7 @@ class Turret
         double getAngle();
 
         Turret(Limelight* limelight, SwerveDrive* swerveDrive);
-        void periodic(double yaw, double offset/*, double robotGoalAng, bool foundGoal, double x, double y*/);
+        void periodic(double yaw, double offset);
         void reset();
 
         void track();
@@ -60,8 +60,8 @@ class Turret
 
         State state_;
         double manualVolts_;
-        bool aimed_, unloadReady_/*, foundGoal_*/;
-        double prevYaw_, yaw_, offset_, /*robotGoalAng_, x_, y_, */unloadAngle_;
+        bool aimed_, unloadReady_;
+        double prevYaw_, yaw_, offset_, unloadAngle_;
 
         double prevTime_, dT_, deltaYaw_, yawDT_, yawPrevTime_, yawVel_, currentSetPos_;
         frc::Timer timer_;

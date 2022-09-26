@@ -47,9 +47,6 @@ void Turret::periodic(double yaw, double offset)
     {
         turretMotor_.SetVoltage(units::volt_t(manualVolts_));
         swerveDrive_->setFoundGoal(false);
-        // frc::SmartDashboard::PutNumber("TX", limelight_->getAdjustedX());
-        //  frc::SmartDashboard::PutNumber("TV", turretMotor_.GetSelectedSensorVelocity());
-        //  calcError(); //for printing values
         limelight_->lightOn(true);
         break;
     }
@@ -86,7 +83,6 @@ bool Turret::isAimed()
 
 bool Turret::unloadReady()
 {
-    // return true;
     return unloadReady_;
 }
 
@@ -104,7 +100,7 @@ void Turret::reset()
 void Turret::track()
 {
     frc::SmartDashboard::PutBoolean("Found goal", swerveDrive_->foundGoal());
-    if (!limelight_->hasTarget() && !swerveDrive_->foundGoal() && state_ != CLIMB)
+    if (!swerveDrive_->foundGoal() && state_ != CLIMB)
     {
         turretMotor_.SetVoltage(units::volt_t(0));
         limelight_->lightOn(true);
@@ -135,12 +131,12 @@ void Turret::track()
         double volts = calcPID();
         // double volts = calcProfileVolts();
 
-        if (volts > 0 && getAngle() > 175)
+        if (volts > 0 && getAngle() > 180)
         {
             std::cout << "trying to decapitate itself" << std::endl;
             turretMotor_.SetVoltage(units::volt_t(0));
         }
-        else if (volts < 0 && getAngle() < -175)
+        else if (volts < 0 && getAngle() < -180)
         {
             std::cout << "trying to decapitate itself" << std::endl;
             turretMotor_.SetVoltage(units::volt_t(0));
@@ -188,8 +184,6 @@ void Turret::calcUnloadAng()
 
 double Turret::calcAngularFF()
 {
-    //double rff = -yawVel_ / 82;
-
     if (abs(yawVel_) < 5)
     {
         return 0;
@@ -252,13 +246,10 @@ double Turret::calcError()
         if(limelight_->hasTarget())
         {
             double limelightError = offset_ + limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET;
-            /*if(abs(limelightError - error) < 10)
+
+            if(limelight_->calcDistance() != -1 && abs(limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1 && abs(limelightError - error) < 20)
             {
-                error = limelightError;
-            }*/
-            if(limelight_->calcDistance() != -1 && abs(limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1)
-            {
-                error = limelightError;
+                error = limelightError; //Test here (this comment is the only edit to this line)
             }
         }
     }
@@ -293,7 +284,6 @@ double Turret::calcError()
             error += 360;
         }
 
-        // error = (error > 0) ? error - 360 : error + 360;
     }
 
     if (abs(goalError) > 40 && !limelight_->hasTarget()) // COMP disable probably
@@ -354,7 +344,6 @@ double Turret::calcPID()
     }
 
     power = std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE * 0.3, (double)GeneralConstants::MAX_VOLTAGE * 0.3);
-    // power = 0;
     if(abs(error) < 50)
     {
         power += calcAngularFF();
@@ -362,7 +351,6 @@ double Turret::calcPID()
     //power += calcLinearFF();
     // frc::SmartDashboard::PutNumber("LTFF", calcLinearFF());
 
-    // return power;
     return std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE, (double)GeneralConstants::MAX_VOLTAGE); // TODO get cap value
 }
 
@@ -392,14 +380,6 @@ double Turret::calcProfileVolts()
         frc::SmartDashboard::PutBoolean("THING DIED", true);
         return 0;
     }
-
-    // double inPos = frc::SmartDashboard::GetNumber("InT", getAngle());
-    // Helpers::normalizeAngle(inPos);
-    // error = inPos - getAngle();
-    // setPos = inPos;
-
-    // error = inPos_ - getAngle();
-    // setPos = inPos_;
 
     if (initTrajectory_ && abs(setPos - currentSetPos_) < 3)
     {

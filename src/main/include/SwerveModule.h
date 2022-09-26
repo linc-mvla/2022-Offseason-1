@@ -25,7 +25,6 @@ class SwerveModule
         double calcAngPID(double setAngle);
         double calcDrivePID(double driveSpeed);
         double findError(double setAngle, double angle);
-
         
         double getDriveVelocity();
         double getAngle();
@@ -62,7 +61,7 @@ class SwerveModule
         double akI_ = 0.0;
         double akD_ = 0.001;
 
-        double dkP_ = 0.0; //TODO tune values
+        double dkP_ = 0.0;
         double dkI_ = 0.0;
         double dkD_ = 0.0;
 
