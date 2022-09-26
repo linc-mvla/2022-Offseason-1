@@ -19,8 +19,8 @@ Robot::Robot() : autoPaths_(channel_)
             double yaw = navx_->GetYaw() - yawOffset_;
             Helpers::normalizeAngle(yaw);
 
-            shooter_->periodic(-yaw);
-            climb_.periodic(navx_->GetRoll());
+            
+            //climb_.periodic(navx_->GetRoll());
 
             if(frc::DriverStation::IsAutonomous() && frc::DriverStation::IsEnabled())
             {
@@ -30,6 +30,14 @@ Robot::Robot() : autoPaths_(channel_)
             {
                 swerveDrive_->periodic(yaw, controls_);
             }
+            //shooter_->periodic(-yaw);
+
+            if(frc::DriverStation::IsEnabled())
+            {
+                shooter_->periodic(-yaw);
+                climb_.periodic(navx_->GetRoll());
+            } //Test here, for auto
+
         }, 5_ms, 2_ms);
 
 }
@@ -87,15 +95,15 @@ void Robot::RobotPeriodic()
         frc::SmartDashboard::PutBoolean("Alliance Color", false);
     }
 
-    if(frc::DriverStation::IsAutonomous() && !frc::DriverStation::IsEnabled())
-    {
-        AutoPaths::Path path = autoChooser_.GetSelected();
-        autoPaths_.setPath(path);
+    // if(frc::DriverStation::IsAutonomous() && !frc::DriverStation::IsEnabled())
+    // {
+    //     AutoPaths::Path path = autoChooser_.GetSelected();
+    //     autoPaths_.setPath(path);
 
-        navx_->ZeroYaw();
-        swerveDrive_->setFoundGoal(false);
-        yawOffset_ = autoPaths_.initYaw();
-    }
+    //     navx_->ZeroYaw();
+    //     swerveDrive_->setFoundGoal(false);
+    //     yawOffset_ = autoPaths_.initYaw();
+    // }
 
     double printYaw = navx_->GetYaw() - yawOffset_;
     Helpers::normalizeAngle(printYaw);
@@ -115,6 +123,7 @@ void Robot::RobotPeriodic()
  */
 void Robot::AutonomousInit()
 {
+    shooter_->reset();
     climb_.setPneumatics(false, false);
     climb_.setState(Climb::MANUAL);
     climbTimer_.Stop();
@@ -415,7 +424,7 @@ void Robot::DisabledPeriodic() //TODO does this even do anything
     //shooter_->reset();
     limelight_->lightOn(true);
 
-    //swerveDrive_->reset();
+    swerveDrive_->reset();
 
     autoPaths_.setSetPath(false);
 }

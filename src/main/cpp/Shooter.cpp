@@ -148,7 +148,7 @@ void Shooter::periodic(double yaw)
     }
 
     yaw_ = yaw;
-    swerveDrive_->calcOdometry(turret_.getAngle(), false);
+    swerveDrive_->calcOdometry(turret_.getAngle()/*, false*/);
 
     //frc::SmartDashboard::PutBoolean("map", hasMap_);
 
@@ -179,7 +179,7 @@ void Shooter::periodic(double yaw)
 
     if(distance != -1)
     {
-        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST)/* + 0.6096 - 0.1524*/; //TODO, change or something
+        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.6096/* - 0.1524*/; //TODO, change or something
         if(distance < 2 || distance > 7)
         {
             hasShot_ = false;

@@ -219,7 +219,7 @@ void SwerveDrive::calcModules(double xSpeed, double ySpeed, double turn, bool in
     calcOdometry(0, true);
 }*/
 
-void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
+void SwerveDrive::calcOdometry(double turretAngle/*, bool inAuto*/)
 {
     double time = timer_.GetFPGATimestamp().value();
     dT_ = time - prevTime_;
@@ -233,7 +233,7 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
 
     // resetGoalOdometry(turretAngle); //TODO change into this function if it works?
 
-    if (!limelight_->hasTarget() && !foundGoal_ && !inAuto)
+    if (!limelight_->hasTarget() && !foundGoal_ && !frc::DriverStation::IsAutonomous())
     {
         return;
     }
@@ -306,20 +306,34 @@ void SwerveDrive::calcOdometry(double turretAngle, bool inAuto)
             double dY = limelightY_ - robotY_;
             //frc::SmartDashboard::PutNumber("dx", dX);
             //frc::SmartDashboard::PutNumber("dy", dY);
+
+            double odomRobotGoalAng;
+            if (robotX_ != 0 || robotY_ != 0)
+            {
+                odomRobotGoalAng = -yaw_ - 90 + atan2(-robotY_, -robotX_) * 180 / M_PI;
+                Helpers::normalizeAngle(odomRobotGoalAng);
+            }
+            else
+            {
+                odomRobotGoalAng = 0;
+            }
             
-            double turretError = abs(180 - robotGoalAngle_ - turretAngle);
+            //double turretError = abs(180 - robotGoalAngle_ - turretAngle);
+            double turretError = abs(180 - odomRobotGoalAng - turretAngle); //Test here
             Helpers::normalizeAngle(turretError);
             //frc::SmartDashboard::PutNumber("40", turretError);
+            double robotGoalAngError = abs(odomRobotGoalAng - robotGoalAngle_); //Test here
 
             //TODO, change weight based on velocity?
-            if(abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40)
+            if(abs(dX) < 0.75 && abs(dY) < 0.75 && turretError < 40 && robotGoalAngError < 20) //Test here, higher values, originally (0.75, 0.75, 40)
             {
-                robotX_ += dX * 0.05;
+                robotX_ += dX * 0.05; //Test here, higher value, maybe 0.1?
                 robotY_ += dY * 0.05;
                 frc::SmartDashboard::PutBoolean("Swerve Using Limelight", true);
             }
             else
             {
+                robotGoalAngle_ = odomRobotGoalAng;
                 frc::SmartDashboard::PutBoolean("Swerve Using Limelight", false);
             }
             

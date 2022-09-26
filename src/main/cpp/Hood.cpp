@@ -53,12 +53,12 @@ bool Hood::isReady()
 
 void Hood::periodic()
 {
-    if(hoodMotor_.GetSelectedSensorPosition() < ShooterConstants::MAX_HOOD_TICKS - 100)
-    {
-        /*zeroed_ = false;
-        currentStopHit_ = false;*/
-        setState(ZEROING); //HERE
-    }
+    // if(hoodMotor_.GetSelectedSensorPosition() < ShooterConstants::MAX_HOOD_TICKS - 100)
+    // {
+    //     /*zeroed_ = false;
+    //     currentStopHit_ = false;*/
+    //     setState(ZEROING); //HERE
+    // }
 
 
     if(!zeroed_)
@@ -184,7 +184,7 @@ void Hood::move()
 
         double profileVel = get<1>(profile);
         double profileAcc = get<0>(profile);
-        double profilePos = get<2>(profile);
+        //double profilePos = get<2>(profile);
         double kVVolts;
         if(profileVel < 0)
         {
