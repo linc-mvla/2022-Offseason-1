@@ -20,7 +20,7 @@ class Channel
         void periodic();
 
         int getBalls();
-        bool badIdea();
+        bool badIdea(); //Checks if there is a ball that is our color
         int getBallCount();
         int getBallsShot();
         void increaseBallCount();

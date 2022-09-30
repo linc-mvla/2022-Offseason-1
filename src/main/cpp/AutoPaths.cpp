@@ -467,7 +467,7 @@ void AutoPaths::periodic(double yaw, SwerveDrive *swerveDrive)
     }
 }
 
-double AutoPaths::initYaw()
+double AutoPaths::initYaw()//Get Yaw/angle based off of the path
 {
     switch (path_)
     {

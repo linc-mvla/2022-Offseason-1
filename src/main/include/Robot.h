@@ -39,7 +39,7 @@ public:
     void TestPeriodic() override;
 
 private:
-    frc::SendableChooser<AutoPaths::Path> autoChooser_;
+    frc::SendableChooser<AutoPaths::Path> autoChooser_; //Sets choices for auto
     frc::DriverStation::Alliance alliance_;
 
     AHRS *navx_;

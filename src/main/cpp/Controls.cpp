@@ -5,14 +5,14 @@ Controls::Controls() : lJoy_{InputConstants::LJOY_PORT}, rJoy_{InputConstants::R
     //idk
 }
 
-void Controls::periodic()
+void Controls::periodic() //Control periodic
 {
-    if(xbox_.GetRawButtonPressed(InputConstants::CLIMB_MODE_TOGGLE_BUTTON))
+    if(xbox_.GetRawButtonPressed(InputConstants::CLIMB_MODE_TOGGLE_BUTTON))//Check if button to climb mode is pressed
     {
-        climbMode_ = !climbMode_;
-        getPneumatic1Toggle();
+        climbMode_ = !climbMode_; //Flip climb mode
+        getPneumatic1Toggle(); //TODO explain returning nowhere?
         getPneumatic2Toggle();
-        autoClimbCancelled();
+        autoClimbCancelled(); 
         autoClimbPressed();
     }
 }
@@ -91,7 +91,7 @@ bool Controls::autoClimbPressed()
     return xbox_.GetRawButtonPressed(InputConstants::AUTO_CLIMB_BUTTON);
 }
 
-bool Controls::autoClimbCancelled()
+bool Controls::autoClimbCancelled() //Check if autoclimb cancle button is pressed
 {
     return xbox_.GetRawButtonPressed(InputConstants::AUTO_CLIMB_CANCEL);
 }

@@ -126,17 +126,17 @@ void Shooter::setTurretManualVolts(double manualVolts)
     turret_.setManualVolts(manualVolts);
 }
 
-void Shooter::clearBallShooting()
+void Shooter::clearBallShooting() //Clears shooting
 {
-    shootStarted_ = false;
-    shooting_ = false;
+    shootStarted_ = false; //Stop shooting
+    shooting_ = false; //Stop shooting
 }
 
 void Shooter::periodic(double yaw)
 {
     if(state_ == UNLOADING)
     {
-        limelight_->lightOn(false);
+        limelight_->lightOn(false); //Turn off limelight
     }
     else
     {
@@ -489,9 +489,9 @@ void Shooter::reset()
     rangeAdjustment_ = 0;
 }
 
-void Shooter::zeroHood()
+void Shooter::zeroHood() //TODO read more
 {
-    hood_.setState(Hood::ZEROING);
+    hood_.setState(Hood::ZEROING); 
 }
 
 double Shooter::linVelToSensVel(double velocity)
