@@ -207,9 +207,10 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
             shooter_->clearBallShooting(); //Reset Shooter balls
         }
 
-        climb_.setState(Climb::DOWN); 
-        climb_.setAutoState(Climb::UNINITIATED);
-    
+        climb_.setState(Climb::DOWN); //Lower climber arms
+        climb_.setAutoState(Climb::UNINITIATED); //TODO read more
+
+        //Changes shooting (calibrate to shoot farther or less)
         if(controls_->increaseRange())
         {
             shooter_->increaseRange();
@@ -219,8 +220,11 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
             shooter_->decreaseRange();
         }
 
+        //Show if balls match to smartdashboard
         frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->badIdea());
 
+        //(If the correct ball is there or we're unloading) and not pressing unload button
+        //TODO read more
         if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
         {
             shooter_->setState(Shooter::UNLOADING);

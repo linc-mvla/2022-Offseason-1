@@ -40,7 +40,13 @@ Channel::Color Channel::getColor()
     return color_;
 }
 
-bool Channel::badIdea()//Checks if there is a ball that is our color
+/**
+ * @brief Checks if there is a ball that is our color
+ * 
+ * @return true - There is correct ball
+ * @return false - There is no ball/wrong color
+ */
+bool Channel::badIdea()
 {
     frc::Color color = colorSensor_.GetColor(); //Get color of color sensor
     int proximity = colorSensor_.GetProximity(); //Get distance of color sensor

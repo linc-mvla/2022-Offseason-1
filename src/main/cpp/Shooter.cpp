@@ -422,8 +422,8 @@ void Shooter::periodic(double yaw)
         }
         case UNLOADING:
         {
-            hood_.setWantedPos(50);
-            hood_.setState(Hood::AIMING);
+            hood_.setWantedPos(50); //Set hood to 50 degrees
+            hood_.setState(Hood::AIMING); //
 
             turret_.setState(Turret::UNLOADING);
             //turret_.setState(Turret::MANUAL);

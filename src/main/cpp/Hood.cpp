@@ -82,7 +82,7 @@ void Hood::periodic()
         }
         case AIMING:
         {
-            hoodMotor_.SetNeutralMode(NeutralMode::Brake);
+            hoodMotor_.SetNeutralMode(NeutralMode::Brake); //Slow down when no power
             move();
             break;
         }
@@ -129,7 +129,11 @@ void Hood::zero()
         hoodMotor_.SetVoltage(units::volt_t(1));
     }
 }
-
+/**
+ * @brief Sets the desired hood position (hood will move there)
+ * 
+ * @param setPos desired angle of hood
+ */
 void Hood::setWantedPos(double setPos)
 {
     //setPos_ = setPos;
@@ -259,9 +263,15 @@ double Hood::calcPID()
     return std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE * 0.3, (double)GeneralConstants::MAX_VOLTAGE * 0.3);
 }
 
+/**
+ * @brief calculate tick# for motor 
+ * 
+ * @param angle angle of the hood
+ * @return double ticks of motor
+ */
 double Hood::angleToTicks(double angle)
 {
-    return (angle - ShooterConstants::MAX_HOOD_ANGLE) * ShooterConstants::TICKS_PER_HOOD_DEGREE;
+    return (angle - ShooterConstants::MAX_HOOD_ANGLE) * ShooterConstants::TICKS_PER_HOOD_DEGREE; //Offset and scale
 }
 
 //-1, -8200
