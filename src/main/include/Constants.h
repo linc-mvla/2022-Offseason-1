@@ -233,6 +233,7 @@ namespace ShooterConstants
     const double UNLOADING_CURRENT = 15;
     const double UNLOADING_CURRENT_LOW = 5;
 
+    const double SHOOT_PAUSE_MS = 500; //TODO tune
 }
 
 namespace ChannelConstants

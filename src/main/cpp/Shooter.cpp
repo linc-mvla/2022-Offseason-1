@@ -404,7 +404,7 @@ void Shooter::periodic(double yaw)
             //12000, 11.5824
             //13000, 12.4097142857034
 
-            if(shotReady_)
+            if(shotReady_ && frc::Timer::GetFPGATimestamp() - shotPauseStart > ShooterConstants::SHOOT_PAUSE_MS)
             {
                 shootStarted_ = true;
                 kickerMotor_.SetVoltage(units::volt_t(ShooterConstants::KICKER_VOLTS)); //TODO tune value
@@ -425,6 +425,7 @@ void Shooter::periodic(double yaw)
                 shooting_ = false;
                 channel_->decreaseBallCount();
                 channel_->setBallsShot(channel_->getBallsShot() + 1);
+                shotPauseStart = frc::Timer::GetFPGATimestamp().value();
             }
             break;
         }
@@ -495,6 +496,7 @@ void Shooter::reset()
     turret_.reset();
     dewindIntegral();
     rangeAdjustment_ = 0;
+    shotPauseStart = 0;
 }
 
 void Shooter::zeroHood()

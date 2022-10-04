@@ -83,6 +83,8 @@ class Shooter
         double prevTime_, dT_;
         frc::Timer timer_;
 
+        double shotPauseStart = 0; //for recording start time of shot
+
         double setPos_, prevError_, integralError_, prevVelocity_, wantedSensVel_;
         double fKp_ = 0.0005; //TODO tune values
         double fKi_ = 0.00; 
