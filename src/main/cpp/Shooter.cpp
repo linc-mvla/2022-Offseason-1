@@ -147,9 +147,12 @@ void Shooter::periodic(double yaw)
     yaw_ = yaw;
     swerveDrive_->calcOdometry(turret_.getAngle()/*, false*/);
 
-    double hoodAngle, velocity, turretOffset, partDer, distance;
+    //NO UNINITIALIZED VARIABLES!!!!!
+    double hoodAngle = 0; double velocity = 0; double turretOffset= 0; double partDer = 0; double distance = 0;
 
-    distance = swerveDrive_->getDistance(turret_.getAngle());
+  //  distance = swerveDrive_->getDistance(turret_.getAngle());
+      distance = frc::SmartDashboard::GetNumber("Set distance", distance);
+      frc::SmartDashboard::PutNumber("Set distance", distance);
 
     if(distance != -1)
     {
@@ -357,6 +360,9 @@ void Shooter::periodic(double yaw)
         }
         case SHOOTING: //TODO combine for auto shoot later, hood anti-windup
         {
+            //can comment this in for manually setting hood angle
+            // hoodAngle = frc::SmartDashboard::GetNumber("Set hood angle", hoodAngle);
+            // frc::SmartDashboard::PutNumber("Set hood angle", hoodAngle);
             hood_.setWantedPos(hoodAngle);
             //hood_.setWantedPos(ShooterConstants::MAX_HOOD_ANGLE);
             hood_.setState(Hood::AIMING);
@@ -364,8 +370,10 @@ void Shooter::periodic(double yaw)
             turret_.setState(Turret::TRACKING);
             //turret_.setState(Turret::MANUAL);
 
+            //can comment this in for manually setting flywheel velocity
+            // velocity = frc::SmartDashboard::GetNumber("Set flywheel velocity", velocity);
+            // frc::SmartDashboard::PutNumber("Set flywheel velocity", velocity);
             units::volt_t volts {calcFlyPID(velocity)};
-            //units::volt_t volts{calcFlyVolts(velocity)};
 
             //units::volt_t volts {calcFlyPID(frc::SmartDashboard::GetNumber("InV", 0))};
 
