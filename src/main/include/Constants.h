@@ -26,6 +26,9 @@ namespace GeneralConstants
 
     const double HANGAR_X = -2.5;
     const double HANGAR_Y = -7;
+    const double FIELD_WIDTH = 8.2296;
+    const double FIELD_LENGTH = 16.4592;
+    const double HUB_BASE_RADIUS = 0.5;
 
     const int MAX_BALL_COUNT = 1;
 
@@ -180,8 +183,8 @@ namespace ClimbConstants
     const double SLOW_RAISE_VOLTAGE = -2.5; //TODO make sure to lower on bar
     const double SLOW_CLIMB_VOLTAGE = 5;
 
-    const double ROLL_MAX = 170; //TODO yeah these two
-    const double ROLL_MIN = -180;
+    const double PITCH_MAX = 0; //TODO yeah these two
+    const double PITCH_MIN = -10;
 
     const double ON_BAR_DELAY = 0.85;
 }

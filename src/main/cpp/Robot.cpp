@@ -29,7 +29,8 @@ Robot::Robot() : autoPaths_(channel_)
             if(frc::DriverStation::IsEnabled())
             {
                 shooter_->periodic(-yaw);
-                climb_.periodic(navx_->GetRoll());
+                climb_.periodic(navx_->GetPitch());
+                frc::SmartDashboard::PutNumber("Pitch", navx_->GetPitch());
             }
 
         }, 5_ms, 2_ms);
@@ -163,7 +164,7 @@ void Robot::TeleopInit()
     //hoodLogger_->openFile();
     //turretLogger_->openFile();
 
-    //frc::SmartDashboard::PutNumber("InV", 0);
+    frc::SmartDashboard::PutNumber("InV", 0);
     //frc::SmartDashboard::PutNumber("InA", 0);
     //frc::SmartDashboard::PutNumber("InHV", 0);
     //frc::SmartDashboard::PutNumber("fKp", 0);

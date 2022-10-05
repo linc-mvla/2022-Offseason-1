@@ -44,8 +44,8 @@ class Hood
     private:
         WPI_TalonFX hoodMotor_;
 
-        double maxV = 100000;
-        double maxA = 500000 * 1.5;
+        double maxV = 50000; //100000
+        double maxA = 500000 * 0.75; //500000 * 1.5
         double kP = 0.0001;
         double kD = 0;
         double kV = 1 / ShooterConstants::HOOD_NEG_FF;

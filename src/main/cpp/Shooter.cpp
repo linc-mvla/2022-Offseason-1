@@ -501,8 +501,9 @@ double Shooter::linVelToSensVel(double velocity)
     //wantedSensVel_ = (66.0934 * velocity * velocity) - (73.0616 * velocity) + 3734.77;
     //return wantedSensVel_;
 
-    //lin vel = 0.000969076(sens vel) + 0.750436
-    wantedSensVel_ = (velocity - 0.750436) / 0.000969076;
+    //lin vel = 0.000969076(sens vel) + 0.750436 for chezy shots
+    //lin vel = 0.00103872(sens vel) + 0.763478 for post-chezy, pre-ccc shots
+    wantedSensVel_ = (velocity - 0.763478) / 0.00103872;
     return wantedSensVel_;
 }
 
