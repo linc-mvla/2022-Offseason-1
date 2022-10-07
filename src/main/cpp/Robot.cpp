@@ -164,7 +164,7 @@ void Robot::TeleopInit()
     //hoodLogger_->openFile();
     //turretLogger_->openFile();
 
-    frc::SmartDashboard::PutNumber("InV", 0);
+    //frc::SmartDashboard::PutNumber("InV", 0);
     //frc::SmartDashboard::PutNumber("InA", 0);
     //frc::SmartDashboard::PutNumber("InHV", 0);
     //frc::SmartDashboard::PutNumber("fKp", 0);
@@ -221,13 +221,13 @@ void Robot::TeleopPeriodic()
         if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
         {
             shooter_->setState(Shooter::UNLOADING);
-            intake_.setState(Intake::LOADING);
+            //intake_.setState(Intake::LOADING); //Watch out here
             //intake_.setState(Intake::INTAKING);
         }
         else if(controls_->shootPressed())
         {
             shooter_->setState(Shooter::SHOOTING);
-            intake_.setState(Intake::LOADING);
+            //intake_.setState(Intake::LOADING);
             //intake_.setState(Intake::INTAKING);
         }
         else if(channel_->getBallCount() > 0)
@@ -253,10 +253,14 @@ void Robot::TeleopPeriodic()
            intake_.setState(Intake::OUTAKING);
            shooter_->setState(Shooter::OUTAKING);
         }
-        else if(intake_.getState() != Intake::LOADING)
+        /*else if(intake_.getState() != Intake::LOADING)
         {
             intake_.setState(Intake::RETRACTED_IDLE);
             //intake_.setState(Intake::EXTENDED_IDLE);
+        }*/
+        else
+        {
+            intake_.setState(Intake::RETRACTED_IDLE);
         }
 
         if(controls_->manuallyOverrideTurret())

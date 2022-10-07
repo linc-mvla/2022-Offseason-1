@@ -257,7 +257,7 @@ void SwerveDrive::calcOdometry(double turretAngle)
 
         if (!foundGoal_ || abs(robotX_) > GeneralConstants::FIELD_WIDTH / 2 || abs(robotY_) > GeneralConstants::FIELD_LENGTH / 2 || abs(sqrt(robotX_ * robotX_ + robotY_ * robotY_)) < GeneralConstants::HUB_BASE_RADIUS)
         {
-            if(abs(limelightX_) > GeneralConstants::FIELD_WIDTH / 2 || abs(limelightY_) > GeneralConstants::FIELD_LENGTH / 2 || abs(sqrt(robotX_ * robotX_ + robotY_ * robotY_)) < GeneralConstants::HUB_BASE_RADIUS)
+            if(abs(limelightX_) > GeneralConstants::FIELD_WIDTH / 2 || abs(limelightY_) > GeneralConstants::FIELD_LENGTH / 2 || abs(sqrt(limelightX_ * limelightX_ + limelightY_ * limelightY_)) < GeneralConstants::HUB_BASE_RADIUS)
             {
                 foundGoal_ = false;
             }
@@ -294,7 +294,7 @@ void SwerveDrive::calcOdometry(double turretAngle)
             double robotGoalAngError = abs(odomRobotGoalAng - robotGoalAngle_); //Test here
 
             //TODO, change weight based on velocity?
-            if(abs(dX) < 2 && abs(dY) < 2 && turretError < 40 && robotGoalAngError < 40 && abs(limelightX_) < GeneralConstants::FIELD_WIDTH / 2 && abs(limelightY_) < GeneralConstants::FIELD_LENGTH / 2 && abs(sqrt(robotX_ * robotX_ + robotY_ * robotY_)) < GeneralConstants::HUB_BASE_RADIUS) //Test here, higher values, originally (0.75, 0.75, 40)
+            if(abs(dX) < 2 && abs(dY) < 2 && turretError < 40 && robotGoalAngError < 40 && abs(limelightX_) < GeneralConstants::FIELD_WIDTH / 2 && abs(limelightY_) < GeneralConstants::FIELD_LENGTH / 2 && abs(sqrt(robotX_ * robotX_ + robotY_ * robotY_)) > GeneralConstants::HUB_BASE_RADIUS) //Test here, higher values, originally (0.75, 0.75, 40)
             {
                 robotX_ += dX * 0.05; //Test here, higher value, maybe 0.1?
                 robotY_ += dY * 0.05;
@@ -332,8 +332,8 @@ void SwerveDrive::calcOdometry(double turretAngle)
 
     frc::SmartDashboard::PutNumber("x", robotX_);
     frc::SmartDashboard::PutNumber("y", robotY_);
-    frc::SmartDashboard::PutNumber("ax", autoX_);
-    frc::SmartDashboard::PutNumber("ay", autoY_);
+    //frc::SmartDashboard::PutNumber("ax", autoX_);
+    //frc::SmartDashboard::PutNumber("ay", autoY_);
 
     // frc::SmartDashboard::PutNumber("RGA", robotGoalAngle_);
     goalXVel_ = avgX * cos(robotGoalAngle_ * M_PI / 180) + avgY * sin(robotGoalAngle_ * M_PI / 180);
