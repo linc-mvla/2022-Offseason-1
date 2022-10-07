@@ -35,9 +35,9 @@ void Climb::setAutoState(AutoState autoState)
     autoState_ = autoState;
 }
 
-void Climb::periodic(double roll)
+void Climb::periodic(double pitch)
 {
-    roll_ = roll;
+    pitch_ = pitch;
 
     switch(state_)
     {
@@ -319,7 +319,7 @@ bool Climb::raiseToBar()
     }
     else if(autoState_ == EXTEND_TO_HIGH)
     {
-        if(waiting_ || (abs(pos) < ClimbConstants::HIGH_EXTEND_THRESHOLD && (roll_ > ClimbConstants::ROLL_MAX || roll_ < ClimbConstants::ROLL_MIN)))
+        if(waiting_ || (abs(pos) < ClimbConstants::HIGH_EXTEND_THRESHOLD && (pitch_ > ClimbConstants::PITCH_MIN && pitch_ < ClimbConstants::PITCH_MAX)))
         {
             setPneumatics(true, false);
             if(!waiting_)

@@ -136,7 +136,7 @@ void Shooter::periodic(double yaw)
 {
     if(state_ == UNLOADING)
     {
-        limelight_->lightOn(false);
+        //limelight_->lightOn(false);
     }
     else
     {
@@ -153,7 +153,7 @@ void Shooter::periodic(double yaw)
 
     if(distance != -1)
     {
-        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.6096/* - 0.1524*/; //TODO, change or something
+        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.9906/* - 0.1524*/; //TODO, change or something
         if(distance < 2 || distance > 7)
         {
             hasShot_ = false;
@@ -501,8 +501,10 @@ double Shooter::linVelToSensVel(double velocity)
     //wantedSensVel_ = (66.0934 * velocity * velocity) - (73.0616 * velocity) + 3734.77;
     //return wantedSensVel_;
 
-    //lin vel = 0.000969076(sens vel) + 0.750436
-    wantedSensVel_ = (velocity - 0.750436) / 0.000969076;
+    //lin vel = 0.000969076(sens vel) + 0.750436 for chezy shots
+    //lin vel = 0.00103872(sens vel) + 0.763478 for post-chezy, pre-ccc shots
+    //wantedSensVel_ = (velocity - 0.750436) / 0.000969076;
+    wantedSensVel_ = (velocity - 0.763478) / 0.00103872;
     return wantedSensVel_;
 }
 

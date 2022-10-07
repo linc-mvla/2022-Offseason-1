@@ -226,7 +226,7 @@ double Turret::calcError()
     {
         return 0;
     }
-    double error, goalError;
+    double error/*, goalError*/;
     if (state_ == UNLOADING)
     {
         error = unloadAngle_ - getAngle();
@@ -243,19 +243,19 @@ double Turret::calcError()
 
         error = wantedTurretAng - getAngle();
 
-        if(limelight_->hasTarget())
+        /*if(limelight_->hasTarget())
         {
             double limelightError = offset_ + limelight_->getAdjustedX() + LimelightConstants::TURRET_ANGLE_OFFSET;
 
-            if(limelight_->calcDistance() != -1 && abs(limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 1 && abs(limelightError - error) < 20)
+            if(limelight_->calcDistance() != -1 && abs(limelight_->calcDistance() - swerveDrive_->getDistance(getAngle())) < 3 && abs(limelightError - error) < 40) //Was 1, 20
             {
-                error = limelightError; //Test here (this comment is the only edit to this line)
+                error = limelightError; //Test here
             }
-        }
+        }*/
     }
     
 
-    double wantedGoalAng = (180 - swerveDrive_->getRobotGoalAng());
+    /*double wantedGoalAng = (180 - swerveDrive_->getRobotGoalAng());
     Helpers::normalizeAngle(wantedGoalAng);
     goalError = wantedGoalAng - getAngle();
 
@@ -266,7 +266,7 @@ double Turret::calcError()
         {
             goalError = limelightGoalError;
         }
-    }
+    }*/
 
 
 
@@ -286,14 +286,14 @@ double Turret::calcError()
 
     }
 
-    if (abs(goalError) > 40 && !limelight_->hasTarget()) // COMP disable probably
+    /*if (abs(goalError) > 40 && !limelight_->hasTarget()) // COMP disable probably
     {
         limelight_->lightOn(false);
     }
     else if (state_ != CLIMB && state_ != UNLOADING)
     {
         limelight_->lightOn(true);
-    }
+    }*/
 
     aimed_ = (abs(error) < ShooterConstants::TURRET_AIMED);
     unloadReady_ = (abs(error) < ShooterConstants::TURRET_UNLOAD_AIMED);
@@ -366,13 +366,13 @@ double Turret::calcProfileVolts()
     double error = calcError();
 
     double pos = getAngle();
-    frc::SmartDashboard::PutNumber("TP", pos);
+    //frc::SmartDashboard::PutNumber("TP", pos);
 
     double vel = turretMotor_.GetSelectedSensorVelocity() * 10 / ShooterConstants::TICKS_PER_TURRET_DEGREE;
-    frc::SmartDashboard::PutNumber("TV", vel);
+    //frc::SmartDashboard::PutNumber("TV", vel);
 
     double setPos = pos + error;
-    frc::SmartDashboard::PutNumber("TSP", setPos);
+    //frc::SmartDashboard::PutNumber("TSP", setPos);
     if (abs(setPos > 180))
     {
         frc::SmartDashboard::PutNumber("SPTHING DIED", setPos);
@@ -385,7 +385,7 @@ double Turret::calcProfileVolts()
     {
         double wantedAcc = get<0>(trajectoryCalc_.getProfile());
         double wantedVel = get<1>(trajectoryCalc_.getProfile());
-        if (abs(error) > ShooterConstants::TURRET_AIMED && wantedVel == 0 && wantedAcc == 0 && abs(vel) < 1)
+        if (abs(error) > ShooterConstants::TURRET_AIMED && wantedVel == 0 && wantedAcc == 0/* && abs(vel) < 1*/)
         {
             trajectoryCalc_.generateTrajectory(pos, setPos, vel);
         }
@@ -410,13 +410,18 @@ double Turret::calcProfileVolts()
 
     volts = trajectoryCalc_.calcPower(pos, vel);
 
-    if (state_ != CLIMB && abs(getAngle()) < 178)
+    /*if (state_ != CLIMB && abs(getAngle()) < 178)
     {
         // volts += calcAngularFF();
         // volts += calcLinearFF();
+    }*/
+
+    if(abs(error) < 50)
+    {
+        //volts += calcAngularFF();
     }
 
-    return volts;
+    return std::clamp(volts, -(double)GeneralConstants::MAX_VOLTAGE, (double)GeneralConstants::MAX_VOLTAGE);
 }
 
 // 1, 24
