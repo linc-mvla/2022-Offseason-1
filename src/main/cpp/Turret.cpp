@@ -129,7 +129,7 @@ void Turret::track()
         }*/
 
         double volts = calcPID();
-        // double volts = calcProfileVolts();
+        //double volts = calcProfileVolts();
 
         if (volts > 0 && getAngle() > 180)
         {
@@ -222,7 +222,7 @@ double Turret::calcLinearFF()
 
 double Turret::calcError()
 {
-    if (!swerveDrive_->foundGoal())
+    if (!swerveDrive_->foundGoal() && state_ != CLIMB)
     {
         return 0;
     }
@@ -336,6 +336,9 @@ double Turret::calcPID()
     }
     prevError_ = error;
 
+    //tkP_ = frc::SmartDashboard::GetNumber("tkP", 0.0);
+    //tkI_ = frc::SmartDashboard::GetNumber("tkI", 0.0);
+    //tkD_ = frc::SmartDashboard::GetNumber("tkD", 0.0);
     double power = (tkP_ * error) + (tkI_ * integralError_) + (tkD_ * deltaError);
 
     if (state_ == CLIMB)
@@ -416,7 +419,7 @@ double Turret::calcProfileVolts()
         // volts += calcLinearFF();
     }*/
 
-    if(abs(error) < 50)
+    if(abs(error) < 50 && state_ != CLIMB)
     {
         //volts += calcAngularFF();
     }

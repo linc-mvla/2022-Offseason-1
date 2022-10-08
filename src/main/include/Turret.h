@@ -69,7 +69,7 @@ class Turret
         double prevError_, integralError_;
         double tkP_ = 0.25; //TODO tune, tuned with physics only, could be more aggressive
         double tkI_ = 0.000/*1*/;  //0.075, 0.0001, 0.000008
-        double tkD_ = 0.000008;  //0.3, 0.0001, 0.00005
+        double tkD_ = 0.00001;  //0.3, 0.0001, 0.00005
         //0.2, 0.0001, 0.000008
 
         double inPos_;
