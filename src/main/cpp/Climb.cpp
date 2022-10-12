@@ -35,9 +35,9 @@ void Climb::setAutoState(AutoState autoState)
     autoState_ = autoState;
 }
 
-void Climb::periodic(double pitch)
+void Climb::periodic(double roll)
 {
-    pitch_ = pitch;
+    roll_ = roll;
 
     switch(state_)
     {
@@ -246,7 +246,7 @@ bool Climb::climbBar()
         volts = ClimbConstants::HIGH_CLIMB_VOLTAGE;
     }
 
-    if(abs(gearboxMaster_.GetSelectedSensorVelocity()) < 100 && gearboxMaster_.GetSelectedSensorPosition() > ClimbConstants::NEARING_HARDSTOP)
+    if(abs(gearboxMaster_.GetSelectedSensorVelocity()) < 50 && gearboxMaster_.GetSelectedSensorPosition() > ClimbConstants::NEARING_HARDSTOP)
     {
         gearboxMaster_.SetVoltage(units::volt_t(0));
         bottomPos_ = gearboxMaster_.GetSelectedSensorPosition();
@@ -319,7 +319,7 @@ bool Climb::raiseToBar()
     }
     else if(autoState_ == EXTEND_TO_HIGH)
     {
-        if(waiting_ || (abs(pos) < ClimbConstants::HIGH_EXTEND_THRESHOLD && (pitch_ > ClimbConstants::PITCH_MIN && pitch_ < ClimbConstants::PITCH_MAX)))
+        if(waiting_ || (abs(pos) < ClimbConstants::HIGH_EXTEND_THRESHOLD && (roll_ > ClimbConstants::ROLL_MAX || roll_ < ClimbConstants::ROLL_MIN)))
         {
             setPneumatics(true, false);
             if(!waiting_)

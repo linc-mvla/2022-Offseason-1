@@ -153,20 +153,16 @@ void Shooter::periodic(double yaw)
 
     if(distance != -1)
     {
-        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.9906/* - 0.1524*/; //TODO, change or something
-        if(distance < 2 || distance > 7)
-        {
-            hasShot_ = false;
-        }
+        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.61 + 0.2286/* - 0.1524*/; //TODO, change or something
         frc::SmartDashboard::PutNumber("Distance", distance);
         double distanceOff = distance * 0.326153 - 0.753111;
         if(distanceOff < 0)
         {
             distanceOff = 0;
         }
-        else if(distanceOff > 1.2)
+        else if(distanceOff > 0.5)
         {
-            distanceOff = 1.2;
+            distanceOff = 0.5;
         }
         distance += distanceOff;
 
@@ -183,6 +179,11 @@ void Shooter::periodic(double yaw)
         }
 
         distance += angleOff;
+
+        if(distance < 2 || distance > 7)
+        {
+            hasShot_ = false;
+        }
         //90, 0
         //164, 2
         //206, 3
@@ -534,20 +535,20 @@ double Shooter::calcFlyPID(double velocity)
     prevVelocity_ = flywheelMaster_.GetSelectedSensorVelocity();
 
     double feedForward = (abs(setAngVel) - ShooterConstants::FLYWHEEL_FF_INTERCEPT) / ShooterConstants::FLYWHEEL_FF;
-    if(setAngVel == 0)
+    if(setAngVel <= 0)
     {
         feedForward = 0;
     }
-    else if(setAngVel < 0)
+    /*else if(setAngVel < 0)
     {
         setAngVel *= -1;
-    }
+    }*/
 
     double power = (fKp_ * error) + (fKi_ * integralError_) + (fKd_ * deltaError) + feedForward;
 
     if(error > 6000) //TODO get values
     {
-        power += 2;
+        //power += 2;
     }
 
     return std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE, (double)GeneralConstants::MAX_VOLTAGE);
