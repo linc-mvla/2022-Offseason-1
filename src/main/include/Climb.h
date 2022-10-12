@@ -40,7 +40,7 @@ class Climb
     void setAutoState(AutoState autoState);
 
     Climb();
-    void periodic(double pitch);
+    void periodic(double roll);
 
     void setPneumatics(bool pneumatic1, bool pneumatic2);
     void togglePneumatic1();
@@ -84,7 +84,7 @@ class Climb
         State state_;
         AutoState autoState_;
 
-        double pitch_;
+        double roll_;
         bool nextStage_, stageComplete_;
 
         double kP_ = 0.0001;

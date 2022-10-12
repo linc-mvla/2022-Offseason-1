@@ -133,12 +133,12 @@ void Turret::track()
 
         if (volts > 0 && getAngle() > 180)
         {
-            std::cout << "trying to decapitate itself" << std::endl;
+            //std::cout << "trying to decapitate itself" << std::endl;
             turretMotor_.SetVoltage(units::volt_t(0));
         }
         else if (volts < 0 && getAngle() < -180)
         {
-            std::cout << "trying to decapitate itself" << std::endl;
+            //std::cout << "trying to decapitate itself" << std::endl;
             turretMotor_.SetVoltage(units::volt_t(0));
         }
         else

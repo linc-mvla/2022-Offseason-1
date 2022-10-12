@@ -183,8 +183,8 @@ namespace ClimbConstants
     const double SLOW_RAISE_VOLTAGE = -2.5; //TODO make sure to lower on bar
     const double SLOW_CLIMB_VOLTAGE = 5;
 
-    const double PITCH_MAX = 0; //TODO yeah these two
-    const double PITCH_MIN = -10;
+    const double ROLL_MAX = 170; //TODO yeah these two
+    const double ROLL_MIN = -180;
 
     const double ON_BAR_DELAY = 0.85;
 }

@@ -29,8 +29,8 @@ Robot::Robot() : autoPaths_(channel_)
             if(frc::DriverStation::IsEnabled())
             {
                 shooter_->periodic(-yaw);
-                climb_.periodic(navx_->GetPitch());
-                frc::SmartDashboard::PutNumber("Pitch", navx_->GetPitch());
+                climb_.periodic(navx_->GetRoll());
+                frc::SmartDashboard::PutNumber("Roll", navx_->GetRoll());
             }
 
         }, 5_ms, 2_ms);

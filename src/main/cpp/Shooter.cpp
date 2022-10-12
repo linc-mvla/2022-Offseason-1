@@ -535,20 +535,20 @@ double Shooter::calcFlyPID(double velocity)
     prevVelocity_ = flywheelMaster_.GetSelectedSensorVelocity();
 
     double feedForward = (abs(setAngVel) - ShooterConstants::FLYWHEEL_FF_INTERCEPT) / ShooterConstants::FLYWHEEL_FF;
-    if(setAngVel == 0)
+    if(setAngVel <= 0)
     {
         feedForward = 0;
     }
-    else if(setAngVel < 0)
+    /*else if(setAngVel < 0)
     {
         setAngVel *= -1;
-    }
+    }*/
 
     double power = (fKp_ * error) + (fKi_ * integralError_) + (fKd_ * deltaError) + feedForward;
 
     if(error > 6000) //TODO get values
     {
-        power += 2;
+        //power += 2;
     }
 
     return std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE, (double)GeneralConstants::MAX_VOLTAGE);

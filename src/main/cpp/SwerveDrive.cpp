@@ -318,10 +318,10 @@ void SwerveDrive::calcOdometry(double turretAngle)
 
             double turretError = abs(180 - robotGoalAngle_ - turretAngle);
 
-            if(abs(turretError < 20) && sqrt(robotX_ * robotX_ + robotY_ * robotY_) < 6)
+            /*if(abs(turretError < 20) && sqrt(robotX_ * robotX_ + robotY_ * robotY_) < 4)
             {
                 foundGoal_ = false;
-            }
+            }*/
         }
         else
         {
