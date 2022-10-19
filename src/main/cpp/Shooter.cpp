@@ -132,6 +132,11 @@ void Shooter::clearBallShooting() //Clears shooting
     shooting_ = false; //Stop shooting
 }
 
+/**
+ * @brief periodic function of shooter
+ * 
+ * @param yaw
+ */
 void Shooter::periodic(double yaw)
 {
     if(state_ == UNLOADING)
@@ -144,14 +149,14 @@ void Shooter::periodic(double yaw)
         unloadShooting_ = false;
     }
 
-    yaw_ = yaw;
+    yaw_ = yaw; //Set value of member variable
     swerveDrive_->calcOdometry(turret_.getAngle()/*, false*/);
 
     double hoodAngle, velocity, turretOffset, partDer, distance;
 
     distance = swerveDrive_->getDistance(turret_.getAngle());
 
-    if(distance != -1)
+    if(distance != -1)//If the limelight sees the target
     {
         distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.6096/* - 0.1524*/; //TODO, change or something
         if(distance < 2 || distance > 7)
@@ -159,7 +164,7 @@ void Shooter::periodic(double yaw)
             hasShot_ = false;
         }
         frc::SmartDashboard::PutNumber("Distance", distance);
-        double distanceOff = distance * 0.326153 - 0.753111;
+        double distanceOff = distance * 0.326153 - 0.753111; //Adds a bit to distance for better measurement?
         if(distanceOff < 0)
         {
             distanceOff = 0;
@@ -170,8 +175,8 @@ void Shooter::periodic(double yaw)
         }
         distance += distanceOff;
 
-        double turretAng = abs(turret_.getAngle());
-        double angleOff = turretAng * turretAng * 0.00000654621 - turretAng * 0.00393303 + 0.00299541;
+        double turretAng = abs(turret_.getAngle()); //
+        double angleOff = turretAng * turretAng * 0.00000654621 - turretAng * 0.00393303 + 0.00299541; //Quadratic for getting another distance offset?
 
         if(angleOff > 0)
         {
@@ -190,7 +195,7 @@ void Shooter::periodic(double yaw)
         //281, 4
 
     }
-    else
+    else //Nothing seen
     {
         distance = 0;
         hasShot_ = false;
@@ -494,6 +499,12 @@ void Shooter::zeroHood() //TODO read more
     hood_.setState(Hood::ZEROING); 
 }
 
+/**
+ * @brief Modifies Velocity
+ * 
+ * @param velocity 
+ * @return double 
+ */
 double Shooter::linVelToSensVel(double velocity)
 {
     //a = 66.0934, b = -73.0616, c = 3734.77
@@ -509,8 +520,8 @@ double Shooter::linVelToSensVel(double velocity)
 double Shooter::calcFlyPID(double velocity)
 {
     double time = timer_.GetFPGATimestamp().value();
-    dT_ = time - prevTime_;
-    prevTime_ = time;
+    dT_ = time - prevTime_; //Calculate difference in time (useful for math)
+    prevTime_ = time; //Update last recorded time
 
     double setAngVel = linVelToSensVel(velocity);
     //double setAngVel = velocity;
