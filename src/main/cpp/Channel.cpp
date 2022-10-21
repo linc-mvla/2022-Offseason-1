@@ -90,6 +90,10 @@ void Channel::setKickerDirection(int direction){
 }
 
 Channel::Color Channel::checkColor(){
+    int proximity = colorSensor_.GetProximity();
+    if(proximity < ChannelConstants::MINBALLPROXIMITY){
+        return UNKNOWN;
+    }
     //Assume proximity is correct (checked in periodic)
     frc::Color color = colorSensor_.GetColor();
     //frc::SmartDashboard::PutNumber("r", color.red);
@@ -184,7 +188,10 @@ bool Channel::isBallGood(){
     if(balls_.size()==0){//No balls
         return false;
     }
-    balls_[balls_.size()-1].color = checkColor(); //Update color of ball
+    Color seeColor = checkColor();
+    if(seeColor != UNKNOWN){
+        balls_[balls_.size()-1].color = seeColor; //Update color of ball
+    }
     return balls_[0].color == color_;
 }
 
