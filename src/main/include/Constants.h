@@ -4,6 +4,7 @@
 #include "string"
 #include "frc/Filesystem.h"
 #include "rev/ColorSensorV3.h"
+#include <units/time.h>
 
 using namespace std;
 
@@ -251,8 +252,7 @@ namespace ChannelConstants
     const double MINVALUE = 0.0;
     const double MINSATURATION = 0.0;
     */
-    //TODO 
-    const units::second_t BALLEXITTIME = 0.0s;
+    const units::second_t BALLEXITTIME = 0.0_s;
     
     const int BALL_PROXIMITY = 310;
 }

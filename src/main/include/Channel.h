@@ -27,10 +27,12 @@ class Channel
         };
         Ball getNextBall();
         void addChannelBall(); //Adds the ball in the channel
+        void setKickerDirection(int direction);//Positive for forward, negative for backwards, zero for paused
         bool isBallGood(); //Return if the next ball is the correct color
-        int getBallCount();
 
+        int getBallCount();
         void shotBall();
+        void clearBalls();
 
         void setColor(Color c);
         Color getColor();
@@ -46,5 +48,6 @@ class Channel
         bool seeingBall_;
         int ballsShot_;
         Intake* intake_;
-        Color color_;
+        int kickerDirection_ = 0;
+        Color color_; //Color of team
 };

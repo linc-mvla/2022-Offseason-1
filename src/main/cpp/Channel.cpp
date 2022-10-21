@@ -40,6 +40,8 @@ void Channel::periodic()
             case Intake::State::OUTAKING:
                 balls_.pop_back();//Ball exits
                 break;
+            default:
+                break;
         }
         seeingBall_ = false;
     }
@@ -138,8 +140,29 @@ void Channel::addChannelBall(){
         }
     }
     */
-    Ball b = {};
+    frc::Timer t;
+    t.Stop();
+    Ball b = {ballColor, Ball::State::CHANNEL, t};
     balls_.push_back(b);
+}
+
+void Channel::setKickerDirection(int direction){
+    if(direction != kickerDirection_){
+        for(int i = 0; i<getBallCount(); i++){
+            if(balls_[i].state == Ball::State::KICKER){
+                if(direction > 0){//Moving forward
+                    balls_[i].timer.Start();
+                }
+                else if(direction == 0){
+                    balls_[i].timer.Stop();
+                }
+                else{//Negative direction
+                    balls_[i].timer.Reset();
+                    balls_[i].timer.Stop();
+                }
+            }
+        }
+    }
 }
 
 bool Channel::isBallGood(){
@@ -153,6 +176,10 @@ int Channel::getBallCount(){
 void Channel::shotBall(){
     balls_.pop_front();
     ballsShot_ += 1;
+}
+
+void Channel::clearBalls(){
+    balls_.clear();
 }
 
 void Channel::setColor(Color color)

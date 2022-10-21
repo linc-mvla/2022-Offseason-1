@@ -139,7 +139,7 @@ void Robot::AutonomousPeriodic()
     Intake::State intakeState = autoPaths_.getIntakeState();
     Shooter::State shooterState = autoPaths_.getShooterState();
 
-    if(channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING)
+    if(channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING)
     {
         shooterState = Shooter::UNLOADING;
     }
@@ -203,7 +203,7 @@ void Robot::TeleopPeriodic()
 
         if(controls_->autoClimbPressed() && !controls_->shootPressed()) //TODO reusing names again, change or something later
         {
-            channel_->setBallCount(0);
+            channel_->clearBalls();
             shooter_->clearBallShooting();
         }
 
@@ -219,9 +219,9 @@ void Robot::TeleopPeriodic()
             shooter_->decreaseRange();
         }
 
-        frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->badIdea());
+        frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->isBallGood());
 
-        if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
+        if((channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
         {
             shooter_->setState(Shooter::UNLOADING);
             intake_.setState(Intake::LOADING);

@@ -304,6 +304,7 @@ void Shooter::periodic(double yaw)
 
             flywheelMaster_.SetVoltage(units::volt_t (0));
             kickerMotor_.SetVoltage(units::volt_t(-6));
+            channel_->setKickerDirection(-1);
             dewindIntegral();
 
             break;
@@ -326,6 +327,7 @@ void Shooter::periodic(double yaw)
             //turret_.setState(Turret::MANUAL);
 
             kickerMotor_.SetVoltage(units::volt_t(0));
+            channel_->setKickerDirection(0);
 
             flywheelMaster_.SetVoltage(units::volt_t (0));
             //units::volt_t volts {calcFlyPID(velocity)};
@@ -346,6 +348,7 @@ void Shooter::periodic(double yaw)
             //turret_.setState(Turret::MANUAL);
 
             kickerMotor_.SetVoltage(units::volt_t(0));
+            channel_->setKickerDirection(0);
 
             units::volt_t volts {calcFlyPID(velocity)};
             //units::volt_t volts {calcFlyPID(frc::SmartDashboard::GetNumber("InV", 0))};
@@ -401,10 +404,12 @@ void Shooter::periodic(double yaw)
             {
                 shootStarted_ = true;
                 kickerMotor_.SetVoltage(units::volt_t(ShooterConstants::KICKER_VOLTS)); //TODO tune value
+                channel_->setKickerDirection(1);
             }
             else
             {
                 kickerMotor_.SetVoltage(units::volt_t(0));
+                channel_->setKickerDirection(0);
             }
 
             if(shootStarted_ && flywheelMaster_.GetSelectedSensorVelocity() < (wantedSensVel_ - 400)/*flywheelMaster_.GetSupplyCurrent() > ShooterConstants::UNLOADING_CURRENT*/)
@@ -416,7 +421,7 @@ void Shooter::periodic(double yaw)
             {
                 shootStarted_ = false;
                 shooting_ = false;
-                channel_->decreaseBallCount();
+                channel_->shotBall();
                 channel_->setBallsShot(channel_->getBallsShot() + 1);
             }
             break;
@@ -435,11 +440,13 @@ void Shooter::periodic(double yaw)
             if(turret_.unloadReady() && flywheelEjectReady_)
             {
                 kickerMotor_.SetVoltage(units::volt_t(ShooterConstants::KICKER_VOLTS + 3));
+                channel_->setKickerDirection(1);
                 unloadStarted_ = true;
             }
             else
             {
                 kickerMotor_.SetVoltage(units::volt_t(0));
+                channel_->setKickerDirection(0);
             }
 
             if(unloadStarted_ && flywheelMaster_.GetSelectedSensorVelocity() < 6000/*flywheelMaster_.GetSupplyCurrent() > ShooterConstants::UNLOADING_CURRENT*/)
@@ -452,7 +459,7 @@ void Shooter::periodic(double yaw)
                 state_ = TRACKING;
                 unloadStarted_ = false;
                 unloadShooting_ = false;
-                channel_->decreaseBallCount();
+                channel_->shotBall();
             }
 
             break;
