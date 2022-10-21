@@ -55,7 +55,7 @@ void Intake::run(bool forward)
 {
     if(forward)
     {
-        intakeMotor_.SetVoltage(units::volt_t(4.68)); //TODO test value, also put in constants
+        intakeMotor_.SetVoltage(units::volt_t(6.68)); //TODO test value, also put in constants
     }
     else
     {

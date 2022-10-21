@@ -4,6 +4,7 @@
 #include "string"
 #include "frc/Filesystem.h"
 #include "rev/ColorSensorV3.h"
+#include <units/time.h>
 
 using namespace std;
 
@@ -26,6 +27,9 @@ namespace GeneralConstants
 
     const double HANGAR_X = -2.5;
     const double HANGAR_Y = -7;
+    const double FIELD_WIDTH = 8.2296;
+    const double FIELD_LENGTH = 16.4592;
+    const double HUB_BASE_RADIUS = 0.5;
 
     const int MAX_BALL_COUNT = 1;
 
@@ -238,13 +242,17 @@ namespace ShooterConstants
 namespace ChannelConstants
 {
     constexpr auto COLOR_SENSOR_PORT = frc::I2C::Port::kOnboard;
-    const double RED_R = 255; //TODO get values
-    const double RED_G = 0;
-    const double RED_B = 0;
+    /*
+    //Hue color [0,360]
+    const double HUERED = 0.0;
+    const double RANGERED = 0.0; //How far away the reading can be
+    const double HUEBLUE = 0.0;
+    const double RANGEBLUE = 0.0; 
+    //Saturation and Value
+    const double MINVALUE = 0.0;
+    const double MINSATURATION = 0.0;
+    */
+    const units::second_t BALLEXITTIME = 0.0_s;
     
-    const double BLUE_R = 0;
-    const double BLUE_G = 0;
-    const double BLUE_B = 255;
-
     const int BALL_PROXIMITY = 310;
 }

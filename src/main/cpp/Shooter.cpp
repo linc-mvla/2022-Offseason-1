@@ -141,7 +141,11 @@ void Shooter::periodic(double yaw)
 {
     if(state_ == UNLOADING)
     {
+<<<<<<< HEAD
         limelight_->lightOn(false); //Turn off limelight
+=======
+        //limelight_->lightOn(false);
+>>>>>>> channelWithQueue
     }
     else
     {
@@ -158,20 +162,16 @@ void Shooter::periodic(double yaw)
 
     if(distance != -1)//If the limelight sees the target
     {
-        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.6096/* - 0.1524*/; //TODO, change or something
-        if(distance < 2 || distance > 7)
-        {
-            hasShot_ = false;
-        }
+        distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.61 + 0.2286/* - 0.1524*/; //TODO, change or something
         frc::SmartDashboard::PutNumber("Distance", distance);
         double distanceOff = distance * 0.326153 - 0.753111; //Adds a bit to distance for better measurement?
         if(distanceOff < 0)
         {
             distanceOff = 0;
         }
-        else if(distanceOff > 1.2)
+        else if(distanceOff > 0.5)
         {
-            distanceOff = 1.2;
+            distanceOff = 0.5;
         }
         distance += distanceOff;
 
@@ -188,6 +188,11 @@ void Shooter::periodic(double yaw)
         }
 
         distance += angleOff;
+
+        if(distance < 2 || distance > 7)
+        {
+            hasShot_ = false;
+        }
         //90, 0
         //164, 2
         //206, 3
@@ -308,6 +313,7 @@ void Shooter::periodic(double yaw)
 
             flywheelMaster_.SetVoltage(units::volt_t (0));
             kickerMotor_.SetVoltage(units::volt_t(-6));
+            channel_->setKickerDirection(-1);
             dewindIntegral();
 
             break;
@@ -330,6 +336,7 @@ void Shooter::periodic(double yaw)
             //turret_.setState(Turret::MANUAL);
 
             kickerMotor_.SetVoltage(units::volt_t(0));
+            channel_->setKickerDirection(0);
 
             flywheelMaster_.SetVoltage(units::volt_t (0));
             //units::volt_t volts {calcFlyPID(velocity)};
@@ -350,6 +357,7 @@ void Shooter::periodic(double yaw)
             //turret_.setState(Turret::MANUAL);
 
             kickerMotor_.SetVoltage(units::volt_t(0));
+            channel_->setKickerDirection(0);
 
             units::volt_t volts {calcFlyPID(velocity)};
             //units::volt_t volts {calcFlyPID(frc::SmartDashboard::GetNumber("InV", 0))};
@@ -405,10 +413,12 @@ void Shooter::periodic(double yaw)
             {
                 shootStarted_ = true;
                 kickerMotor_.SetVoltage(units::volt_t(ShooterConstants::KICKER_VOLTS)); //TODO tune value
+                channel_->setKickerDirection(1);
             }
             else
             {
                 kickerMotor_.SetVoltage(units::volt_t(0));
+                channel_->setKickerDirection(0);
             }
 
             if(shootStarted_ && flywheelMaster_.GetSelectedSensorVelocity() < (wantedSensVel_ - 400)/*flywheelMaster_.GetSupplyCurrent() > ShooterConstants::UNLOADING_CURRENT*/)
@@ -420,7 +430,7 @@ void Shooter::periodic(double yaw)
             {
                 shootStarted_ = false;
                 shooting_ = false;
-                channel_->decreaseBallCount();
+                channel_->shotBall();
                 channel_->setBallsShot(channel_->getBallsShot() + 1);
             }
             break;
@@ -439,11 +449,13 @@ void Shooter::periodic(double yaw)
             if(turret_.unloadReady() && flywheelEjectReady_)
             {
                 kickerMotor_.SetVoltage(units::volt_t(ShooterConstants::KICKER_VOLTS + 3));
+                channel_->setKickerDirection(1);
                 unloadStarted_ = true;
             }
             else
             {
                 kickerMotor_.SetVoltage(units::volt_t(0));
+                channel_->setKickerDirection(0);
             }
 
             if(unloadStarted_ && flywheelMaster_.GetSelectedSensorVelocity() < 6000/*flywheelMaster_.GetSupplyCurrent() > ShooterConstants::UNLOADING_CURRENT*/)
@@ -456,7 +468,7 @@ void Shooter::periodic(double yaw)
                 state_ = TRACKING;
                 unloadStarted_ = false;
                 unloadShooting_ = false;
-                channel_->decreaseBallCount();
+                channel_->shotBall();
             }
 
             break;
@@ -512,8 +524,10 @@ double Shooter::linVelToSensVel(double velocity)
     //wantedSensVel_ = (66.0934 * velocity * velocity) - (73.0616 * velocity) + 3734.77;
     //return wantedSensVel_;
 
-    //lin vel = 0.000969076(sens vel) + 0.750436
-    wantedSensVel_ = (velocity - 0.750436) / 0.000969076;
+    //lin vel = 0.000969076(sens vel) + 0.750436 for chezy shots
+    //lin vel = 0.00103872(sens vel) + 0.763478 for post-chezy, pre-ccc shots
+    //wantedSensVel_ = (velocity - 0.750436) / 0.000969076;
+    wantedSensVel_ = (velocity - 0.763478) / 0.00103872;
     return wantedSensVel_;
 }
 
@@ -543,20 +557,20 @@ double Shooter::calcFlyPID(double velocity)
     prevVelocity_ = flywheelMaster_.GetSelectedSensorVelocity();
 
     double feedForward = (abs(setAngVel) - ShooterConstants::FLYWHEEL_FF_INTERCEPT) / ShooterConstants::FLYWHEEL_FF;
-    if(setAngVel == 0)
+    if(setAngVel <= 0)
     {
         feedForward = 0;
     }
-    else if(setAngVel < 0)
+    /*else if(setAngVel < 0)
     {
         setAngVel *= -1;
-    }
+    }*/
 
     double power = (fKp_ * error) + (fKi_ * integralError_) + (fKd_ * deltaError) + feedForward;
 
     if(error > 6000) //TODO get values
     {
-        power += 2;
+        //power += 2;
     }
 
     return std::clamp(power, -(double)GeneralConstants::MAX_VOLTAGE, (double)GeneralConstants::MAX_VOLTAGE);

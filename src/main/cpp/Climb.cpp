@@ -246,7 +246,7 @@ bool Climb::climbBar()
         volts = ClimbConstants::HIGH_CLIMB_VOLTAGE;
     }
 
-    if(abs(gearboxMaster_.GetSelectedSensorVelocity()) < 100 && gearboxMaster_.GetSelectedSensorPosition() > ClimbConstants::NEARING_HARDSTOP)
+    if(abs(gearboxMaster_.GetSelectedSensorVelocity()) < 50 && gearboxMaster_.GetSelectedSensorPosition() > ClimbConstants::NEARING_HARDSTOP)
     {
         gearboxMaster_.SetVoltage(units::volt_t(0));
         bottomPos_ = gearboxMaster_.GetSelectedSensorPosition();

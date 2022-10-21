@@ -29,8 +29,14 @@ Robot::Robot() : autoPaths_(channel_)
 
             if(frc::DriverStation::IsEnabled())//If the robot is connected
             {
+<<<<<<< HEAD
                 shooter_->periodic(-yaw); //Run shooter code
                 climb_.periodic(navx_->GetRoll()); //Run climb code
+=======
+                shooter_->periodic(-yaw);
+                climb_.periodic(navx_->GetRoll());
+                frc::SmartDashboard::PutNumber("Roll", navx_->GetRoll());
+>>>>>>> channelWithQueue
             }
 
         }, 5_ms, 2_ms);
@@ -139,8 +145,12 @@ void Robot::AutonomousPeriodic()//Periodically called during Auto
     Intake::State intakeState = autoPaths_.getIntakeState();//Get intake state of auto
     Shooter::State shooterState = autoPaths_.getShooterState();//Get shooter state of auto
 
+<<<<<<< HEAD
     //TODO explain unloading
     if(channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) //Checks if there is a ball that is our color
+=======
+    if(channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING)
+>>>>>>> channelWithQueue
     {
         shooterState = Shooter::UNLOADING;
     }
@@ -179,6 +189,9 @@ void Robot::TeleopInit()//Teleop initial (called once)
     //frc::SmartDashboard::PutNumber("smiv", 0.0);
     //frc::SmartDashboard::PutNumber("InCV", 0.0);
     //frc::SmartDashboard::PutNumber("Swerve Volts", 0.0);
+    //frc::SmartDashboard::PutNumber("tkP", 0.0);
+    //frc::SmartDashboard::PutNumber("tkI", 0.0);
+    //frc::SmartDashboard::PutNumber("tkD", 0.0);
 
 }
 
@@ -203,8 +216,13 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
         //If going to auto climb and not shooting
         if(controls_->autoClimbPressed() && !controls_->shootPressed()) //TODO reusing names again, change or something later
         {
+<<<<<<< HEAD
             channel_->setBallCount(0); //Remove balls
             shooter_->clearBallShooting(); //Reset Shooter balls
+=======
+            channel_->clearBalls();
+            shooter_->clearBallShooting();
+>>>>>>> channelWithQueue
         }
 
         climb_.setState(Climb::DOWN); //Lower climber arms
@@ -220,12 +238,18 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
             shooter_->decreaseRange();
         }
 
+<<<<<<< HEAD
         //Show if balls match to smartdashboard
         frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->badIdea());
 
         //(If the correct ball is there or we're unloading) and not pressing unload button
         //TODO read more
         if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
+=======
+        frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->isBallGood());
+
+        if((channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
+>>>>>>> channelWithQueue
         {
             shooter_->setState(Shooter::UNLOADING);
             intake_.setState(Intake::LOADING);
@@ -265,6 +289,10 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
             intake_.setState(Intake::RETRACTED_IDLE);
             //intake_.setState(Intake::EXTENDED_IDLE);
         }
+        /*else
+        {
+            intake_.setState(Intake::RETRACTED_IDLE);
+        }*/
 
         if(controls_->manuallyOverrideTurret())
         {
