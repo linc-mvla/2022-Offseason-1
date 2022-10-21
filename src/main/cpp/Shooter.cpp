@@ -141,11 +141,7 @@ void Shooter::periodic(double yaw)
 {
     if(state_ == UNLOADING)
     {
-<<<<<<< HEAD
-        limelight_->lightOn(false); //Turn off limelight
-=======
         //limelight_->lightOn(false);
->>>>>>> channelWithQueue
     }
     else
     {

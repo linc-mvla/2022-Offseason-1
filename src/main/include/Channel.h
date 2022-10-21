@@ -37,15 +37,6 @@ class Channel
         void setColor(Color c);
         Color getColor();
 
-<<<<<<< HEAD
-        Channel();
-        void periodic();
-
-        int getBalls();
-        bool badIdea(); //Checks if there is a ball that is our color
-        int getBallCount();
-=======
->>>>>>> channelWithQueue
         int getBallsShot();
         void setBallsShot(int ballsShot);
         void setSeeingBall(bool seeingBall);

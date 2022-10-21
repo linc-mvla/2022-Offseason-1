@@ -29,14 +29,9 @@ Robot::Robot() : autoPaths_(channel_)
 
             if(frc::DriverStation::IsEnabled())//If the robot is connected
             {
-<<<<<<< HEAD
-                shooter_->periodic(-yaw); //Run shooter code
-                climb_.periodic(navx_->GetRoll()); //Run climb code
-=======
                 shooter_->periodic(-yaw);
                 climb_.periodic(navx_->GetRoll());
                 frc::SmartDashboard::PutNumber("Roll", navx_->GetRoll());
->>>>>>> channelWithQueue
             }
 
         }, 5_ms, 2_ms);
@@ -145,12 +140,7 @@ void Robot::AutonomousPeriodic()//Periodically called during Auto
     Intake::State intakeState = autoPaths_.getIntakeState();//Get intake state of auto
     Shooter::State shooterState = autoPaths_.getShooterState();//Get shooter state of auto
 
-<<<<<<< HEAD
-    //TODO explain unloading
-    if(channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) //Checks if there is a ball that is our color
-=======
     if(channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING)
->>>>>>> channelWithQueue
     {
         shooterState = Shooter::UNLOADING;
     }
@@ -216,13 +206,8 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
         //If going to auto climb and not shooting
         if(controls_->autoClimbPressed() && !controls_->shootPressed()) //TODO reusing names again, change or something later
         {
-<<<<<<< HEAD
-            channel_->setBallCount(0); //Remove balls
-            shooter_->clearBallShooting(); //Reset Shooter balls
-=======
-            channel_->clearBalls();
+            channel_->clearBalls();//Reset so flywheel doesn't rev
             shooter_->clearBallShooting();
->>>>>>> channelWithQueue
         }
 
         climb_.setState(Climb::DOWN); //Lower climber arms
@@ -238,18 +223,9 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
             shooter_->decreaseRange();
         }
 
-<<<<<<< HEAD
-        //Show if balls match to smartdashboard
-        frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->badIdea());
-
-        //(If the correct ball is there or we're unloading) and not pressing unload button
-        //TODO read more
-        if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
-=======
-        frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->isBallGood());
+        frc::SmartDashboard::PutBoolean("BallCorrectColor", channel_->isBallGood());
 
         if((channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
->>>>>>> channelWithQueue
         {
             shooter_->setState(Shooter::UNLOADING);
             intake_.setState(Intake::LOADING);

@@ -192,63 +192,7 @@ Channel::Color Channel::getColor()
     return color_;
 }
 
-<<<<<<< HEAD
-/**
- * @brief Checks if there is a ball that is our color
- * 
- * @return true - There is correct ball
- * @return false - There is no ball/wrong color
- */
-bool Channel::badIdea()
-{
-    frc::Color color = colorSensor_.GetColor(); //Get color of color sensor
-    int proximity = colorSensor_.GetProximity(); //Get distance of color sensor
-
-    //frc::SmartDashboard::PutNumber("prox", proximity);
-    //frc::SmartDashboard::PutNumber("r", color.red);
-    //frc::SmartDashboard::PutNumber("g", color.green);
-    //frc::SmartDashboard::PutNumber("b", color.blue);
-
-    Color ballColor; //Ball color variable
-    if(color.red > 1.5 * color.blue) //If it is 1.5x more red than blue
-    {
-        ballColor = RED; //Set ballcolor to red
-    }
-    else if(color.blue > 1.5 * color.red) //if it is 1.5x more blue than red
-    {
-        ballColor = BLUE; //Set ballcolor to blue
-    }
-    else
-    {
-        ballColor = UNKNOWN; //Set unknown ballcolor
-    }
-
-    //0.394, 0.1856, red
-    //0.5003, 0.1207, red
-    //0.3907, 0.1861, red
-    //0.2625, 0.2432, neither
-
-    if(proximity < ChannelConstants::BALL_PROXIMITY) //if the sensor detects something too far away
-    {
-        return false; //Does not find ball
-    }
-
-    //TODO probably redundant
-    bool badIdea = (ballColor != color_ && ballColor != UNKNOWN); //Check ball is not our alliance color or unknown
-
-    return badIdea;//Return true/false
-}
-
-int Channel::getBallCount()
-{
-    return ballCount_;
-}
-
-int Channel::getBallsShot()
-{
-=======
 int Channel::getBallsShot(){
->>>>>>> channelWithQueue
     return ballsShot_;
 }
 
