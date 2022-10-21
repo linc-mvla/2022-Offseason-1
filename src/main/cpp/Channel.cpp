@@ -76,7 +76,7 @@ void Channel::setKickerDirection(int direction){
                 if(direction > 0){//Moving forward
                     balls_[i].timer.Start();
                 }
-                else if(direction == 0){
+                else if(direction == 0){//Not moving
                     balls_[i].timer.Stop();
                 }
                 else{//Negative direction
@@ -86,6 +86,7 @@ void Channel::setKickerDirection(int direction){
             }
         }
     }
+    kickerDirection_ = direction;
 }
 
 Channel::Color Channel::checkColor(){
@@ -180,7 +181,7 @@ Channel::Color Channel::checkColor(){
 }
 
 bool Channel::isBallGood(){
-    if(balls_.size()==0){
+    if(balls_.size()==0){//No balls
         return false;
     }
     balls_[balls_.size()-1].color = checkColor(); //Update color of ball
