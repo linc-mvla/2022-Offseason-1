@@ -223,7 +223,7 @@ void Robot::TeleopPeriodic()//Human controlled called periodically
             shooter_->decreaseRange();
         }
 
-        frc::SmartDashboard::PutBoolean("BallCorrectColor", channel_->isBallGood());
+        frc::SmartDashboard::PutBoolean("RadIdea", channel_->isBallGood());
 
         if((channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
         {

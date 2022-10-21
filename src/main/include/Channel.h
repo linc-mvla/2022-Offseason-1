@@ -28,10 +28,11 @@ class Channel
         Ball getNextBall();
         void addChannelBall(); //Adds the ball in the channel
         void setKickerDirection(int direction);//Positive for forward, negative for backwards, zero for paused
+        Color checkColor(); //Returns color of ball seen
         bool isBallGood(); //Return if the next ball is the correct color
 
         int getBallCount();
-        void shotBall();
+        void shotBall();//Lets the channel know the ball has been shot
         void clearBalls();
 
         void setColor(Color c);

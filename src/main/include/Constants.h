@@ -254,5 +254,6 @@ namespace ChannelConstants
     */
     const units::second_t BALLEXITTIME = 0.0_s;
     
-    const int BALL_PROXIMITY = 310;
+    const int MAXBALLPROXIMITY = 310;
+    const int MINBALLPROXIMITY = 310;
 }
