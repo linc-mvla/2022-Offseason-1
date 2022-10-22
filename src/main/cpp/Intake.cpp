@@ -55,7 +55,8 @@ void Intake::run(bool forward)
 {
     if(forward)
     {
-        intakeMotor_.SetVoltage(units::volt_t(6.68)); //TODO test value, also put in constants
+        //double speed = frc::SmartDashboard::GetNumber("Sintake", 0.0);
+        intakeMotor_.SetVoltage(units::volt_t(6));
     }
     else
     {

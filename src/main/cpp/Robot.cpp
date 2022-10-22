@@ -180,6 +180,7 @@ void Robot::TeleopInit()
     //frc::SmartDashboard::PutNumber("tkP", 0.0);
     //frc::SmartDashboard::PutNumber("tkI", 0.0);
     //frc::SmartDashboard::PutNumber("tkD", 0.0);
+    frc::SmartDashboard::PutNumber("Sintake", 0.0);
 
 }
 

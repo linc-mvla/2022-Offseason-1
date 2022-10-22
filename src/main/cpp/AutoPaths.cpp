@@ -125,14 +125,14 @@ void AutoPaths::setPath(Path path)
         //p3.addPoint(SwervePose(-0.5291328, -2.4728424, -150, 0));
         p3.addPoint(SwervePose(0.6-0.0893064, -2.1558504, -156.77, 1.5));
         //p3.addPoint(SwervePose(0.1895856, -6.35508, 135, 3));
-        p3.addPoint(SwervePose(0.6096, -5.9021472, 135, 3));
+        p3.addPoint(SwervePose(0.6096-0.75, -5.9021472-0.65, 135, 3));
         //p3.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
-        p3.addPoint(SwervePose(0.3941, -5.6866472, 135, 0));
+        p3.addPoint(SwervePose(0.3941-0.75, -5.6866472-0.65, 135, 0));
 
         SwervePath p4(SwerveConstants::MAX_LA, SwerveConstants::MAX_LV, SwerveConstants::MAX_AA, SwerveConstants::MAX_AV);
 
         //p4.addPoint(SwervePose(-0.0259144, -6.13958, 135, 0));
-        p4.addPoint(SwervePose(0.3941, -5.6866472, 135, 0));
+        p4.addPoint(SwervePose(0.3941-0.75, -5.6866472-0.65, 135, 0));
         p4.addPoint(SwervePose(-0.5291328, -2.4728424, 135, 0));
 
         p1.generateTrajectory(false);
