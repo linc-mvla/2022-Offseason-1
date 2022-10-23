@@ -75,7 +75,7 @@ class Shooter
         bool hoodZeroing_, flywheelReady_, flywheelEjectReady_, shotReady_, hasShot_;
         bool hasMaps_ = false;
         double mapPoints_ = 0;
-        double rangeAdjustment_ = 0;
+        double rangeAdjustment_ = 0; //Some constant that changes distance calculated (Shoot more or less)
         double prevDistance_;
 
         State state_;

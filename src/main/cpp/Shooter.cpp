@@ -126,12 +126,17 @@ void Shooter::setTurretManualVolts(double manualVolts)
     turret_.setManualVolts(manualVolts);
 }
 
-void Shooter::clearBallShooting()
+void Shooter::clearBallShooting() //Clears shooting
 {
-    shootStarted_ = false;
-    shooting_ = false;
+    shootStarted_ = false; //Stop shooting
+    shooting_ = false; //Stop shooting
 }
 
+/**
+ * @brief periodic function of shooter
+ * 
+ * @param yaw
+ */
 void Shooter::periodic(double yaw)
 {
     if(state_ == UNLOADING)
@@ -144,18 +149,18 @@ void Shooter::periodic(double yaw)
         unloadShooting_ = false;
     }
 
-    yaw_ = yaw;
+    yaw_ = yaw; //Set value of member variable
     swerveDrive_->calcOdometry(turret_.getAngle()/*, false*/);
 
     double hoodAngle, velocity, turretOffset, partDer, distance;
 
     distance = swerveDrive_->getDistance(turret_.getAngle());
 
-    if(distance != -1)
+    if(distance != -1)//If the limelight sees the target
     {
         distance += (rangeAdjustment_ + LimelightConstants::LIMELIGHT_TO_BALL_CENTER_DIST) + 0.61 + 0.2286/* - 0.1524*/; //TODO, change or something
         frc::SmartDashboard::PutNumber("Distance", distance);
-        double distanceOff = distance * 0.326153 - 0.753111;
+        double distanceOff = distance * 0.326153 - 0.753111; //Adds a bit to distance for better measurement?
         if(distanceOff < 0)
         {
             distanceOff = 0;
@@ -166,8 +171,8 @@ void Shooter::periodic(double yaw)
         }
         distance += distanceOff;
 
-        double turretAng = abs(turret_.getAngle());
-        double angleOff = turretAng * turretAng * 0.00000654621 - turretAng * 0.00393303 + 0.00299541;
+        double turretAng = abs(turret_.getAngle()); //
+        double angleOff = turretAng * turretAng * 0.00000654621 - turretAng * 0.00393303 + 0.00299541; //Quadratic for getting another distance offset?
 
         if(angleOff > 0)
         {
@@ -191,7 +196,7 @@ void Shooter::periodic(double yaw)
         //281, 4
 
     }
-    else
+    else //Nothing seen
     {
         distance = 0;
         hasShot_ = false;
@@ -304,6 +309,7 @@ void Shooter::periodic(double yaw)
 
             flywheelMaster_.SetVoltage(units::volt_t (0));
             kickerMotor_.SetVoltage(units::volt_t(-6));
+            channel_->setKickerDirection(-1);
             dewindIntegral();
 
             break;
@@ -326,6 +332,7 @@ void Shooter::periodic(double yaw)
             //turret_.setState(Turret::MANUAL);
 
             kickerMotor_.SetVoltage(units::volt_t(0));
+            channel_->setKickerDirection(0);
 
             flywheelMaster_.SetVoltage(units::volt_t (0));
             //units::volt_t volts {calcFlyPID(velocity)};
@@ -346,6 +353,7 @@ void Shooter::periodic(double yaw)
             //turret_.setState(Turret::MANUAL);
 
             kickerMotor_.SetVoltage(units::volt_t(0));
+            channel_->setKickerDirection(0);
 
             units::volt_t volts {calcFlyPID(velocity)};
             //units::volt_t volts {calcFlyPID(frc::SmartDashboard::GetNumber("InV", 0))};
@@ -401,10 +409,12 @@ void Shooter::periodic(double yaw)
             {
                 shootStarted_ = true;
                 kickerMotor_.SetVoltage(units::volt_t(ShooterConstants::KICKER_VOLTS)); //TODO tune value
+                channel_->setKickerDirection(1);
             }
             else
             {
                 kickerMotor_.SetVoltage(units::volt_t(0));
+                channel_->setKickerDirection(0);
             }
 
             if(shootStarted_ && flywheelMaster_.GetSelectedSensorVelocity() < (wantedSensVel_ - 400)/*flywheelMaster_.GetSupplyCurrent() > ShooterConstants::UNLOADING_CURRENT*/)
@@ -416,15 +426,15 @@ void Shooter::periodic(double yaw)
             {
                 shootStarted_ = false;
                 shooting_ = false;
-                channel_->decreaseBallCount();
+                channel_->shotBall();
                 channel_->setBallsShot(channel_->getBallsShot() + 1);
             }
             break;
         }
         case UNLOADING:
         {
-            hood_.setWantedPos(50);
-            hood_.setState(Hood::AIMING);
+            hood_.setWantedPos(50); //Set hood to 50 degrees
+            hood_.setState(Hood::AIMING); //
 
             turret_.setState(Turret::UNLOADING);
             //turret_.setState(Turret::MANUAL);
@@ -435,11 +445,13 @@ void Shooter::periodic(double yaw)
             if(turret_.unloadReady() && flywheelEjectReady_)
             {
                 kickerMotor_.SetVoltage(units::volt_t(ShooterConstants::KICKER_VOLTS + 3));
+                channel_->setKickerDirection(1);
                 unloadStarted_ = true;
             }
             else
             {
                 kickerMotor_.SetVoltage(units::volt_t(0));
+                channel_->setKickerDirection(0);
             }
 
             if(unloadStarted_ && flywheelMaster_.GetSelectedSensorVelocity() < 6000/*flywheelMaster_.GetSupplyCurrent() > ShooterConstants::UNLOADING_CURRENT*/)
@@ -452,7 +464,7 @@ void Shooter::periodic(double yaw)
                 state_ = TRACKING;
                 unloadStarted_ = false;
                 unloadShooting_ = false;
-                channel_->decreaseBallCount();
+                channel_->shotBall();
             }
 
             break;
@@ -490,11 +502,17 @@ void Shooter::reset()
     rangeAdjustment_ = 0;
 }
 
-void Shooter::zeroHood()
+void Shooter::zeroHood() //TODO read more
 {
-    hood_.setState(Hood::ZEROING);
+    hood_.setState(Hood::ZEROING); 
 }
 
+/**
+ * @brief Modifies Velocity
+ * 
+ * @param velocity 
+ * @return double 
+ */
 double Shooter::linVelToSensVel(double velocity)
 {
     //a = 66.0934, b = -73.0616, c = 3734.77
@@ -512,8 +530,8 @@ double Shooter::linVelToSensVel(double velocity)
 double Shooter::calcFlyPID(double velocity)
 {
     double time = timer_.GetFPGATimestamp().value();
-    dT_ = time - prevTime_;
-    prevTime_ = time;
+    dT_ = time - prevTime_; //Calculate difference in time (useful for math)
+    prevTime_ = time; //Update last recorded time
 
     double setAngVel = linVelToSensVel(velocity);
     //double setAngVel = velocity;

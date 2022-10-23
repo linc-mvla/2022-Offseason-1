@@ -83,13 +83,13 @@ void Climb::togglePneumatic2()
     pneumatic2_.Toggle();
 }
 
-void Climb::extendArms(double power)
+void Climb::extendArms(double power)//Extends arm with some power
 {
     std::clamp(power, -GeneralConstants::MAX_VOLTAGE, GeneralConstants::MAX_VOLTAGE);
     gearboxMaster_.SetVoltage(units::volt_t(power)); 
 }
 
-void Climb::stop()
+void Climb::stop() // Turn off power to arms
 {
     gearboxMaster_.SetVoltage(units::volt_t(0));
 }

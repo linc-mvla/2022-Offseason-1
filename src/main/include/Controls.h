@@ -21,7 +21,7 @@ class Controls
         bool getPneumatic1Toggle();
         bool getPneumatic2Toggle();
         bool autoClimbPressed();
-        bool autoClimbCancelled();
+        bool autoClimbCancelled(); //Check if autoclimb cancle button is pressed
 
         bool intakePressed();
         bool outakePressed();
@@ -33,7 +33,7 @@ class Controls
         bool decreaseRange();
 
         bool getClimbMode(){ return climbMode_; }
-        void setClimbMode(bool climbMode){ climbMode_ = climbMode; }
+        void setClimbMode(bool climbMode){ climbMode_ = climbMode; }//Set climb mode
 
         bool resetUnload();
         bool manuallyOverrideTurret();
@@ -42,7 +42,7 @@ class Controls
         double getTurretPos();
 
     private:
-        bool climbMode_;
+        bool climbMode_; //If robot is going to climb
 
         frc::Joystick lJoy_;
         frc::Joystick rJoy_;

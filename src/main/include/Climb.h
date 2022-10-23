@@ -45,8 +45,8 @@ class Climb
     void setPneumatics(bool pneumatic1, bool pneumatic2);
     void togglePneumatic1();
     void togglePneumatic2();
-    void extendArms(double power);
-    void stop();
+    void extendArms(double power); //Moves arms by some power
+    void stop(); //Stops arms
     void autoClimb();
     bool stageComplete();
     void readyNextStage();

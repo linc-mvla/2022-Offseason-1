@@ -39,7 +39,7 @@ public:
     void TestPeriodic() override;
 
 private:
-    frc::SendableChooser<AutoPaths::Path> autoChooser_;
+    frc::SendableChooser<AutoPaths::Path> autoChooser_; //Sets choices for auto
     frc::DriverStation::Alliance alliance_;
 
     AHRS *navx_;
@@ -47,9 +47,9 @@ private:
 
     Controls* controls_ = new Controls();
     SwerveDrive* swerveDrive_ = new SwerveDrive(limelight_);
-    Channel* channel_ = new Channel();
-    Shooter* shooter_ = new Shooter(limelight_, swerveDrive_, channel_);
     Intake intake_;
+    Channel* channel_ = new Channel(&intake_);
+    Shooter* shooter_ = new Shooter(limelight_, swerveDrive_, channel_);
     Climb climb_;
     AutoPaths autoPaths_;
 

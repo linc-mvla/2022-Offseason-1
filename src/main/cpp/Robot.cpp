@@ -11,22 +11,23 @@
 Robot::Robot() : autoPaths_(channel_)
 {
 
-    AddPeriodic(
+    AddPeriodic(//Runs at a different framerate (5ms + 2ms offset)
         [&]
-        {
-            double yaw = navx_->GetYaw() - yawOffset_;
-            Helpers::normalizeAngle(yaw);
+        {//Lambda expression (function)
+            double yaw = navx_->GetYaw() - yawOffset_; //Set variable yaw (orientation of robot) using navX with offset (curr 0)
+            Helpers::normalizeAngle(yaw); //Normalizes angle (make it [])
 
-            if(frc::DriverStation::IsAutonomous() && frc::DriverStation::IsEnabled())
+            if(frc::DriverStation::IsAutonomous() && frc::DriverStation::IsEnabled())//Code to run during Auto
             {
-                autoPaths_.periodic(yaw, swerveDrive_);
+                autoPaths_.periodic(yaw, swerveDrive_);//Run Auto
             }
-            else
+            else//Not auto (teleop)
             {
-                swerveDrive_->periodic(yaw, controls_);
+                //TODO fix if statement? if disconnected?
+                swerveDrive_->periodic(yaw, controls_);//Control swerve
             }
 
-            if(frc::DriverStation::IsEnabled())
+            if(frc::DriverStation::IsEnabled())//If the robot is connected
             {
                 shooter_->periodic(-yaw);
                 climb_.periodic(navx_->GetRoll());
@@ -37,9 +38,9 @@ Robot::Robot() : autoPaths_(channel_)
 
 }
 
-void Robot::RobotInit()
+void Robot::RobotInit() //Runs when the robot is enabled
 {
-    autoChooser_.SetDefaultOption("Taxi Dumb", AutoPaths::TAXI_DUMB);
+    autoChooser_.SetDefaultOption("Taxi Dumb", AutoPaths::TAXI_DUMB); //Set up Auto paths
     autoChooser_.AddOption("Dead Bot", AutoPaths::DEAD_BOT);
     autoChooser_.AddOption("Two Dumb", AutoPaths::TWO_DUMB);
     autoChooser_.AddOption("One Dumb Delayed", AutoPaths::ONE_DUMB_DELAYED);
@@ -49,21 +50,21 @@ void Robot::RobotInit()
     autoChooser_.AddOption("Two Left", AutoPaths::TWO_LEFT);
     autoChooser_.AddOption("Three", AutoPaths::THREE);
     autoChooser_.AddOption("BIG BOY", AutoPaths::BIG_BOY);
-    frc::SmartDashboard::PutData("Auto Modes", &autoChooser_);
+    frc::SmartDashboard::PutData("Auto Modes", &autoChooser_); //Displays auto choice
 
-    frc::SmartDashboard::PutNumber("Auto Yaw Offset", 0);
+    frc::SmartDashboard::PutNumber("Auto Yaw Offset", 0); //TODO explain
 
-    controls_->setClimbMode(false);
+    controls_->setClimbMode(false); //Set climb to false (we aren't climbing in auto)
 
     try
     {
-        navx_ = new AHRS(frc::SPI::Port::kMXP);
+        navx_ = new AHRS(frc::SPI::Port::kMXP); //AHRS is navx; kMXP is port
     }
-    catch (const std::exception &e)
+    catch (const std::exception &e)//if navx dies
     {
-        std::cout << e.what() << std::endl;
+        std::cout << e.what() << std::endl;//Show error
     }
-    navx_->ZeroYaw();
+    navx_->ZeroYaw();//Reset navx
 }
 
 /**
@@ -76,17 +77,17 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic() 
 {
-    alliance_ = frc::DriverStation::GetAlliance();
+    alliance_ = frc::DriverStation::GetAlliance();//Sets up alliance
     
-    if(alliance_ == frc::DriverStation::Alliance::kBlue)
+    if(alliance_ == frc::DriverStation::Alliance::kBlue)//If we're blue
     {
-        channel_->setColor(Channel::BLUE);
-        frc::SmartDashboard::PutBoolean("Alliance Color", true);
+        channel_->setColor(Channel::BLUE);//Set ball detection to blue
+        frc::SmartDashboard::PutBoolean("Alliance Color", true); //True/false = blue/red
     }
-    else
+    else//If we're red
     {
-        channel_->setColor(Channel::RED);
-        frc::SmartDashboard::PutBoolean("Alliance Color", false);
+        channel_->setColor(Channel::RED);//Set ball detection to red
+        frc::SmartDashboard::PutBoolean("Alliance Color", false);//True/false = blue/red
     }
 }
 
@@ -101,63 +102,64 @@ void Robot::RobotPeriodic()
  * if-else structure below with additional strings. If using the SendableChooser
  * make sure to add them to the chooser code above as well.
  */
-void Robot::AutonomousInit()
+void Robot::AutonomousInit() //Auto
 {
-    shooter_->reset();
-    climb_.setPneumatics(false, false);
-    climb_.setState(Climb::MANUAL);
-    climbTimer_.Stop();
+    shooter_->reset(); //Reset Shooter
+    climb_.setPneumatics(false, false); //Set pneumatics to both down
+    climb_.setState(Climb::MANUAL); //Climbing is now controlled by player
+    climbTimer_.Stop(); //Resets climber
     climbTimer_.Reset();
     climbTimer_.Start();
 
-    AutoPaths::Path path = autoChooser_.GetSelected();
+    AutoPaths::Path path = autoChooser_.GetSelected();//Get selected path for Auto
     //m_autoSelected = frc::SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
     //fmt::print("Auto selected: {}\n", m_autoSelected);
     autoPaths_.setPath(path);
 
-    navx_->ZeroYaw();
-    yawOffset_ = autoPaths_.initYaw();
+    navx_->ZeroYaw();//Reset navx
+    yawOffset_ = autoPaths_.initYaw();//Get offset based off of Auto plan
     
 
-    swerveDrive_->reset();
+    swerveDrive_->reset();//Reset swerve
 
-    autoPaths_.startTimer();
+    autoPaths_.startTimer();//Start timer of auto
 }
 
-void Robot::AutonomousPeriodic()
+void Robot::AutonomousPeriodic()//Periodically called during Auto
 {
-    limelight_->lightOn(true);
-    if(climbTimer_.Get().value() < 0.2)
+    limelight_->lightOn(true);//Turn on limelight lights (green)
+    if(climbTimer_.Get().value() < 0.2)//TODO ask Alex (probably if the climber arms are extended)
     {
-        climb_.extendArms(-3);
+        climb_.extendArms(-3);//Retract Arms
     }
     else
     {
-        climb_.stop();
+        climb_.stop();//Stop arms
     }
 
-    Intake::State intakeState = autoPaths_.getIntakeState();
-    Shooter::State shooterState = autoPaths_.getShooterState();
+    Intake::State intakeState = autoPaths_.getIntakeState();//Get intake state of auto
+    Shooter::State shooterState = autoPaths_.getShooterState();//Get shooter state of auto
 
-    if(channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING)
+    if(channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING)
     {
         shooterState = Shooter::UNLOADING;
     }
 
+    //(If is going to shoot or is "unloading") and is intaking
     if((shooterState == Shooter::SHOOTING || shooterState == Shooter::UNLOADING) && intakeState != Intake::INTAKING)
     {
         intakeState = Intake::LOADING;
     }
 
-    intake_.setState(autoPaths_.getIntakeState());
-    shooter_->setState(autoPaths_.getShooterState());
+    intake_.setState(autoPaths_.getIntakeState()); //Set intake to auto intake state
+    shooter_->setState(autoPaths_.getShooterState()); //Set shooter to auto shooter state
 
-    intake_.periodic();
+    intake_.periodic(); //Run intake periodic
 }
 
-void Robot::TeleopInit()
+void Robot::TeleopInit()//Teleop initial (called once)
 {
-    controls_->setClimbMode(false);
+    controls_->setClimbMode(false); //Sets climb mode off
 
     //odometryLogger_->openFile();
     //flywheelLogger_->openFile();
@@ -184,33 +186,35 @@ void Robot::TeleopInit()
 
 }
 
-void Robot::TeleopPeriodic()
+void Robot::TeleopPeriodic()//Human controlled called periodically
 {
-    controls_->periodic();
-    frc::SmartDashboard::PutBoolean("Climb Mode", controls_->getClimbMode());
+    controls_->periodic(); //Runs the controlls periodic function
+    frc::SmartDashboard::PutBoolean("Climb Mode", controls_->getClimbMode());//Display climb mode on/off
 
-    if(controls_->fieldOrient())
+    if(controls_->fieldOrient())//If fieldoriented is pressed
     {
-        navx_->ZeroYaw();
-        yawOffset_ = 0;
+        navx_->ZeroYaw(); //Reset Navx (robot angle)
+        yawOffset_ = 0; //Delete offset
     }
 
-    if(!controls_->getClimbMode())
+    if(!controls_->getClimbMode()) //If is in climb mode
     {
-        if(controls_->autoClimbCancelled()) 
+        if(controls_->autoClimbCancelled()) //If cancel autoclimb
         {
-            shooter_->zeroHood();
-        }
+            shooter_->zeroHood(); //TODO read more
+        } 
 
+        //If going to auto climb and not shooting
         if(controls_->autoClimbPressed() && !controls_->shootPressed()) //TODO reusing names again, change or something later
         {
-            channel_->setBallCount(0);
+            channel_->clearBalls();//Reset so flywheel doesn't rev
             shooter_->clearBallShooting();
         }
 
-        climb_.setState(Climb::DOWN);
-        climb_.setAutoState(Climb::UNINITIATED);
-    
+        climb_.setState(Climb::DOWN); //Lower climber arms
+        climb_.setAutoState(Climb::UNINITIATED); //TODO read more
+
+        //Changes shooting (calibrate to shoot farther or less)
         if(controls_->increaseRange())
         {
             shooter_->increaseRange();
@@ -220,9 +224,9 @@ void Robot::TeleopPeriodic()
             shooter_->decreaseRange();
         }
 
-        frc::SmartDashboard::PutBoolean("BAD IDEA", channel_->badIdea());
+        frc::SmartDashboard::PutBoolean("RadIdea", channel_->isBallGood());
 
-        if((channel_->badIdea() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
+        if((channel_->isBallGood() || shooter_->getState() == Shooter::UNLOADING) && !controls_->resetUnload())
         {
             shooter_->setState(Shooter::UNLOADING);
             intake_.setState(Intake::LOADING);
@@ -351,7 +355,7 @@ void Robot::TeleopPeriodic()
     intake_.periodic();
 }
 
-void Robot::DisabledInit()
+void Robot::DisabledInit()//When robot is disabled
 {
     //COMP Disable from here
     //shooter_->reset();
