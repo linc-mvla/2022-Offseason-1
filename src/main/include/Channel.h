@@ -43,8 +43,10 @@ class Channel
         void setSeeingBall(bool seeingBall);
 
     private:
-        static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
-        rev::ColorSensorV3 colorSensor_{i2cPort};
+        static constexpr auto PortMXP = frc::I2C::Port::kMXP;
+        static constexpr auto PortONB = frc::I2C::Port::kOnboard;
+        rev::ColorSensorV3 colorSensorHigh_{PortMXP};
+        rev::ColorSensorV3 colorSensorLow_{PortONB};
         std::deque<Ball> balls_ = {};
         bool seeingBall_;
         int ballsShot_;

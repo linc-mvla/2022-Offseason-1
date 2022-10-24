@@ -17,7 +17,7 @@ Channel::Channel(Intake* intake)
 
 void Channel::periodic()
 {
-    int proximity = colorSensor_.GetProximity();
+    int proximity = colorSensorLow_.GetProximity();
     frc::SmartDashboard::PutNumber("prox", proximity);
     frc::SmartDashboard::PutBoolean("FirstBallIsRed", getNextBall().color == RED);
     frc::SmartDashboard::PutBoolean("FirstBallIsBLUE", getNextBall().color == BLUE);
@@ -52,6 +52,7 @@ void Channel::periodic()
         seeingBall_ = false;
     }
     frc::SmartDashboard::PutNumber("Ball Count", ballCount);
+    
 }
 
 Channel::Ball Channel::getNextBall(){
@@ -90,15 +91,22 @@ void Channel::setKickerDirection(int direction){
 }
 
 Channel::Color Channel::checkColor(){
-    int proximity = colorSensor_.GetProximity();
+    int proximity = colorSensorLow_.GetProximity();
+    frc::Color color = colorSensorLow_.GetColor();
+    frc::SmartDashboard::PutNumber("rLow", color.red);
+    frc::SmartDashboard::PutNumber("gLow", color.green);
+    frc::SmartDashboard::PutNumber("bLow", color.blue);
+    frc::SmartDashboard::PutNumber("proximityLow", proximity);
+    int proximity2 = colorSensorHigh_.GetProximity();
+    frc::Color color2 = colorSensorHigh_.GetColor();
+    frc::SmartDashboard::PutNumber("rHigh", color2.red);
+    frc::SmartDashboard::PutNumber("gHigh", color2.green);
+    frc::SmartDashboard::PutNumber("bHigh", color2.blue);
+    frc::SmartDashboard::PutNumber("proximityHigh", proximity2);
     if(proximity < ChannelConstants::MINBALLPROXIMITY){
         return UNKNOWN;
     }
     //Assume proximity is correct (checked in periodic)
-    frc::Color color = colorSensor_.GetColor();
-    //frc::SmartDashboard::PutNumber("r", color.red);
-    //frc::SmartDashboard::PutNumber("g", color.green);
-    //frc::SmartDashboard::PutNumber("b", color.blue);
     Color ballColor;
     if(color.red > 1.5 * color.blue){
         ballColor = RED;
@@ -190,7 +198,7 @@ bool Channel::isBallGood(){
     }
     Color seeColor = checkColor();
     if(seeColor != UNKNOWN){
-        balls_[balls_.size()-1].color = seeColor; //Update color of ball
+        balls_[balls_.size()-1].color = seeColor; //Update color of last ball
     }
     return balls_[0].color == color_;
 }

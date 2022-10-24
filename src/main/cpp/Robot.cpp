@@ -378,11 +378,12 @@ void Robot::DisabledInit()//When robot is disabled
 void Robot::DisabledPeriodic()
 {
     //shooter_->reset(); //COMP Disable this
-    limelight_->lightOn(true);
+    // limelight_->lightOn(true);
 
-    swerveDrive_->reset();
+    // swerveDrive_->reset();
 
-    autoPaths_.setSetPath(false);
+    // autoPaths_.setSetPath(false);
+    channel_->checkColor();
 }
 
 void Robot::TestInit() {}
